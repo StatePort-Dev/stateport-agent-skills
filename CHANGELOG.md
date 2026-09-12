@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a Copilot CLI source-package guide and preview-first MCP helper; public
+  `0.1.0-alpha.1` plugin installation and local synthetic setup checks passed.
+  VS Code Agent and all StatePort workflows remain unverified.
 - Add a Claude Code manifest to the shared source package and make the
   marketplace catalog valid for both Claude Code and Codex CLI. Claude Code
   source install/disable/update/remove passed locally. Five manual Claude Code

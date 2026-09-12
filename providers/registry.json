@@ -39,7 +39,7 @@
     {
       "id": "copilot-cli",
       "displayName": "GitHub Copilot CLI",
-      "status": "scaffold",
+      "status": "unverified",
       "guide": "providers/copilot/README.md",
       "evidence": []
     },

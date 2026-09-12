@@ -44,10 +44,16 @@ installed skill copy was compared byte-for-byte with the generated source.
   showed both entries; after `claude mcp remove stateport --scope user`, the
   unrelated entry remained. The synthetic launch was `/bin/true --mcp`, so
   its health check failed as expected; this is not a StatePort handshake.
+- After publication, a fresh Git marketplace/profile fetched public commit
+  `dee46febff502ad1ee28210da080aa2b2b0fd8b8` and installed
+  `0.1.0-alpha.1`. `claude plugin details` discovered the canonical skill and
+  five commands; repeated install, disable/enable and uninstall completed.
+  The cached skill matched the canonical source. Repository checks passed for
+  this commit. The later `0.1.0-alpha.2` helper change is local only so far.
 
 ## Unrun acceptance
 
-Published Git-source installation of this version, real MCP handshake,
+Published Git-source installation of `0.1.0-alpha.2`, real MCP handshake,
 supplied-Card inspect/open, current-code replay and compare, explicit or
 implicit agent invocation, rollback to an older version, and every Capture
 case are **NOT RUN**. macOS, Windows, Claude desktop, and remote execution are

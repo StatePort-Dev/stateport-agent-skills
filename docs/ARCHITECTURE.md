@@ -15,13 +15,13 @@ Never move an engine, a credential store or a private API client here.
 ## Incremental delivery
 
 Start with one draft skill and explicit unverified provider rows. The shared
-source package can be installed in isolated Codex CLI and Claude Code profiles,
-but supplied-Card agent workflow still needs real-host evidence. Add the creation workflow only
-after its public capabilities are available and verified. Extend to other
-hosts with the same behavior source.
+source package can be installed in isolated Codex CLI, Claude Code and Copilot
+CLI profiles, but supplied-Card agent workflow still needs real-host evidence.
+Add the creation workflow only after its public capabilities are available and
+verified. Extend to other hosts with the same behavior source.
 
-The shared plugin manifests contain no fabricated MCP executable. Its generated
-skill and setup helper are checked for freshness; the helper consumes the
+The shared plugin manifests contain no fabricated MCP executable. Their generated
+skill and setup helpers are checked for freshness; each helper consumes the
 installed Desktop's copied MCP configuration and refuses conflicting entries.
 Native IDE extensions are separate codebases and consume this skill or its
 public artifacts; they do not maintain independent copies.

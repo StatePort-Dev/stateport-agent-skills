@@ -8,11 +8,11 @@ reproduction as a State Card and reuse that Card while changing current code.
 
 **Development source. No supported plugin release yet.**
 
-This repository contains a draft skill, an install-tested Codex CLI and Claude
-Code source package, provider preparation guides, structural checks, and
-evaluation scenarios. Local isolated Linux profiles tested both packages;
-Codex CLI also installed the earlier development version from published Git
-source. Automatic invocation, StatePort MCP handshake,
+This repository contains a draft skill, source packages install-tested in
+Codex CLI, Claude Code, and Copilot CLI, provider preparation guides,
+structural checks, and evaluation scenarios. Isolated Linux profiles tested
+published Git-source installation of development version `0.1.0-alpha.1` in
+all three CLIs. Automatic invocation, StatePort MCP handshake,
 and end-to-end StatePort workflows have **not** been verified. A directory or a
 passing structural check is not a compatibility claim. The development version
 is not a published release.
@@ -26,8 +26,9 @@ embedded runtime, or automatic MCP configuration writes.
 
 - `skills/` owns the canonical behavior and portable references.
 - `providers/` owns client-specific preparation and packaging evidence.
-- `plugins/stateport/` contains one package with the generated canonical skill
-  and host manifests for Codex CLI and Claude Code.
+- `plugins/stateport/` contains one portable package with the generated
+  canonical skill and host manifests for Codex CLI and Claude Code; Copilot CLI
+  consumes its portable manifest.
 - StatePort Desktop, its MCP server, capture/replay engine, and credentials stay
   outside this repository. Skills consume the public contract; they do not
   implement another runtime.
@@ -68,8 +69,9 @@ from real-agent behavioral evidence.
 ## Installation and releases
 
 There is currently no tested end-user StatePort workflow. The
-[Codex guide](providers/codex/README.md) and
-[Claude Code guide](providers/claude/README.md) describe source-package
+[Codex guide](providers/codex/README.md),
+[Claude Code guide](providers/claude/README.md), and
+[Copilot guide](providers/copilot/README.md) describe source-package
 installation and its limitations. Other provider guides are preparation
 documents. See [release gates](docs/RELEASING.md).
 

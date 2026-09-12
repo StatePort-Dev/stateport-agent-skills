@@ -34,9 +34,11 @@ codex plugin marketplace add StatePort-Dev/stateport-agent-skills --ref main
 codex plugin add stateport@stateport-dev
 ```
 
-The local checkout form used for the recorded package test is
+The local checkout form used for the initial package test is
 `codex plugin marketplace add /path/to/stateport-agent-skills`. It is a source
-test, not release installation proof. Start a new Codex session after install.
+test, not release installation proof. Published Git-source installation of
+`0.1.0-alpha.0` and `0.1.0-alpha.1` subsequently passed in isolated profiles;
+`0.1.0-alpha.2` remains local until publication. Start a new Codex session after install.
 If a standalone `stateport-debugging` skill is already installed, remove or
 disable that duplicate before using the plugin; two discovery paths do not
 improve activation reliability.

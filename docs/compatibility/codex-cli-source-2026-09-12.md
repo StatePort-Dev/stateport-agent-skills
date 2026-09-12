@@ -40,7 +40,7 @@ Capture lifecycle or managed-Page control. No development-only API was used.
   contained only the unrelated server. The synthetic launch was `/bin/true
   --mcp`; it was not a StatePort handshake or workflow test.
 - `npm run verify`: local structural and unit checks, reported separately from
-  host behavior. CI is not covered here.
+  host behavior. Published-commit CI is recorded below.
 
 ## Published Git-source follow-up
 
@@ -48,9 +48,13 @@ After the development source was published, `codex plugin marketplace add
 StatePort-Dev/stateport-agent-skills --ref main --json` fetched public commit
 `625658de4e063af632c1f4c8893fada1c63f12d9` into a new isolated profile.
 `codex plugin add stateport@stateport-dev` installed version
-`0.1.0-alpha.0`. This proves Git-source installation of that source revision,
-not a release or a StatePort agent workflow. The subsequent shared Claude/Codex
-manifest revision `0.1.0-alpha.1` was tested from a local checkout only.
+`0.1.0-alpha.0`. A second fresh Git marketplace/profile fetched public commit
+`dee46febff502ad1ee28210da080aa2b2b0fd8b8` and installed
+`0.1.0-alpha.1`; the cached skill and helper matched the canonical source.
+The plugin was then removed. Repository checks passed for both published
+commits. This proves Git-source installation of those source revisions, not a
+release or a StatePort agent workflow. The later `0.1.0-alpha.2` helper change
+still needs a published Git-source check.
 
 ## Unrun acceptance
 
