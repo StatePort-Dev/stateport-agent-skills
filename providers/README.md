@@ -1,8 +1,9 @@
 # Provider integrations
 
-`registry.json` is the machine-readable support inventory. The Codex CLI has
-an install-tested source package, but no verified StatePort agent workflow or
-release. Other listed hosts remain preparation only.
+`registry.json` is the machine-readable support inventory. Codex CLI, Claude
+Code, and Copilot CLI have install-tested source packages; VSIX has local
+install smoke, and the JetBrains source has a local build. No host has a
+verified StatePort agent workflow or supported release.
 
 | Provider | Preparation |
 | --- | --- |
@@ -10,9 +11,10 @@ release. Other listed hosts remain preparation only.
 | Claude Code | [Claude Code](claude/README.md) |
 | Copilot in VS Code / CLI | [Copilot](copilot/README.md) |
 | Cursor Agent | [Cursor](cursor/README.md) |
+| IntelliJ IDEA / WebStorm plugin | [JetBrains](../extensions/jetbrains/README.md) |
 
 Keep host surfaces distinct. A working CLI does not establish IDE or cloud
-support. Native VS Code/JetBrains extensions are not housed in this repository.
+support. Native VS Code and JetBrains source candidates live under `extensions/`.
 
 The Codex package uses generated canonical skill copies checked for freshness
 in CI. Do not create independently edited SKILL.md files or a generic plugin

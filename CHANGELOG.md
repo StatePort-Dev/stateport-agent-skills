@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a thin IntelliJ Platform ZIP source candidate with native Tools menu
+  actions for exact Card handoff and the documented AI Assistant MCP setup
+  path. Build and binary checks are separate from IDE/agent workflow proof.
 - Add a preview-first Cursor user-scope MCP helper that merges only a reviewed
   Desktop launch, refuses conflicts and removes only a matching entry. Cursor
   Agent plugin load and workflow remain unverified.
@@ -27,5 +30,5 @@
 - Dependency-free structural validation, synthetic evaluation scenarios, and CI.
 - Contribution, security, ownership, and issue/PR templates.
 
-No runtime handshake, agent workflow, native IDE extension, or marketplace
-publication is claimed by this entry.
+No runtime handshake, agent workflow, or marketplace publication is claimed
+by this entry.

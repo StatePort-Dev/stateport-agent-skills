@@ -31,11 +31,13 @@ embedded runtime, or automatic MCP configuration writes.
   consumes its portable manifest.
 - `extensions/vscode/` is a thin native VSIX source candidate with the same
   generated skill, opt-in local MCP provider and exact Card handoff command.
+- `extensions/jetbrains/` is a thin IntelliJ Platform ZIP source candidate
+  with exact Card handoff and local AI Assistant MCP setup guidance.
 - StatePort Desktop, its MCP server, capture/replay engine, and credentials stay
   outside this repository. Skills consume the public contract; they do not
   implement another runtime.
-- JetBrains extension implementation is separate work. An agent plugin is not
-  an IDE extension; VSIX installation is not agent workflow proof.
+- Agent plugins are distinct from IDE extensions. Native archive builds and
+  binary checks are not agent workflow proof.
 
 ```text
 skills/stateport-debugging/
@@ -51,6 +53,7 @@ docs/
 scripts/
 tests/
 extensions/vscode/
+extensions/jetbrains/
 .github/
 ```
 
@@ -76,7 +79,8 @@ There is currently no tested end-user StatePort workflow. The
 [Claude Code guide](providers/claude/README.md), and
 [Copilot guide](providers/copilot/README.md) describe source-package
 installation and its limitations. The [VSIX source guide](extensions/vscode/README.md)
-records its narrower install evidence. Other provider guides are preparation
+and [JetBrains source guide](extensions/jetbrains/README.md) record narrower
+native-artifact evidence. Other provider guides are preparation
 documents; the [Cursor guide](providers/cursor/README.md) records an
 authentication-blocked plugin load attempt and synthetic MCP setup. See
 [release gates](docs/RELEASING.md).

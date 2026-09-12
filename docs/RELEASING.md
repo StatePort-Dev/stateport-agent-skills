@@ -30,3 +30,10 @@ install/remove in separate VS Code and Cursor profiles. A sideloaded VSIX is
 not a Marketplace publication or agent/runtime acceptance. Confirm the real
 publisher ID and registration before any submission; the current manifest ID
 is provisional.
+
+The JetBrains source candidate under `extensions/jetbrains/` builds a local
+ZIP with JDK 25, Gradle 9.4.1, and the pinned IntelliJ Platform Gradle plugin:
+`gradle clean build buildPlugin verifyPlugin`. Keep the ZIP outside Git, record
+its SHA-256 and source commit, and distinguish binary verifier results from
+installation and action checks in IntelliJ IDEA and WebStorm. Marketplace
+publisher ownership, submission, and approval remain separate gates.

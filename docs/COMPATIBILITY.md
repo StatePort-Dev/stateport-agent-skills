@@ -1,9 +1,10 @@
 # Compatibility and evidence
 
 The canonical inventory is [providers/registry.json](../providers/registry.json).
-Codex CLI, Claude Code, Copilot CLI, and the VSIX in VS Code/Cursor are
-`unverified` after source-package or extension install checks; the remaining
-entries are `scaffold`. No StatePort agent workflow is verified.
+Codex CLI, Claude Code, Copilot CLI, the VSIX in VS Code/Cursor, and the
+JetBrains ZIP source for IntelliJ IDEA/WebStorm are `unverified` after limited
+package, install, or binary checks. The remaining entries are `scaffold`.
+No StatePort agent workflow is verified.
 
 - `scaffold`: preparation exists; there is no installable adapter.
 - `unverified`: an adapter exists, but required host runs are incomplete.
@@ -26,3 +27,5 @@ The [VSIX source check](compatibility/vscode-vsix-source-2026-09-12.md) records
 only packaging and sideload evidence for VS Code and Cursor.
 The [Cursor Agent source check](compatibility/cursor-agent-source-2026-09-12.md)
 records only a synthetic MCP setup and an authentication-blocked agent attempt.
+The [JetBrains source check](compatibility/jetbrains-source-2026-09-12.md)
+records ZIP build and binary verification, without a live IDE command run.

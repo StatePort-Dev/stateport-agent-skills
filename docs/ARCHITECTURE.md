@@ -25,8 +25,10 @@ skill and setup helpers are checked for freshness; each helper consumes the
 installed Desktop's copied MCP configuration and refuses conflicting entries.
 The thin VS Code extension source is under `extensions/vscode/`. It uses a
 generated skill copy and registers an MCP definition only after user setup.
-Its VSIX is a separate artifact from the agent plugin. JetBrains integration
-remains a separate implementation.
+Its VSIX is a separate artifact from the agent plugin. The thin IntelliJ
+Platform plugin under `extensions/jetbrains/` adds native handoff/setup-help
+actions and a separately built ZIP. It does not carry a runtime or grant MCP
+authority; AI Assistant connection remains an explicit host step.
 
 ## Versioning
 

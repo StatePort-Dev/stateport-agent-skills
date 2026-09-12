@@ -5,7 +5,7 @@ import { validateSkill, validateRegistry, validateRelativeLink } from './validat
 import { syncCodexSkill } from './generate-codex-plugin.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
-const skip = new Set(['.git', 'node_modules', 'dist', 'artifacts', 'coverage']);
+const skip = new Set(['.git', '.gradle', '.intellijPlatform', 'node_modules', 'dist', 'artifacts', 'coverage', 'build']);
 const all = [];
 function walk(directory) {
   for (const item of fs.readdirSync(directory, { withFileTypes: true })) {

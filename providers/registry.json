@@ -63,6 +63,20 @@
       "status": "scaffold",
       "guide": "providers/cursor/README.md",
       "evidence": []
+    },
+    {
+      "id": "jetbrains-idea",
+      "displayName": "StatePort plugin in IntelliJ IDEA",
+      "status": "unverified",
+      "guide": "extensions/jetbrains/README.md",
+      "evidence": []
+    },
+    {
+      "id": "jetbrains-webstorm",
+      "displayName": "StatePort plugin in WebStorm",
+      "status": "unverified",
+      "guide": "extensions/jetbrains/README.md",
+      "evidence": []
     }
   ]
 }
