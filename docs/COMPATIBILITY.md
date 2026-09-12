@@ -21,3 +21,6 @@ A maintainer reviews the actual evidence before changing support status.
 Spec compliance, static tests and one successful demo do not prove universal
 activation. Do not claim remote IDE, cloud agent or cross-machine support from
 a local installation result.
+
+The [VSIX source check](compatibility/vscode-vsix-source-2026-09-12.md) records
+only packaging and sideload evidence for VS Code and Cursor.

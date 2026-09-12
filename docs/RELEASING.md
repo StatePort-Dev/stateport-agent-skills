@@ -21,3 +21,12 @@ Before the first release:
 
 CI has read-only permissions and no release tokens. Do not add automatic
 marketplace uploads, npm publishing, or runtime installers to ordinary PR checks.
+
+The VS Code source candidate under `extensions/vscode/` can be packaged with
+the official pinned `@vscode/vsce@3.9.2` into a local VSIX after
+`node scripts/generate-codex-plugin.mjs` and `npm run verify`. Record the exact
+source SHA and artifact SHA-256, inspect the archive contents, then test
+install/remove in separate VS Code and Cursor profiles. A sideloaded VSIX is
+not a Marketplace publication or agent/runtime acceptance. Confirm the real
+publisher ID and registration before any submission; the current manifest ID
+is provisional.
