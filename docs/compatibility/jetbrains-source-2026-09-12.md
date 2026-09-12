@@ -7,6 +7,7 @@ StatePort workflow NOT RUN**.
 | --- | --- |
 | Platform SDK | IntelliJ Platform Gradle Plugin `2.18.1` |
 | Build tools | Gradle `9.4.1`, Temurin JDK `25.0.4.1+1`, Java 21 target bytecode |
+| Source | Published commit `5351f8434430eefccb02605ada881d0e7e7bedee`; [repository CI passed](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34690413285) |
 | Artifact | Local `stateport-jetbrains-0.1.0-alpha.0.zip`, not uploaded or released |
 | SHA-256 | `849eddf72c2d8e97178d01077f9cfd9bc8776b9166a23a96d7be6c3603a4251c` |
 | Descriptor range | IntelliJ Platform builds `261.*`–`262.*` |
@@ -22,7 +23,8 @@ not a required plugin dependency.
 
 ## Local checks
 
-- `npm test`: the JetBrains source shape check passed after the initial
+- `npm run verify`: eight test files passed, followed by structural checks of
+  96 source files. The JetBrains source shape check passed after the initial
   missing-source failure; it is not a host or workflow test.
 - `gradle clean build buildPlugin verifyPluginConfiguration verifyPlugin`:
   Java compilation, `verifyHandoff` input rejection/format check, and ZIP
