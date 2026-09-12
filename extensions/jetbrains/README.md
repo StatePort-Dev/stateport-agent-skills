@@ -39,3 +39,7 @@ Use the IDE's **Installed** plugins tab to disable or uninstall it; the plugin
 has no saved settings to remove and does not alter Cards, Desktop, or other MCP
 servers. Sideload availability does not establish Marketplace publication.
 No JetBrains Marketplace submission or publisher ownership has been claimed.
+The ZIP and descriptor version is generated from root `integration.json` by
+`npm run sync`. For a disk install, install a newer reviewed ZIP yourself.
+JetBrains' configurable automatic plugin updates apply to available repository
+updates; no StatePort Marketplace update path has been published or tested.

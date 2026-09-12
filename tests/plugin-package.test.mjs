@@ -57,6 +57,8 @@ test('generated VS Code skill freshness rejects obsolete packaged references', (
     cpSync(path.join(root, 'skills'), path.join(temp, 'skills'), { recursive: true });
     cpSync(path.join(root, 'scripts'), path.join(temp, 'scripts'), { recursive: true });
     cpSync(path.join(root, 'LICENSE'), path.join(temp, 'LICENSE'));
+    for (const name of ['integration.json', 'package.json']) cpSync(path.join(root, name), path.join(temp, name));
+    for (const name of ['plugins', 'extensions']) cpSync(path.join(root, name), path.join(temp, name), { recursive: true });
     syncCodexSkill(temp, false);
     const stale = path.join(temp, 'extensions/vscode/skills/stateport-debugging/references/obsolete.md');
     writeFileSync(stale, 'stale\n');

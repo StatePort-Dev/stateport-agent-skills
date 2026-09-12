@@ -7,7 +7,7 @@ does not load plugins; it needs a separate standalone skill and MCP setup.
 The [StatePort plugin](../../plugins/stateport/plugin.json) packages the
 [canonical debugging skill](../../skills/stateport-debugging/SKILL.md). Its skill
 and setup helper are generated from the repository sources; run
-`node scripts/generate-codex-plugin.mjs` after changing either source and
+`npm run sync` after changing canonical source or metadata and
 `npm run verify` to check freshness. Do not edit the packaged copies directly.
 
 ## Observed host contract
@@ -65,8 +65,11 @@ If the Desktop has no installed executable, connection cannot be claimed.
 
 ## Update and remove
 
-Refresh the reviewed marketplace source, then reinstall the named plugin using
-Codex's supported marketplace commands. Preview any changed Desktop MCP launch
+The local CLI exposes `codex plugin marketplace upgrade stateport-dev` to
+refresh the Git source, followed by `codex plugin remove stateport@stateport-dev`
+and `codex plugin add stateport@stateport-dev` for a reviewed new version.
+This old-to-new StatePort path has not been tested. Automatic Codex plugin
+updates are unverified. Preview any changed Desktop MCP launch
 path against `codex mcp get stateport --json`; this helper deliberately stops on
 a conflict instead of overwriting it. Remove the plugin with
 `codex plugin remove stateport@stateport-dev`. The separately configured MCP

@@ -37,12 +37,21 @@ export function validateRegistry(registry) {
   const errors = [];
   const ids = new Set();
   const statuses = new Set(['scaffold', 'unverified', 'verified', 'blocked']);
+  const updateMethods = new Set(['native-auto', 'native-manual', 'manual-copy', 'source-install', 'unverified']);
+  const automaticStatuses = new Set(['yes', 'no', 'conditional', 'unverified']);
   for (const row of registry.providers) {
     if (!row || typeof row !== 'object') { errors.push('Invalid provider row'); continue; }
     if (typeof row.id !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(row.id)) errors.push('Invalid provider identity');
     if (ids.has(row.id)) errors.push(`Duplicate provider identity: ${row.id}`);
     ids.add(row.id);
     if (!statuses.has(row.status)) errors.push(`Unknown status for ${row.id}`);
+    if (!row.update || !updateMethods.has(row.update.method) ||
+        !automaticStatuses.has(row.update.automatic) ||
+        !['verified', 'unverified'].includes(row.update.evidenceStatus)) {
+      errors.push(`Invalid update classification for ${row.id}`);
+    } else if (row.update.automatic === 'yes' && row.update.evidenceStatus !== 'verified') {
+      errors.push(`Automatic update claim for ${row.id} needs host evidence`);
+    }
     if (typeof row.guide !== 'string' || !row.guide) errors.push(`Missing guide for ${row.id}`);
     if (!Array.isArray(row.evidence)) { errors.push(`Invalid evidence list for ${row.id}`); continue; }
     if (row.status === 'verified' && row.evidence.length === 0) errors.push(`Verified provider ${row.id} needs evidence`);

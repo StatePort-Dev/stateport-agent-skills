@@ -1,6 +1,12 @@
 # Compatibility and evidence
 
 The canonical inventory is [providers/registry.json](../providers/registry.json).
+Its `update` object independently records `method`, documented `automatic`
+behavior and StatePort-specific `evidenceStatus`. The method taxonomy is
+`native-auto`, `native-manual`, `manual-copy`, `source-install`, or `unverified`.
+The [version/update inventory](VERSIONING_AND_UPDATES.md) records each host's
+install, update, removal and last observed version. None has a verified
+old-to-new StatePort update transition yet.
 Codex CLI, Claude Code, Copilot CLI, the VSIX in VS Code/Cursor, and the
 JetBrains ZIP source for IntelliJ IDEA/WebStorm are `unverified` after limited
 package, install, or binary checks. The remaining entries are `scaffold`.

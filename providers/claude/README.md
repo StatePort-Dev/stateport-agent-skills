@@ -5,7 +5,7 @@ StatePort runtime and agent workflows unverified**.
 
 The [shared plugin package](../../plugins/stateport/.claude-plugin/plugin.json)
 contains the generated copy of the [canonical debugging skill](../../skills/stateport-debugging/SKILL.md).
-Run `node scripts/generate-codex-plugin.mjs` after editing the canonical skill;
+Run `npm run sync` after editing the canonical skill or integration metadata;
 `npm run verify` checks that the packaged copy is current. Do not edit it by
 hand. Claude Code loads it as `/stateport:stateport-debugging`. This explicit
 invocation is a host format fact, not evidence that the agent will select or
@@ -63,6 +63,13 @@ or `uninstall` with `stateport@stateport-dev` to manage the plugin without
 touching Desktop data or separately configured MCP servers. To remove the
 helper-created user-scope server separately, first check its ownership, then
 use `claude mcp remove stateport --scope user`.
+Claude Code documents startup auto-update for marketplace plugins, but
+third-party marketplaces are disabled by default unless the user enables it.
+For a deliberate update, refresh `stateport-dev` with
+`claude plugin marketplace update stateport-dev`, then run
+`claude plugin update stateport@stateport-dev`. The recorded update command
+found the same version; no StatePort old-to-new update was tested. An explicit
+manifest version must be bumped for Claude's cache to take new source bytes.
 
 The [source-install evidence](../../docs/compatibility/claude-code-source-2026-09-12.md)
 records the tested commands and limitations. Run the synthetic cases from the

@@ -47,6 +47,9 @@ a similarly named or newer Card may represent a different reproduction.
    Review the source before installing it. Installation was checked through
    development version `0.1.0-alpha.4` in isolated Linux profiles. Start a
    new agent session after installing the plugin.
+   The host's plugin manager owns future updates where its documented update
+   mechanism applies. [Host-specific update paths](docs/VERSIONING_AND_UPDATES.md)
+   distinguish manual refresh, conditional auto-update and unverified surfaces.
 
 2. Connect the agent to your local Desktop. In StatePort Desktop, open
    **Settings → Local MCP → Copy MCP config**. Review the copied command and
@@ -87,6 +90,21 @@ Capture, and remote execution need separate evidence. See the
 [compatibility inventory](docs/COMPATIBILITY.md) for exact versions and
 recorded results.
 
+If an operation is unavailable, first inspect the connected server's public
+capabilities and schemas. A missing required capability should be reported by
+name; a known MCP contract mismatch calls for an integration or Desktop/runtime
+update as explained in the [compatibility policy](skills/stateport-debugging/references/compatibility.md).
+The current public runtime has no confirmed version projection, so absence of
+one is not proof of incompatibility. A newer Desktop alone does not require a
+plugin update.
+
+A copied raw skill, project-local skill, clone or symlink is a supported
+**user-managed fallback**. Read `integration.json` beside its `SKILL.md` for
+the installed integration version. Pull a reviewed source clone with `git pull`,
+or replace the entire copied skill directory from the desired release. The skill
+never downloads updates in the background. A VSIX sideload and a JetBrains ZIP
+disk install are also user-managed until a real Marketplace publication exists.
+
 ## Contributing
 
 The [canonical skill](skills/stateport-debugging/SKILL.md) defines the
@@ -98,6 +116,10 @@ before changing source. With Node.js 22 or later, run:
 npm run verify
 ```
 
+After changing canonical skill, metadata or helpers, run `npm run sync` before
+`npm run verify`; CI fails on stale generated artifacts.
+
 No dependency install is needed for this check. See the [release gates](docs/RELEASING.md),
-[security policy](SECURITY.md), and [MIT license](LICENSE). No tagged or vendor
-marketplace release has been published from this repository.
+[security policy](SECURITY.md), and [MIT license](LICENSE). The audit found no
+tag on `origin`; GitHub Release and vendor Marketplace publication remain
+separate, unverified gates.

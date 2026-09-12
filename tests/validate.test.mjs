@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateSkill, validateRegistry, validateRelativeLink } from '../scripts/validate.mjs';
 const valid = '---\nname: stateport-debugging\ndescription: Use when a browser bug or a State Card requires investigation.\n---\n\n# StatePort debugging\n\nInspect the available capabilities.\n';
-const provider = () => ({ id: 'codex-cli', status: 'scaffold', guide: 'providers/codex/README.md', evidence: [] });
+const provider = () => ({ id: 'codex-cli', status: 'scaffold', guide: 'providers/codex/README.md', update: { method: 'unverified', automatic: 'unverified', evidenceStatus: 'unverified' }, evidence: [] });
 
 test('accepts a compact canonical skill', () => assert.deepEqual(validateSkill(valid, 'stateport-debugging'), []));
 test('requires frontmatter', () => assert.ok(validateSkill('# Hello', 'hello').length));
@@ -16,6 +16,7 @@ test('accepts unverified provider scaffold', () => assert.deepEqual(validateRegi
 test('requires a known registry schema version', () => assert.ok(validateRegistry({ schemaVersion: 2, providers: [provider()] }).length));
 test('requires unique provider identities', () => assert.ok(validateRegistry({ schemaVersion: 1, providers: [provider(), provider()] }).length));
 test('rejects unknown provider status', () => assert.ok(validateRegistry({ schemaVersion: 1, providers: [{ ...provider(), status: 'works-everywhere' }] }).length));
+test('rejects unsupported update claims without host evidence', () => assert.ok(validateRegistry({ schemaVersion: 1, providers: [{ ...provider(), update: { method: 'native-auto', automatic: 'yes', evidenceStatus: 'unverified' } }] }).length));
 test('verified provider needs evidence', () => assert.ok(validateRegistry({ schemaVersion: 1, providers: [{ ...provider(), status: 'verified' }] }).length));
 test('verified evidence must bind host, runtime and skill versions', () => assert.ok(validateRegistry({ schemaVersion: 1, providers: [{ ...provider(), status: 'verified', evidence: [{}] }] }).length));
 test('rejects structurally invalid registry', () => assert.ok(validateRegistry(null).length));

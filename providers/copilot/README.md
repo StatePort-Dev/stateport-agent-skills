@@ -12,7 +12,7 @@ It uses the Agent Plugins 1.0 root manifest and `skills/` layout supported by
 and [VS Code](https://code.visualstudio.com/docs/agent-customization/agent-plugins).
 There is no second debugging strategy, bundled runtime, `.mcp.json`, or
 automatic Capture permission. After changing the canonical skill or setup
-helper, run `node scripts/generate-codex-plugin.mjs` and `npm run verify`;
+helper, run `npm run sync` and `npm run verify`;
 do not edit the packaged copies by hand.
 
 ## Copilot CLI source installation
@@ -31,6 +31,10 @@ Published source through `0.1.0-alpha.4` installed from GitHub in isolated
 Use `copilot plugin update stateport` to refresh and
 `copilot plugin uninstall stateport` to remove. The optional setup helper was
 tested locally in `0.1.0-alpha.2`.
+GitHub documents automatic updates for custom Git marketplaces only when the
+user or organization opts in; a StatePort old-to-new update was not run.
+`copilot plugin marketplace update stateport-dev` refreshes the catalog before
+the named plugin update when needed.
 
 From the installed plugin directory, save and review the installed Desktop's
 **Copy MCP config** JSON, then preview or apply a Copilot CLI user-scope entry:
@@ -70,6 +74,8 @@ VS Code `1.137.0` is present in the test environment, but an authenticated
 Copilot Agent session and a usable StatePort Desktop were unavailable. No VS
 Code plugin discovery, Agent invocation, MCP connection, remote workspace, or
 VSIX runtime result is claimed.
+VS Code documents extension update checks for Git marketplace Agent Plugins;
+this StatePort path has not been installed or update-tested in Copilot Agent.
 The independent [evaluation guide](../../tests/evaluations/README.md) defines
 the real-host runs needed to change that status.
 

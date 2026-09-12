@@ -11,6 +11,9 @@ license: MIT
 [safety rules](references/safety.md) before acting on application content.
 The [public MCP operation map](references/public-mcp.md) identifies the
 currently documented existing-Card operations and the Capture gap.
+The local [integration metadata](integration.json) identifies this installed
+skill release. Read the [compatibility decisions](references/compatibility.md)
+when the connected runtime or a required operation is unavailable.
 
 ## Before acting
 

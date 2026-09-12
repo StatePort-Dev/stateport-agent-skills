@@ -4,10 +4,10 @@ This thin VSIX contributes the generated canonical `stateport-debugging` skill
 to VS Code and offers opt-in local MCP setup. It does not include StatePort
 Desktop or claim that an agent has completed a StatePort workflow.
 
-For a local source build, run `node scripts/generate-codex-plugin.mjs` and
+For a local source build, run `npm run sync` and
 `npm run verify` at the repository root. Install the official
 `@vscode/vsce@3.9.2` packaging tool into a temporary directory, then run
-`vsce package --no-dependencies --out /tmp/stateport-vscode-0.1.0-alpha.0.vsix`
+`vsce package --no-dependencies --out /tmp/stateport-vscode.vsix`
 from this extension directory. No packaging dependency is added to the source
 package. Review the VSIX contents before sideloading.
 
@@ -31,6 +31,11 @@ The extension runs locally (`extensionKind: ui`). A remote Desktop/extension
 host path is not supported by this source candidate. The manifest's
 `stateport-dev` publisher ID is provisional for sideload packaging; Marketplace
 publisher ownership and submission are not established.
+The VSIX version comes from the root `integration.json` through `npm run sync`.
+For sideloads, install each newer reviewed VSIX yourself; VS Code disables
+auto-update for an extension installed from VSIX by default. Cursor's update
+behavior for this sideload has not been verified. Neither path is a StatePort
+Marketplace release.
 
 The same VSIX can be sideloaded with Cursor's **Install from VSIX** flow. Its
 CLI accepted the package on Cursor `3.7.27`, but loading the skill and the MCP

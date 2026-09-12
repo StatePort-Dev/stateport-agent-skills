@@ -2,7 +2,7 @@
   "name": "stateport",
   "displayName": "StatePort Debugging",
   "description": "Use StatePort Cards from VS Code with a canonical agent skill and opt-in local MCP setup.",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.5",
   "publisher": "stateport-dev",
   "private": true,
   "license": "MIT",

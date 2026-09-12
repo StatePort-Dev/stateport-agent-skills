@@ -22,7 +22,7 @@ const add = (name, errors) => failures.push(...errors.map(e => `${name}: ${e}`))
 const required = ['README.md','LICENSE','AGENTS.md','CONTRIBUTING.md','SECURITY.md','CHANGELOG.md',
   'providers/registry.json','skills/stateport-debugging/SKILL.md','.github/workflows/ci.yml'];
 for (const name of required) if (!fs.existsSync(path.join(root, name))) failures.push(`Missing ${name}`);
-for (const name of syncCodexSkill(root, true)) failures.push(`plugins/stateport/${name}: stale generated copy`);
+for (const name of syncCodexSkill(root, true)) failures.push(`${name}: stale generated artifact`);
 
 for (const absolute of all) {
   const name = relative(absolute);

@@ -32,6 +32,13 @@ authority; AI Assistant connection remains an explicit host step.
 
 ## Versioning
 
+The root [integration metadata](../integration.json) owns one integration
+release version for the portable package and current native source candidates.
+`npm run sync` propagates it to manifests and puts a local copy beside each
+distributed skill. Its MCP contract range is a consumer expectation, not a
+claim that the current Desktop runtime advertises a version field. The
+[version/update inventory](VERSIONING_AND_UPDATES.md) and
+[runtime dependency](RUNTIME_DEPENDENCY.md) define the boundary.
 Repository versions describe skill/packaging releases, not Desktop versions.
 Each verified host record binds the host version, skill version, and runtime
 version/contract. Keep development versions unverified until those runs exist.

@@ -23,6 +23,11 @@ plugin. A synthetic read-only attempt with this package stopped at
 implicit/explicit invocation is claimed from that attempt. Authentication
 must be handled by the user through Cursor's supported flow.
 
+The local copy and CLI `--plugin-dir` source are user-managed: replace the
+reviewed copy or update the selected source checkout, then reload/restart the
+agent. Cursor's marketplace refresh mechanism is separate from this local
+source candidate; no StatePort Marketplace update was tested.
+
 ## Local MCP setup
 
 [Cursor's MCP documentation](https://prod.cursor.com/docs/mcp) specifies the

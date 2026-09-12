@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+### Behavior
+
+- Keep the existing Card reuse and Capture boundaries; no new runtime action.
+
+### Packaging and providers
+
+- Add one integration release metadata source and deterministic version sync
+  across portable plugin, Codex, Claude and native source manifests. Raw skill
+  copies carry their version locally. Manual copies remain user-managed.
+
+### Native extensions
+
+- Align VSIX and JetBrains source-candidate versions with the integration
+  release version. This is source metadata, not a Marketplace publication.
+
+### Compatibility
+
+- Define capability-first MCP compatibility decisions and explicit update
+  guidance. A runtime contract projection remains a separate dependency;
+  no real runtime handshake or host update transition is claimed.
+
+### Breaking changes
+
+- None claimed. No mandatory Desktop update is introduced by this source
+  change; a future MCP contract change must be called out explicitly.
+
+### Earlier development source changes
+
 - Add a thin IntelliJ Platform ZIP source candidate with native Tools menu
   actions for exact Card handoff and the documented AI Assistant MCP setup
   path. Build and binary checks are separate from IDE/agent workflow proof.

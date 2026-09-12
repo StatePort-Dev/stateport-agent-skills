@@ -6,6 +6,7 @@
       "displayName": "Codex CLI",
       "status": "unverified",
       "guide": "providers/codex/README.md",
+      "update": { "method": "source-install", "automatic": "unverified", "evidenceStatus": "unverified" },
       "evidence": []
     },
     {
@@ -13,6 +14,7 @@
       "displayName": "Codex desktop",
       "status": "scaffold",
       "guide": "providers/codex/README.md",
+      "update": { "method": "unverified", "automatic": "unverified", "evidenceStatus": "unverified" },
       "evidence": []
     },
     {
@@ -20,6 +22,7 @@
       "displayName": "Codex IDE extension",
       "status": "scaffold",
       "guide": "providers/codex/README.md",
+      "update": { "method": "manual-copy", "automatic": "no", "evidenceStatus": "unverified" },
       "evidence": []
     },
     {
@@ -27,6 +30,7 @@
       "displayName": "Claude Code",
       "status": "unverified",
       "guide": "providers/claude/README.md",
+      "update": { "method": "source-install", "automatic": "conditional", "evidenceStatus": "unverified" },
       "evidence": []
     },
     {
@@ -34,6 +38,7 @@
       "displayName": "GitHub Copilot in VS Code",
       "status": "scaffold",
       "guide": "providers/copilot/README.md",
+      "update": { "method": "source-install", "automatic": "conditional", "evidenceStatus": "unverified" },
       "evidence": []
     },
     {
@@ -41,6 +46,7 @@
       "displayName": "GitHub Copilot CLI",
       "status": "unverified",
       "guide": "providers/copilot/README.md",
+      "update": { "method": "source-install", "automatic": "conditional", "evidenceStatus": "unverified" },
       "evidence": []
     },
     {
@@ -48,6 +54,7 @@
       "displayName": "StatePort VS Code VSIX",
       "status": "unverified",
       "guide": "extensions/vscode/README.md",
+      "update": { "method": "native-manual", "automatic": "no", "evidenceStatus": "unverified" },
       "evidence": []
     },
     {
@@ -55,6 +62,7 @@
       "displayName": "StatePort VSIX in Cursor",
       "status": "unverified",
       "guide": "extensions/vscode/README.md",
+      "update": { "method": "native-manual", "automatic": "unverified", "evidenceStatus": "unverified" },
       "evidence": []
     },
     {
@@ -62,6 +70,7 @@
       "displayName": "Cursor Agent",
       "status": "scaffold",
       "guide": "providers/cursor/README.md",
+      "update": { "method": "manual-copy", "automatic": "no", "evidenceStatus": "unverified" },
       "evidence": []
     },
     {
@@ -69,6 +78,7 @@
       "displayName": "StatePort plugin in IntelliJ IDEA",
       "status": "unverified",
       "guide": "extensions/jetbrains/README.md",
+      "update": { "method": "native-manual", "automatic": "no", "evidenceStatus": "unverified" },
       "evidence": []
     },
     {
@@ -76,6 +86,7 @@
       "displayName": "StatePort plugin in WebStorm",
       "status": "unverified",
       "guide": "extensions/jetbrains/README.md",
+      "update": { "method": "native-manual", "automatic": "no", "evidenceStatus": "unverified" },
       "evidence": []
     }
   ]
