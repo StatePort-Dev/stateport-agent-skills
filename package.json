@@ -1,0 +1,20 @@
+{
+  "name": "@stateport-dev/agent-skills",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "description": "Canonical StatePort agent skills and provider integration sources.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "verify": "npm test && npm run check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/StatePort-Dev/stateport-agent-skills.git"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "codex-cli",
+      "displayName": "Codex CLI",
+      "status": "scaffold",
+      "guide": "providers/codex/README.md",
+      "evidence": []
+    },
+    {
+      "id": "codex-desktop",
+      "displayName": "Codex desktop",
+      "status": "scaffold",
+      "guide": "providers/codex/README.md",
+      "evidence": []
+    },
+    {
+      "id": "codex-ide",
+      "displayName": "Codex IDE extension",
+      "status": "scaffold",
+      "guide": "providers/codex/README.md",
+      "evidence": []
+    },
+    {
+      "id": "claude-code",
+      "displayName": "Claude Code",
+      "status": "scaffold",
+      "guide": "providers/claude/README.md",
+      "evidence": []
+    },
+    {
+      "id": "copilot-vscode",
+      "displayName": "GitHub Copilot in VS Code",
+      "status": "scaffold",
+      "guide": "providers/copilot/README.md",
+      "evidence": []
+    },
+    {
+      "id": "copilot-cli",
+      "displayName": "GitHub Copilot CLI",
+      "status": "scaffold",
+      "guide": "providers/copilot/README.md",
+      "evidence": []
+    },
+    {
+      "id": "cursor-agent",
+      "displayName": "Cursor Agent",
+      "status": "scaffold",
+      "guide": "providers/cursor/README.md",
+      "evidence": []
+    }
+  ]
+}
