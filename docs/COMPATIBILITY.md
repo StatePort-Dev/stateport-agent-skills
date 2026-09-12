@@ -1,8 +1,9 @@
 # Compatibility and evidence
 
 The canonical inventory is [providers/registry.json](../providers/registry.json).
-Codex CLI is `unverified` after a local source-package install check; the
-remaining entries are `scaffold`. No StatePort agent workflow is verified.
+Codex CLI and Claude Code are `unverified` after source-package installation
+checks; the remaining entries are `scaffold`. No StatePort agent workflow is
+verified.
 
 - `scaffold`: preparation exists; there is no installable adapter.
 - `unverified`: an adapter exists, but required host runs are incomplete.

@@ -30,16 +30,18 @@ export function syncCodexSkill(root = repositoryRoot, check = false) {
       else fs.rmSync(path.join(destination, name));
     }
   }
-  const setupSource = path.join(root, 'scripts/setup-codex-mcp.mjs');
-  const setupDestination = path.join(root, 'plugins/stateport/scripts/setup-codex-mcp.mjs');
-  const setupContent = fs.readFileSync(setupSource);
-  if (check) {
-    if (!fs.existsSync(setupDestination) || !fs.readFileSync(setupDestination).equals(setupContent)) {
-      mismatches.push('scripts/setup-codex-mcp.mjs');
+  for (const name of ['setup-codex-mcp.mjs', 'setup-claude-mcp.mjs']) {
+    const setupSource = path.join(root, 'scripts', name);
+    const setupDestination = path.join(root, 'plugins/stateport/scripts', name);
+    const setupContent = fs.readFileSync(setupSource);
+    if (check) {
+      if (!fs.existsSync(setupDestination) || !fs.readFileSync(setupDestination).equals(setupContent)) {
+        mismatches.push(`scripts/${name}`);
+      }
+    } else {
+      fs.mkdirSync(path.dirname(setupDestination), { recursive: true });
+      fs.writeFileSync(setupDestination, setupContent);
     }
-  } else {
-    fs.mkdirSync(path.dirname(setupDestination), { recursive: true });
-    fs.writeFileSync(setupDestination, setupContent);
   }
   return mismatches;
 }

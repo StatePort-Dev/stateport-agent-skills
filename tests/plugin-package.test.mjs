@@ -19,3 +19,32 @@ test('Codex plugin distributes the exact canonical skill and references', () => 
     readFileSync(path.join(root, 'scripts/setup-codex-mcp.mjs'), 'utf8')
   );
 });
+
+test('Claude marketplace installs the same self-contained skill package', () => {
+  const marketplace = JSON.parse(readFileSync(path.join(root, '.claude-plugin/marketplace.json'), 'utf8'));
+  assert.equal(marketplace.owner.name, 'StatePort-Dev');
+  assert.match(marketplace.description, /StatePort/);
+  assert.equal(marketplace.plugins.length, 1);
+  assert.equal(marketplace.plugins[0].name, 'stateport');
+  assert.equal(marketplace.plugins[0].source, './plugins/stateport');
+
+  const manifest = JSON.parse(readFileSync(path.join(root, 'plugins/stateport/.claude-plugin/plugin.json'), 'utf8'));
+  const portable = JSON.parse(readFileSync(path.join(root, 'plugins/stateport/plugin.json'), 'utf8'));
+  const codex = JSON.parse(readFileSync(path.join(root, 'plugins/stateport/.codex-plugin/plugin.json'), 'utf8'));
+  const repository = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+  assert.equal(manifest.name, portable.name);
+  assert.equal(manifest.version, portable.version);
+  assert.equal(manifest.version, codex.version);
+  assert.equal(manifest.version, repository.version);
+  assert.equal(manifest.description, portable.description);
+  assert.equal(manifest.author.name, portable.author.name);
+  assert.equal(readdirSync(path.join(packaged, 'references')).length > 0, true);
+  assert.equal(manifest.commands, './claude/commands/');
+  const commands = readdirSync(path.join(root, 'plugins/stateport/claude/commands')).sort();
+  assert.deepEqual(commands, ['check-connection.md', 'compare-runs.md', 'new-repro.md', 'reopen-card.md', 'use-card.md']);
+  for (const command of commands) {
+    const content = readFileSync(path.join(root, 'plugins/stateport/claude/commands', command), 'utf8');
+    assert.match(content, /disable-model-invocation: true/);
+    assert.match(content, /\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/stateport-debugging\/SKILL\.md/);
+  }
+});

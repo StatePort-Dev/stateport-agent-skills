@@ -14,13 +14,13 @@ Never move an engine, a credential store or a private API client here.
 
 ## Incremental delivery
 
-Start with one draft skill and explicit unverified provider rows. The Codex
-source package can be installed in an isolated CLI profile, but supplied-Card
-agent workflow still needs real-host evidence. Add the creation workflow only
+Start with one draft skill and explicit unverified provider rows. The shared
+source package can be installed in isolated Codex CLI and Claude Code profiles,
+but supplied-Card agent workflow still needs real-host evidence. Add the creation workflow only
 after its public capabilities are available and verified. Extend to other
 hosts with the same behavior source.
 
-The Codex plugin manifest contains no fabricated MCP executable. Its generated
+The shared plugin manifests contain no fabricated MCP executable. Its generated
 skill and setup helper are checked for freshness; the helper consumes the
 installed Desktop's copied MCP configuration and refuses conflicting entries.
 Native IDE extensions are separate codebases and consume this skill or its

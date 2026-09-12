@@ -25,7 +25,7 @@
     {
       "id": "claude-code",
       "displayName": "Claude Code",
-      "status": "scaffold",
+      "status": "unverified",
       "guide": "providers/claude/README.md",
       "evidence": []
     },
