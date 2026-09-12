@@ -23,8 +23,10 @@ verified. Extend to other hosts with the same behavior source.
 The shared plugin manifests contain no fabricated MCP executable. Their generated
 skill and setup helpers are checked for freshness; each helper consumes the
 installed Desktop's copied MCP configuration and refuses conflicting entries.
-Native IDE extensions are separate codebases and consume this skill or its
-public artifacts; they do not maintain independent copies.
+The thin VS Code extension source is under `extensions/vscode/`. It uses a
+generated skill copy and registers an MCP definition only after user setup.
+Its VSIX is a separate artifact from the agent plugin. JetBrains integration
+remains a separate implementation.
 
 ## Versioning
 

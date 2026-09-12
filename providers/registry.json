@@ -44,6 +44,20 @@
       "evidence": []
     },
     {
+      "id": "vscode-extension",
+      "displayName": "StatePort VS Code VSIX",
+      "status": "unverified",
+      "guide": "extensions/vscode/README.md",
+      "evidence": []
+    },
+    {
+      "id": "cursor-vsix",
+      "displayName": "StatePort VSIX in Cursor",
+      "status": "unverified",
+      "guide": "extensions/vscode/README.md",
+      "evidence": []
+    },
+    {
       "id": "cursor-agent",
       "displayName": "Cursor Agent",
       "status": "scaffold",

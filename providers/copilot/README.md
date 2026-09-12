@@ -69,7 +69,13 @@ synthetic test command. The package has no automatic MCP configuration.
 
 VS Code `1.137.0` is present in the test environment, but an authenticated
 Copilot Agent session and a usable StatePort Desktop were unavailable. No VS
-Code plugin discovery,
-Agent invocation, MCP connection, remote workspace, or VSIX result is claimed.
+Code plugin discovery, Agent invocation, MCP connection, remote workspace, or
+VSIX runtime result is claimed.
 The independent [evaluation guide](../../tests/evaluations/README.md) defines
 the real-host runs needed to change that status.
+
+A separate [native VSIX source candidate](../../extensions/vscode/README.md)
+installed and uninstalled in isolated VS Code and Cursor profiles. It is a
+different distribution path; do not enable its skill alongside this agent
+plugin without reviewing duplicates. Its install smoke does not change the
+Copilot Agent status above.

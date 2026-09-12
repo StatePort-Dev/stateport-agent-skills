@@ -1,6 +1,9 @@
 # Cursor integration preparation
 
-Status: **scaffold; not installable and not host-verified**.
+Cursor Agent Plugin status: **scaffold; no native plugin load or agent workflow
+verified**. A separate [VSIX source candidate](../../extensions/vscode/README.md)
+installed and uninstalled in Cursor `3.7.27`, but its skill, MCP and agent
+behavior have not been host-tested.
 
 The canonical source is
 [StatePort debugging](../../skills/stateport-debugging/SKILL.md).

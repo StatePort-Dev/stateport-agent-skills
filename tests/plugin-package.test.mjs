@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, cpSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { syncCodexSkill } from '../scripts/generate-codex-plugin.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const source = path.join(root, 'skills/stateport-debugging');
@@ -46,5 +48,22 @@ test('Claude marketplace installs the same self-contained skill package', () => 
     const content = readFileSync(path.join(root, 'plugins/stateport/claude/commands', command), 'utf8');
     assert.match(content, /disable-model-invocation: true/);
     assert.match(content, /\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/stateport-debugging\/SKILL\.md/);
+  }
+});
+
+test('generated VS Code skill freshness rejects obsolete packaged references', () => {
+  const temp = mkdtempSync(path.join(os.tmpdir(), 'stateport-generator-'));
+  try {
+    cpSync(path.join(root, 'skills'), path.join(temp, 'skills'), { recursive: true });
+    cpSync(path.join(root, 'scripts'), path.join(temp, 'scripts'), { recursive: true });
+    cpSync(path.join(root, 'LICENSE'), path.join(temp, 'LICENSE'));
+    syncCodexSkill(temp, false);
+    const stale = path.join(temp, 'extensions/vscode/skills/stateport-debugging/references/obsolete.md');
+    writeFileSync(stale, 'stale\n');
+    assert.ok(syncCodexSkill(temp, true).includes('extensions/vscode/skills/stateport-debugging/references/obsolete.md'));
+    syncCodexSkill(temp, false);
+    assert.deepEqual(syncCodexSkill(temp, true), []);
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
   }
 });

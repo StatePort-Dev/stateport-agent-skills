@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a thin VS Code VSIX source candidate with the generated canonical skill,
+  opt-in Desktop MCP provider and exact Card handoff. The same VSIX installed
+  and uninstalled in isolated VS Code and Cursor profiles; agent workflows are
+  not verified.
 - Add a Copilot CLI source-package guide and preview-first MCP helper; public
   `0.1.0-alpha.1` plugin installation and local synthetic setup checks passed.
   VS Code Agent and all StatePort workflows remain unverified.

@@ -21,16 +21,30 @@ export function syncCodexSkill(root = repositoryRoot, check = false) {
       fs.writeFileSync(output, content);
     }
   }
-  if (fs.existsSync(destination)) {
-    const expected = new Set(sourceFiles);
-    const actual = ['SKILL.md', ...fs.readdirSync(path.join(destination, 'references')).map(name => `references/${name}`)];
-    for (const name of actual) {
-      if (expected.has(name)) continue;
-      if (check) mismatches.push(`skills/stateport-debugging/${name}`);
-      else fs.rmSync(path.join(destination, name));
+  const vscodeSkill = path.join(root, 'extensions/vscode/skills/stateport-debugging');
+  for (const name of sourceFiles) {
+    const input = path.join(source, name);
+    const output = path.join(vscodeSkill, name);
+    const content = fs.readFileSync(input);
+    if (check) {
+      if (!fs.existsSync(output) || !fs.statSync(output).isFile() || !fs.readFileSync(output).equals(content)) mismatches.push(`extensions/vscode/skills/stateport-debugging/${name}`);
+    } else {
+      fs.mkdirSync(path.dirname(output), { recursive: true });
+      fs.writeFileSync(output, content);
     }
   }
-  for (const name of ['setup-codex-mcp.mjs', 'setup-claude-mcp.mjs', 'setup-copilot-mcp.mjs']) {
+  for (const [directory, label] of [[destination, 'skills/stateport-debugging'], [vscodeSkill, 'extensions/vscode/skills/stateport-debugging']]) {
+    if (fs.existsSync(directory)) {
+      const expected = new Set(sourceFiles);
+      const actual = ['SKILL.md', ...fs.readdirSync(path.join(directory, 'references')).map(name => `references/${name}`)];
+      for (const name of actual) {
+        if (expected.has(name)) continue;
+        if (check) mismatches.push(`${label}/${name}`);
+        else fs.rmSync(path.join(directory, name));
+      }
+    }
+  }
+  for (const name of ['desktop-mcp-config.mjs', 'setup-codex-mcp.mjs', 'setup-claude-mcp.mjs', 'setup-copilot-mcp.mjs']) {
     const setupSource = path.join(root, 'scripts', name);
     const setupDestination = path.join(root, 'plugins/stateport/scripts', name);
     const setupContent = fs.readFileSync(setupSource);
@@ -42,6 +56,21 @@ export function syncCodexSkill(root = repositoryRoot, check = false) {
       fs.mkdirSync(path.dirname(setupDestination), { recursive: true });
       fs.writeFileSync(setupDestination, setupContent);
     }
+  }
+  const vscodeParser = path.join(root, 'extensions/vscode/scripts/desktop-mcp-config.mjs');
+  const codexParser = fs.readFileSync(path.join(root, 'scripts/desktop-mcp-config.mjs'));
+  if (check) {
+    if (!fs.existsSync(vscodeParser) || !fs.readFileSync(vscodeParser).equals(codexParser)) mismatches.push('extensions/vscode/scripts/desktop-mcp-config.mjs');
+  } else {
+    fs.mkdirSync(path.dirname(vscodeParser), { recursive: true });
+    fs.writeFileSync(vscodeParser, codexParser);
+  }
+  const vscodeLicense = path.join(root, 'extensions/vscode/LICENSE');
+  const license = fs.readFileSync(path.join(root, 'LICENSE'));
+  if (check) {
+    if (!fs.existsSync(vscodeLicense) || !fs.readFileSync(vscodeLicense).equals(license)) mismatches.push('extensions/vscode/LICENSE');
+  } else {
+    fs.writeFileSync(vscodeLicense, license);
   }
   return mismatches;
 }

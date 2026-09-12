@@ -1,9 +1,9 @@
 # Compatibility and evidence
 
 The canonical inventory is [providers/registry.json](../providers/registry.json).
-Codex CLI, Claude Code, and Copilot CLI are `unverified` after source-package
-installation checks; the remaining entries are `scaffold`. No StatePort agent
-workflow is verified.
+Codex CLI, Claude Code, Copilot CLI, and the VSIX in VS Code/Cursor are
+`unverified` after source-package or extension install checks; the remaining
+entries are `scaffold`. No StatePort agent workflow is verified.
 
 - `scaffold`: preparation exists; there is no installable adapter.
 - `unverified`: an adapter exists, but required host runs are incomplete.

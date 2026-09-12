@@ -29,11 +29,13 @@ embedded runtime, or automatic MCP configuration writes.
 - `plugins/stateport/` contains one portable package with the generated
   canonical skill and host manifests for Codex CLI and Claude Code; Copilot CLI
   consumes its portable manifest.
+- `extensions/vscode/` is a thin native VSIX source candidate with the same
+  generated skill, opt-in local MCP provider and exact Card handoff command.
 - StatePort Desktop, its MCP server, capture/replay engine, and credentials stay
   outside this repository. Skills consume the public contract; they do not
   implement another runtime.
-- Native VS Code and JetBrains extension implementations are separate work.
-  An agent plugin is not an IDE extension.
+- JetBrains extension implementation is separate work. An agent plugin is not
+  an IDE extension; VSIX installation is not agent workflow proof.
 
 ```text
 skills/stateport-debugging/
@@ -48,6 +50,7 @@ providers/
 docs/
 scripts/
 tests/
+extensions/vscode/
 .github/
 ```
 
@@ -72,7 +75,8 @@ There is currently no tested end-user StatePort workflow. The
 [Codex guide](providers/codex/README.md),
 [Claude Code guide](providers/claude/README.md), and
 [Copilot guide](providers/copilot/README.md) describe source-package
-installation and its limitations. Other provider guides are preparation
+installation and its limitations. The [VSIX source guide](extensions/vscode/README.md)
+records its narrower install evidence. Other provider guides are preparation
 documents. See [release gates](docs/RELEASING.md).
 
 ## Governance and security
