@@ -7,7 +7,7 @@ NOT RUN**.
 | --- | --- |
 | Cursor IDE | `3.7.27`, Linux x86_64; GUI plugin load not observed |
 | Cursor Agent CLI | `2026.09.10-fd3934a`, official Linux x64 package extracted to `/tmp` |
-| Package source | Local portable Agent Plugins package `0.1.0-alpha.4`; Git publication not yet verified |
+| Package source | Published portable Agent Plugins package `0.1.0-alpha.4` at `1cfb14d0458352cf5d1b6dc1442fdfe98232a4b6`; [repository checks passed](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34688668246) |
 | Runtime | Installed StatePort Desktop unavailable |
 | Agent/model | NOT RUN; local `--plugin-dir` attempt stopped at authentication |
 

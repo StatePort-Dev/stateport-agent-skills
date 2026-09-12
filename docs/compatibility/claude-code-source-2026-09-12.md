@@ -49,12 +49,21 @@ installed skill copy was compared byte-for-byte with the generated source.
   `0.1.0-alpha.1`. `claude plugin details` discovered the canonical skill and
   five commands; repeated install, disable/enable and uninstall completed.
   The cached skill matched the canonical source. Repository checks passed for
-  this commit. The later `0.1.0-alpha.2` helper change is local only so far.
+  this commit. A later fresh Git marketplace/profile fetched public commit
+  `55d33643d7c95b5ff833a8269284790623f687cb` and installed
+  `0.1.0-alpha.3`. `claude plugin details` reported the canonical skill and
+  five commands; cached skill and shared Desktop parser bytes matched source.
+  Uninstall left no plugins. [Repository checks passed](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34688282685).
+  A new isolated Git marketplace/profile fetched published commit
+  `1cfb14d0458352cf5d1b6dc1442fdfe98232a4b6` and installed current
+  `0.1.0-alpha.4`. `claude plugin details` again reported the canonical skill
+  and five manual entries, zero MCP servers and hooks. The cached skill and
+  packaged Cursor setup helper matched source byte-for-byte. Uninstall left
+  no plugins. [Repository checks passed](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34688668246).
 
 ## Unrun acceptance
 
-Published Git-source installation of `0.1.0-alpha.2`, real MCP handshake,
-supplied-Card inspect/open, current-code replay and compare, explicit or
+Real MCP handshake, supplied-Card inspect/open, current-code replay and compare, explicit or
 implicit agent invocation, rollback to an older version, and every Capture
 case are **NOT RUN**. macOS, Windows, Claude desktop, and remote execution are
 **NOT RUN**. The public runtime currently exposes existing-Card operations but

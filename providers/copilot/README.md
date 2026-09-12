@@ -25,13 +25,12 @@ copilot plugin install stateport@stateport-dev
 copilot skill list --json
 ```
 
-The published `0.1.0-alpha.1` source installed from GitHub in an isolated
+Published source through `0.1.0-alpha.4` installed from GitHub in isolated
 `COPILOT_HOME`; `copilot skill list --json` found the enabled
 `stateport-debugging` skill. This is package discovery, not agent invocation.
 Use `copilot plugin update stateport` to refresh and
 `copilot plugin uninstall stateport` to remove. The optional setup helper was
-tested locally as development version `0.1.0-alpha.2`; Git-source installation
-of that revision is pending publication.
+tested locally in `0.1.0-alpha.2`.
 
 From the installed plugin directory, save and review the installed Desktop's
 **Copy MCP config** JSON, then preview or apply a Copilot CLI user-scope entry:

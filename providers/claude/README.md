@@ -55,10 +55,9 @@ claude plugin details stateport@stateport-dev
 
 The first recorded install used a local checkout with
 `claude plugin marketplace add /path/to/stateport-agent-skills` and an isolated
-`CLAUDE_CONFIG_DIR`. Published Git-source installation of
-`0.1.0-alpha.1` subsequently passed in a fresh profile. Version
-Later `0.1.0-alpha.2` through `0.1.0-alpha.4` revisions, a real MCP handshake,
-and any agent invocation remain untested from Git source. Use
+`CLAUDE_CONFIG_DIR`. Published Git-source installation through
+`0.1.0-alpha.4` subsequently passed in fresh profiles. A real MCP handshake
+and any agent invocation remain untested. Use
 `claude plugin disable`, `enable`, `update`,
 or `uninstall` with `stateport@stateport-dev` to manage the plugin without
 touching Desktop data or separately configured MCP servers. To remove the

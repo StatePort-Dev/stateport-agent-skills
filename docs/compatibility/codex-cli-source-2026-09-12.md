@@ -54,7 +54,19 @@ StatePort-Dev/stateport-agent-skills --ref main --json` fetched public commit
 The plugin was then removed. Repository checks passed for both published
 commits. This proves Git-source installation of those source revisions, not a
 release or a StatePort agent workflow. The later `0.1.0-alpha.2` helper change
-still needs a published Git-source check.
+was followed by a fresh Git marketplace/profile at public commit
+`55d33643d7c95b5ff833a8269284790623f687cb`. Codex CLI installed
+`0.1.0-alpha.3`; the cached skill and shared Desktop MCP parser matched source
+byte-for-byte, and plugin removal left an empty installed list. Repository
+checks passed for [the Copilot source commit](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34687667464),
+[the VSIX source commit](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34688164216),
+and [the evidence follow-up](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34688282685).
+A new isolated Git marketplace/profile fetched published commit
+`1cfb14d0458352cf5d1b6dc1442fdfe98232a4b6` and installed current
+`0.1.0-alpha.4`. `codex plugin list --json` showed the plugin; the cached
+canonical skill and packaged Cursor setup helper matched source byte-for-byte.
+`codex plugin remove` left the plugin list empty.
+[Repository checks passed](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34688668246).
 
 ## Unrun acceptance
 

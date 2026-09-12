@@ -40,11 +40,21 @@ server executable, startup hook, or runtime credentials.
   The synthetic launch was `/bin/true --mcp`; it was never a StatePort
   handshake. Nested CLI execution required an unsandboxed local smoke because
   the sandbox returned an empty result for the child process.
+- A fresh Git marketplace/profile installed published `0.1.0-alpha.3` after
+  public commit `55d33643d7c95b5ff833a8269284790623f687cb` reached main.
+  `copilot skill list --json` found enabled `stateport-debugging` with source
+  `plugin`; the cached skill matched canonical source. Plugin uninstall left
+  an empty plugin list. [Repository checks passed](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34688282685).
+  A new isolated Git marketplace/profile installed published current commit
+  `1cfb14d0458352cf5d1b6dc1442fdfe98232a4b6` as `0.1.0-alpha.4`.
+  `copilot skill list --json` showed enabled `stateport-debugging` from the
+  plugin. The cached canonical skill and packaged Cursor setup helper matched
+  source byte-for-byte. Uninstall left no plugins.
+  [Repository checks passed](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34688668246).
 
 ## Unrun acceptance
 
-Published Git-source installation of `0.1.0-alpha.2`, real MCP handshake,
-supplied-Card inspect/open/reopen/compare, create-first Capture, explicit and
+Real MCP handshake, supplied-Card inspect/open/reopen/compare, create-first Capture, explicit and
 implicit agent invocation, rollback, VS Code/Copilot Agent, macOS, Windows,
 remote execution, and release-artifact installation are **NOT RUN**. The public
 runtime contract currently supports existing-Card operations but not the

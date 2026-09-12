@@ -5,7 +5,7 @@ workflow NOT RUN**.
 
 | Field | Observed value |
 | --- | --- |
-| Source commit | `57d9f5d66c06776c9fc48c5e9bd7d26921afa5d8` (local, publication not yet verified) |
+| Source commit | Published `57d9f5d66c06776c9fc48c5e9bd7d26921afa5d8`; [repository checks passed](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34688164216) |
 | VSIX | `stateport-vscode-0.1.0-alpha.0-57d9f5d.vsix`, local file under `/tmp`; not uploaded or released |
 | SHA-256 | `1af3cd3ce3920dea71d21f948253533ec7443ae11e88c30264a1427b10e692f9` |
 | VS Code | `1.137.0`, Linux x86_64, isolated user-data and extensions directories |
@@ -40,6 +40,8 @@ not StatePort host compatibility.
   bytes matched source in both isolated profiles.
 - `code --uninstall-extension stateport-dev.stateport` and the corresponding
   Cursor CLI uninstall: PASS; each profile then listed no extensions.
+- The source commit and evidence follow-up `55d33643d7c95b5ff833a8269284790623f687cb`
+  were later published; [repository checks for the follow-up passed](https://github.com/StatePort-Dev/stateport-agent-skills/actions/runs/34688282685).
 
 ## Unrun acceptance and distribution
 

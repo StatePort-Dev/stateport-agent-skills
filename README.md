@@ -11,7 +11,7 @@ reproduction as a State Card and reuse that Card while changing current code.
 This repository contains a draft skill, source packages install-tested in
 Codex CLI, Claude Code, and Copilot CLI, provider preparation guides,
 structural checks, and evaluation scenarios. Isolated Linux profiles tested
-published Git-source installation of development version `0.1.0-alpha.1` in
+published Git-source installation through development version `0.1.0-alpha.4` in
 all three CLIs. Automatic invocation, StatePort MCP handshake,
 and end-to-end StatePort workflows have **not** been verified. A directory or a
 passing structural check is not a compatibility claim. The development version
