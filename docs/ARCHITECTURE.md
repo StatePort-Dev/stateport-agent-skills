@@ -14,16 +14,17 @@ Never move an engine, a credential store or a private API client here.
 
 ## Incremental delivery
 
-Start with one draft skill and explicit unverified provider rows. Prove the
-supplied-Card workflow in one local host, then add its native installation
-package. Add the creation workflow only after its public capabilities are
-available and verified. Extend to other hosts with the same behavior source.
+Start with one draft skill and explicit unverified provider rows. The Codex
+source package can be installed in an isolated CLI profile, but supplied-Card
+agent workflow still needs real-host evidence. Add the creation workflow only
+after its public capabilities are available and verified. Extend to other
+hosts with the same behavior source.
 
-There are no executable plugin manifests in the bootstrap: format-shaped files
-with fabricated paths or unsupported MCP commands are worse than explicit
-preparation guides. Add manifests only with format checks and real install
-proof. Native IDE extensions are separate codebases and consume this skill or
-its public artifacts; they do not maintain independent copies.
+The Codex plugin manifest contains no fabricated MCP executable. Its generated
+skill and setup helper are checked for freshness; the helper consumes the
+installed Desktop's copied MCP configuration and refuses conflicting entries.
+Native IDE extensions are separate codebases and consume this skill or its
+public artifacts; they do not maintain independent copies.
 
 ## Versioning
 

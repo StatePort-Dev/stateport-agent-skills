@@ -1,7 +1,8 @@
 # Provider integrations
 
-`registry.json` is the machine-readable support inventory. Each guide below is
-preparation only. No installable provider package has been delivered yet.
+`registry.json` is the machine-readable support inventory. The Codex CLI has
+an install-tested source package, but no verified StatePort agent workflow or
+release. Other listed hosts remain preparation only.
 
 | Provider | Preparation |
 | --- | --- |
@@ -13,7 +14,6 @@ preparation only. No installable provider package has been delivered yet.
 Keep host surfaces distinct. A working CLI does not establish IDE or cloud
 support. Native VS Code/JetBrains extensions are not housed in this repository.
 
-When packaging is implemented, use the canonical skill directly when supported.
-If a host needs copies, generate them deterministically and check freshness in
-CI. Do not create four independently edited SKILL.md files or a generic plugin
+The Codex package uses generated canonical skill copies checked for freshness
+in CI. Do not create independently edited SKILL.md files or a generic plugin
 framework for a single skill.

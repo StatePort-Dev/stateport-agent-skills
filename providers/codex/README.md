@@ -1,27 +1,79 @@
-# Codex integration preparation
+# Codex integration candidate
 
-Status: **scaffold; not installable and not host-verified**.
+Status: **Codex CLI package install-tested on Linux; agent workflow and runtime
+unverified.** The Codex desktop surface has not been tested. Codex IDE extension
+does not load plugins; it needs a separate standalone skill and MCP setup.
 
-The canonical source is
-[StatePort debugging](../../skills/stateport-debugging/SKILL.md).
-No separate strategy or manually copied skill belongs here.
+The [StatePort plugin](../../plugins/stateport/plugin.json) packages the
+[canonical debugging skill](../../skills/stateport-debugging/SKILL.md). Its skill
+and setup helper are generated from the repository sources; run
+`node scripts/generate-codex-plugin.mjs` after changing either source and
+`npm run verify` to check freshness. Do not edit the packaged copies directly.
 
-Before adding packaging, verify the current official host documentation and
-record the exact source URL, host version, supported surface, skill/plugin
-format, MCP transport, install scope, and discovery mechanism.
-Do not guess paths or commands from another agent's conventions.
+## Observed host contract
 
-Implement the smallest native package or standalone-skill adapter the actual
-host supports. Preserve existing user settings. Test fresh install, duplicate
-installation, disabled integration, update, rollback, and removal. The adapter
-must use the public runtime contract, not a private source checkout.
+On 2026-09-12, Codex CLI `0.154.0-alpha.6.1` accepted the portable Agent Plugins
+manifest with a Codex compatibility manifest and a local marketplace. The
+tested scope was an isolated local CLI profile on Linux x64. The plugin adds a
+skill; it does not bundle a guessed StatePort executable or automatically grant
+Capture authority. The local StatePort MCP server uses stdio and must be
+connected separately from the installed Desktop's **Copy MCP config** output.
 
-Record existing-card and create-card capabilities separately. A missing runtime
-or unsupported Capture API must produce a useful bounded error, not installation
-of unknown binaries, hidden network access, or an alternative browser.
+Official format and surface references: [Codex plugins](https://developers.openai.com/codex/plugins/),
+[plugin packaging](https://developers.openai.com/plugins/build/plugins), and
+[skills](https://developers.openai.com/codex/skills/). These documents establish
+host format, not StatePort compatibility.
 
-Run the relevant synthetic cases from
-[the evaluation guide](../../tests/evaluations/README.md) in a real host. Record
-all attempts including failures, actual versions, invocation mode, and safe
-results. Update [the registry](../registry.json) only when the evidence supports
-its status. Do not advertise automatic invocation from one successful demo.
+## Install from public source
+
+For a reviewed public source revision, add the repository marketplace and
+install the plugin:
+
+```sh
+codex plugin marketplace add StatePort-Dev/stateport-agent-skills --ref main
+codex plugin add stateport@stateport-dev
+```
+
+The local checkout form used for the recorded package test is
+`codex plugin marketplace add /path/to/stateport-agent-skills`. It is a source
+test, not release installation proof. Start a new Codex session after install.
+If a standalone `stateport-debugging` skill is already installed, remove or
+disable that duplicate before using the plugin; two discovery paths do not
+improve activation reliability.
+
+In installed StatePort Desktop, use **Copy MCP config**. Save that one JSON
+document to a local file and review its absolute command and arguments. The
+optional packaged helper previews a Codex-only change, then applies it when
+explicitly requested:
+
+```sh
+node scripts/setup-codex-mcp.mjs < desktop-mcp-config.json
+node scripts/setup-codex-mcp.mjs --apply < desktop-mcp-config.json
+codex mcp get stateport --json
+```
+
+Run the helper from the plugin package's own directory. It accepts only the
+single Desktop-shaped `stateport` stdio entry, preserves unrelated MCP
+servers, rejects a conflicting existing `stateport` entry, and does not run
+the Desktop executable during setup. Review the copied command: the helper
+cannot authenticate its origin. It needs Node.js 22+ and Codex
+CLI. `codex mcp get` proves saved configuration only; open a new agent session
+and confirm MCP handshake and the public `inspect_state` capability separately.
+If the Desktop has no installed executable, connection cannot be claimed.
+
+## Update and remove
+
+Refresh the reviewed marketplace source, then reinstall the named plugin using
+Codex's supported marketplace commands. Preview any changed Desktop MCP launch
+path against `codex mcp get stateport --json`; this helper deliberately stops on
+a conflict instead of overwriting it. Remove the plugin with
+`codex plugin remove stateport@stateport-dev`. The separately configured MCP
+entry remains until the user chooses `codex mcp remove stateport`; remove it
+only after confirming it is the integration-owned entry. These commands do not
+delete State Cards, Desktop data, or other servers.
+
+The tested local install/remove and synthetic MCP-configuration results are
+recorded in [the Codex CLI source evidence](../../docs/compatibility/codex-cli-source-2026-09-12.md).
+Existing-Card AG-01 and full Capture AG-02–AG-05 have not run in a real agent
+host. The public runtime currently lacks the Capture lifecycle from the
+separate runtime work, so this package does not advertise create-first repro.

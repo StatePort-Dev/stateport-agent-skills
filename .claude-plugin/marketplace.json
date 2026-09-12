@@ -1,0 +1,20 @@
+{
+  "name": "stateport-dev",
+  "interface": {
+    "displayName": "StatePort Dev"
+  },
+  "plugins": [
+    {
+      "name": "stateport",
+      "source": {
+        "source": "local",
+        "path": "./plugins/stateport"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

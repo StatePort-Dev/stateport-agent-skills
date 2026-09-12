@@ -14,3 +14,7 @@ copied into this source scaffold.
 Provider format documentation must be verified and recorded during each adapter
 implementation. A structural reference is not evidence that StatePort works in
 a particular host.
+
+- Codex plugins and supported surfaces: https://developers.openai.com/codex/plugins/
+- Portable plugin packaging and local marketplaces: https://developers.openai.com/plugins/build/plugins
+- Codex skills: https://developers.openai.com/codex/skills/
