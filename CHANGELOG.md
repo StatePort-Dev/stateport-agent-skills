@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a preview-first Cursor user-scope MCP helper that merges only a reviewed
+  Desktop launch, refuses conflicts and removes only a matching entry. Cursor
+  Agent plugin load and workflow remain unverified.
 - Add a thin VS Code VSIX source candidate with the generated canonical skill,
   opt-in Desktop MCP provider and exact Card handoff. The same VSIX installed
   and uninstalled in isolated VS Code and Cursor profiles; agent workflows are

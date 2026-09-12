@@ -24,3 +24,5 @@ a local installation result.
 
 The [VSIX source check](compatibility/vscode-vsix-source-2026-09-12.md) records
 only packaging and sideload evidence for VS Code and Cursor.
+The [Cursor Agent source check](compatibility/cursor-agent-source-2026-09-12.md)
+records only a synthetic MCP setup and an authentication-blocked agent attempt.

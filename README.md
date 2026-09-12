@@ -77,7 +77,9 @@ There is currently no tested end-user StatePort workflow. The
 [Copilot guide](providers/copilot/README.md) describe source-package
 installation and its limitations. The [VSIX source guide](extensions/vscode/README.md)
 records its narrower install evidence. Other provider guides are preparation
-documents. See [release gates](docs/RELEASING.md).
+documents; the [Cursor guide](providers/cursor/README.md) records an
+authentication-blocked plugin load attempt and synthetic MCP setup. See
+[release gates](docs/RELEASING.md).
 
 ## Governance and security
 

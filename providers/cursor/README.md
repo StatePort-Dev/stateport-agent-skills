@@ -1,30 +1,55 @@
-# Cursor integration preparation
+# Cursor Agent Plugin source candidate
 
-Cursor Agent Plugin status: **scaffold; no native plugin load or agent workflow
-verified**. A separate [VSIX source candidate](../../extensions/vscode/README.md)
-installed and uninstalled in Cursor `3.7.27`, but its skill, MCP and agent
-behavior have not been host-tested.
+Status: **scaffold for Cursor Agent discovery and workflows**. The portable
+[Agent Plugins 1.0 package](../../plugins/stateport/plugin.json) has one generated
+copy of the [canonical debugging skill](../../skills/stateport-debugging/SKILL.md).
+[Cursor's plugin documentation](https://prod.cursor.com/docs/plugins) says this
+root manifest and `skills/` layout can be loaded as an Agent Plugin; this is
+a host format claim, not proof that the StatePort package loaded in Cursor.
+The package has no `mcp.json`, because the installed Desktop launch path is
+user-specific. It adds no duplicate persistent rules or speculative hooks.
 
-The canonical source is
-[StatePort debugging](../../skills/stateport-debugging/SKILL.md).
-No separate strategy or manually copied skill belongs here.
+For Cursor IDE local testing, copy the reviewed `plugins/stateport` directory
+to `~/.cursor/plugins/local/stateport`, reload the window, and inspect
+**Customize** for the skill. Cursor documents that path and notes local
+imports can be disabled by organization policy. The current environment has
+Cursor `3.7.27`, but a GUI plugin-load observation has **not** been recorded.
+Do not mark the Agent Plugin installed from a VSIX sideload; the
+[native extension source](../../extensions/vscode/README.md) is separate.
 
-Before adding packaging, verify the current official host documentation and
-record the exact source URL, host version, supported surface, skill/plugin
-format, MCP transport, install scope, and discovery mechanism.
-Do not guess paths or commands from another agent's conventions.
+Cursor Agent CLI `2026.09.10-fd3934a` exposes `--plugin-dir <path>` for a local
+plugin. A synthetic read-only attempt with this package stopped at
+`Authentication required` before agent execution. No skill discovery or
+implicit/explicit invocation is claimed from that attempt. Authentication
+must be handled by the user through Cursor's supported flow.
 
-Implement the smallest native package or standalone-skill adapter the actual
-host supports. Preserve existing user settings. Test fresh install, duplicate
-installation, disabled integration, update, rollback, and removal. The adapter
-must use the public runtime contract, not a private source checkout.
+## Local MCP setup
 
-Record existing-card and create-card capabilities separately. A missing runtime
-or unsupported Capture API must produce a useful bounded error, not installation
-of unknown binaries, hidden network access, or an alternative browser.
+[Cursor's MCP documentation](https://prod.cursor.com/docs/mcp) specifies the
+user-scope `~/.cursor/mcp.json` file and local stdio transport. From the
+installed plugin directory, save and review Desktop's **Copy MCP config** JSON,
+then run:
 
-Run the relevant synthetic cases from
-[the evaluation guide](../../tests/evaluations/README.md) in a real host. Record
-all attempts including failures, actual versions, invocation mode, and safe
-results. Update [the registry](../registry.json) only when the evidence supports
-its status. Do not advertise automatic invocation from one successful demo.
+```sh
+node scripts/setup-cursor-mcp.mjs < desktop-mcp-config.json
+node scripts/setup-cursor-mcp.mjs --apply < desktop-mcp-config.json
+```
+
+The first command previews; `--apply` merges only `mcpServers.stateport`,
+retains other top-level/other-server values, leaves an identical entry alone,
+and refuses a conflicting entry or invalid file. It does not start the server.
+To remove only the matching entry with the same reviewed Desktop config:
+
+```sh
+node scripts/setup-cursor-mcp.mjs --remove < desktop-mcp-config.json
+```
+
+The helper requires Node.js 22+. It never configures a project-level server or
+overwrites a different `stateport` entry. Do not also enable the VSIX MCP
+provider or another user/workspace StatePort server without resolving the
+duplicate. Run `agent mcp list` or inspect Cursor's MCP UI for a real connection;
+the recorded `/bin/true --mcp` smoke cannot provide one.
+
+See the [safe local CLI record](../../docs/compatibility/cursor-agent-source-2026-09-12.md).
+Existing-Card workflow still needs a real Desktop connection. Create-first
+Capture remains gated on the public runtime lifecycle and managed Page API.

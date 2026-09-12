@@ -44,7 +44,7 @@ export function syncCodexSkill(root = repositoryRoot, check = false) {
       }
     }
   }
-  for (const name of ['desktop-mcp-config.mjs', 'setup-codex-mcp.mjs', 'setup-claude-mcp.mjs', 'setup-copilot-mcp.mjs']) {
+  for (const name of ['desktop-mcp-config.mjs', 'setup-codex-mcp.mjs', 'setup-claude-mcp.mjs', 'setup-copilot-mcp.mjs', 'setup-cursor-mcp.mjs']) {
     const setupSource = path.join(root, 'scripts', name);
     const setupDestination = path.join(root, 'plugins/stateport/scripts', name);
     const setupContent = fs.readFileSync(setupSource);
