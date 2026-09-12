@@ -1,93 +1,103 @@
-# StatePort Agent Skills
+# StatePort for coding agents
 
-Canonical skills and provider integration sources for using StatePort with
-coding agents. The intended workflow is to preserve a useful browser
-reproduction as a State Card and reuse that Card while changing current code.
+A browser bug is easier to fix when the agent can return to the same page and
+state after each code change. StatePort saves that reproduction as a **State
+Card**. This repository gives coding agents a shared debugging skill: start
+with a specific Card, inspect it, open it against current code, and compare
+the result after a fix.
 
-## Status
+StatePort Desktop is the separate local app that owns your Cards and runs the
+MCP server. This repository contains agent plugins and editor integration
+sources. It contains no Cards, browser profiles, credentials, or recorder.
 
-**Development source. No supported plugin release yet.**
+> **Development preview.** The plugins install from this GitHub repository,
+> but a real Desktop connection and a complete agent debugging run have not
+> been verified. Use a test project and synthetic data. There is no supported
+> end-user release yet.
 
-This repository contains a draft skill, source packages install-tested in
-Codex CLI, Claude Code, and Copilot CLI, provider preparation guides,
-structural checks, and evaluation scenarios. Isolated Linux profiles tested
-published Git-source installation through development version `0.1.0-alpha.4` in
-all three CLIs. Automatic invocation, StatePort MCP handshake,
-and end-to-end StatePort workflows have **not** been verified. A directory or a
-passing structural check is not a compatibility claim. The development version
-is not a published release.
+## Get started with an existing Card
 
-Do not install this draft in a production workflow or point it at sensitive
-applications. Contributors may evaluate it with synthetic data and explicit
-local authorization. There are no automatic install hooks, bundled credentials,
-embedded runtime, or automatic MCP configuration writes.
+You need StatePort Desktop installed locally, a Card you are allowed to use,
+and one of the coding-agent CLIs below. Keep the **exact Card ID and revision**:
+a similarly named or newer Card may represent a different reproduction.
 
-## Repository boundary
+1. Install the plugin for your agent from the public development source:
 
-- `skills/` owns the canonical behavior and portable references.
-- `providers/` owns client-specific preparation and packaging evidence.
-- `plugins/stateport/` contains one portable package with the generated
-  canonical skill and host manifests for Codex CLI and Claude Code; Copilot CLI
-  consumes its portable manifest.
-- `extensions/vscode/` is a thin native VSIX source candidate with the same
-  generated skill, opt-in local MCP provider and exact Card handoff command.
-- `extensions/jetbrains/` is a thin IntelliJ Platform ZIP source candidate
-  with exact Card handoff and local AI Assistant MCP setup guidance.
-- StatePort Desktop, its MCP server, capture/replay engine, and credentials stay
-  outside this repository. Skills consume the public contract; they do not
-  implement another runtime.
-- Agent plugins are distinct from IDE extensions. Native archive builds and
-  binary checks are not agent workflow proof.
+   **Codex CLI** ([setup guide](providers/codex/README.md))
 
-```text
-skills/stateport-debugging/
-  SKILL.md
-  references/
-providers/
-  registry.json
-  codex/
-  claude/
-  copilot/
-  cursor/
-docs/
-scripts/
-tests/
-extensions/vscode/
-extensions/jetbrains/
-.github/
-```
+   ```sh
+   codex plugin marketplace add StatePort-Dev/stateport-agent-skills --ref main
+   codex plugin add stateport@stateport-dev
+   ```
 
-## Development
+   **Claude Code** ([setup guide](providers/claude/README.md))
 
-Use Node.js 22 or later and npm. There are no package dependencies and no
-installation step is required for the checks:
+   ```sh
+   claude plugin marketplace add StatePort-Dev/stateport-agent-skills
+   claude plugin install stateport@stateport-dev
+   ```
+
+   **GitHub Copilot CLI** ([setup guide](providers/copilot/README.md))
+
+   ```sh
+   copilot plugin marketplace add StatePort-Dev/stateport-agent-skills
+   copilot plugin install stateport@stateport-dev
+   ```
+
+   Review the source before installing it. Installation was checked through
+   development version `0.1.0-alpha.4` in isolated Linux profiles. Start a
+   new agent session after installing the plugin.
+
+2. Connect the agent to your local Desktop. In StatePort Desktop, open
+   **Settings → Local MCP → Copy MCP config**. Review the copied command and
+   arguments, then follow your agent's setup guide above to add that MCP
+   server. The plugin does not connect Desktop automatically. Check that the
+   agent can reach the server and discover its public tools; saved settings
+   alone do not prove a connection.
+
+3. Give the agent your Card and the bug you want investigated. For example:
+
+   > Use my StatePort Card `<CARD_ID>` at revision `<REVISION>` to investigate
+   > this browser bug. Inspect that Card first, open it against my current
+   > local code, then reopen the same Card and compare evidence after the fix.
+   > Tell me what reproduced and what remains unverified.
+
+The [debugging skill](skills/stateport-debugging/SKILL.md) directs the agent
+to check the Card's project and target before use. A saved Card or a
+successful tool call does not, by itself, prove the bug was fixed.
+
+**No Card yet?** Capture the reproduction in Desktop and give the resulting
+Card to the agent. Agent-led Capture is not available through the inspected
+public runtime contract yet: it needs a supported Capture lifecycle and
+control of the exact page being recorded.
+
+## Which hosts have been checked?
+
+| Host | Evidence so far | Details |
+| --- | --- | --- |
+| Codex CLI, Claude Code, GitHub Copilot CLI | Git-source plugin install, skill discovery, and removal in isolated Linux profiles | Setup guides above |
+| VS Code and Cursor VSIX | A local VSIX installed and was removed in isolated editor profiles; agent use was not checked | [VSIX guide](extensions/vscode/README.md) |
+| Cursor Agent plugin | Source and synthetic MCP setup; plugin load stopped at authentication | [Cursor guide](providers/cursor/README.md) |
+| IntelliJ IDEA and WebStorm | Local ZIP build and binary compatibility checks; IDE actions were not run | [JetBrains guide](extensions/jetbrains/README.md) |
+| GitHub Copilot Agent in VS Code, Codex desktop/IDE | Preparation only | [Compatibility inventory](docs/COMPATIBILITY.md) |
+
+These checks do not verify an end-to-end StatePort agent workflow. Automatic
+skill selection, a real MCP handshake, Card reuse in a live agent, agent-led
+Capture, and remote execution need separate evidence. See the
+[compatibility inventory](docs/COMPATIBILITY.md) for exact versions and
+recorded results.
+
+## Contributing
+
+The [canonical skill](skills/stateport-debugging/SKILL.md) defines the
+debugging workflow; provider packages adapt it to their hosts. Read the
+[contributor instructions](AGENTS.md) and [contribution guide](CONTRIBUTING.md)
+before changing source. With Node.js 22 or later, run:
 
 ```sh
 npm run verify
 ```
 
-Read [AGENTS.md](AGENTS.md) and [CONTRIBUTING.md](CONTRIBUTING.md) before changes.
-The canonical skill is [stateport-debugging](skills/stateport-debugging/SKILL.md).
-The [compatibility guide](docs/COMPATIBILITY.md) defines what counts as verified.
-The [evaluation guide](tests/evaluations/README.md) separates structural tests
-from real-agent behavioral evidence.
-
-## Installation and releases
-
-There is currently no tested end-user StatePort workflow. The
-[Codex guide](providers/codex/README.md),
-[Claude Code guide](providers/claude/README.md), and
-[Copilot guide](providers/copilot/README.md) describe source-package
-installation and its limitations. The [VSIX source guide](extensions/vscode/README.md)
-and [JetBrains source guide](extensions/jetbrains/README.md) record narrower
-native-artifact evidence. Other provider guides are preparation
-documents; the [Cursor guide](providers/cursor/README.md) records an
-authentication-blocked plugin load attempt and synthetic MCP setup. See
-[release gates](docs/RELEASING.md).
-
-## Governance and security
-
-See [architecture](docs/ARCHITECTURE.md), [security](SECURITY.md), and
-[bootstrap instructions](docs/GITHUB_SETUP.md). This repository's MIT license
-covers its own source only; it does not relicense StatePort Desktop or grant
-rights to third-party trademarks. See [LICENSE](LICENSE).
+No dependency install is needed for this check. See the [release gates](docs/RELEASING.md),
+[security policy](SECURITY.md), and [MIT license](LICENSE). No tagged or vendor
+marketplace release has been published from this repository.
