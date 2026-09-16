@@ -90,4 +90,6 @@ an ephemeral, read-only Codex CLI session launched the installed Electron
 runtime without a display context, so it exited before MCP discovery. The
 temporary configuration was removed after the probe. See the
 [installed MCP evidence](../../docs/compatibility/codex-cli-installed-mcp-2026-09-16.md);
-it is a negative host result, not Card or Capture workflow evidence.
+beta.11 now advertises the public Capture lifecycle in a direct MCP smoke, but
+the Codex-host display blocker remains. This is not Card or Capture workflow
+evidence.
