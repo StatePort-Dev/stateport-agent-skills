@@ -5,13 +5,13 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const script = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../scripts/setup-codex-mcp.mjs');
-const valid = JSON.stringify({ mcpServers: { stateport: { command: '/opt/State Port.AppImage', args: ['--mcp'] } } });
+const valid = JSON.stringify({ mcpServers: { stateport: { command: '/opt/State Port.AppImage', args: ['--ozone-platform=headless', '--headless', '--disable-gpu', '--mcp'] } } });
 
 test('accepts only the installed Desktop stdio launch and preserves an existing server', async () => {
   assert.ok(existsSync(script), 'Codex MCP setup script is missing');
   const { parseDesktopConfig, planCodexMcpSetup } = await import(pathToFileURL(script).href);
   const launch = parseDesktopConfig(valid, 'linux');
-  assert.deepEqual(launch, { command: '/opt/State Port.AppImage', args: ['--mcp'] });
+  assert.deepEqual(launch, { command: '/opt/State Port.AppImage', args: ['--ozone-platform=headless', '--headless', '--disable-gpu', '--mcp'] });
   assert.equal(planCodexMcpSetup(launch, []).action, 'add');
   assert.equal(planCodexMcpSetup(launch, [{ name: 'other', transport: { type: 'stdio', command: '/bin/true', args: [] } }]).action, 'add');
   assert.equal(planCodexMcpSetup(launch, [{ name: 'stateport', transport: { type: 'stdio', command: launch.command, args: launch.args } }]).action, 'unchanged');

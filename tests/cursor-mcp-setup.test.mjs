@@ -8,7 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const source = path.join(root, 'scripts/setup-cursor-mcp.mjs');
 const packaged = path.join(root, 'plugins/stateport/scripts/setup-cursor-mcp.mjs');
-const desktop = JSON.stringify({ mcpServers: { stateport: { command: '/bin/true', args: ['--mcp'] } } });
+const desktop = JSON.stringify({ mcpServers: { stateport: { command: '/bin/true', args: ['--ozone-platform=headless', '--headless', '--disable-gpu', '--mcp'] } } });
 
 test('Cursor MCP helper previews then preserves unrelated entries on apply and repeat', async () => {
   assert.equal(readFileSync(packaged, 'utf8'), readFileSync(source, 'utf8'));
@@ -24,7 +24,7 @@ test('Cursor MCP helper previews then preserves unrelated entries on apply and r
     assert.equal(setupCursorMcp(file, desktop, true), 'add');
     const after = JSON.parse(readFileSync(file, 'utf8'));
     assert.deepEqual(after.mcpServers.other, original.mcpServers.other);
-    assert.deepEqual(after.mcpServers.stateport, { type: 'stdio', command: '/bin/true', args: ['--mcp'] });
+    assert.deepEqual(after.mcpServers.stateport, { type: 'stdio', command: '/bin/true', args: ['--ozone-platform=headless', '--headless', '--disable-gpu', '--mcp'] });
     const bytes = readFileSync(file, 'utf8');
     assert.equal(setupCursorMcp(file, desktop, true), 'unchanged');
     assert.equal(readFileSync(file, 'utf8'), bytes);

@@ -16,7 +16,11 @@ export function parseDesktopConfig(text, platform = process.platform) {
   if (typeof command !== 'string') throw new Error('Desktop MCP command must be an absolute installed path');
   const absolute = platform === 'win32' ? path.win32.isAbsolute(command) : path.isAbsolute(command);
   if (!absolute) throw new Error('Desktop MCP command must be an absolute installed path');
-  const expected = platform === 'win32' ? ['--no-stdio-init', '--mcp'] : ['--mcp'];
+  const expected = platform === 'win32'
+    ? ['--no-stdio-init', '--mcp']
+    : platform === 'linux'
+      ? ['--ozone-platform=headless', '--headless', '--disable-gpu', '--mcp']
+      : ['--mcp'];
   if (!Array.isArray(args) || args.length !== expected.length || args.some((arg, i) => arg !== expected[i])) {
     throw new Error('Desktop MCP arguments do not match the installed runtime contract');
   }

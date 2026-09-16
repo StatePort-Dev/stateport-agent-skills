@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const extensionRoot = path.join(root, 'extensions/vscode');
 const require = createRequire(import.meta.url);
-const desktop = JSON.stringify({ mcpServers: { stateport: { command: '/bin/true', args: ['--mcp'] } } });
+const desktop = JSON.stringify({ mcpServers: { stateport: { command: '/bin/true', args: ['--ozone-platform=headless', '--headless', '--disable-gpu', '--mcp'] } } });
 
 function host() {
   const commands = new Map();
@@ -56,7 +56,7 @@ test('VS Code extension provides no MCP server until explicit configuration and 
   await h.commands.get('stateport.configureMcp')();
   const servers = await h.provider.provideMcpServerDefinitions();
   assert.equal(servers.length, 1);
-  assert.deepEqual({ label: servers[0].label, command: servers[0].command, args: servers[0].args }, { label: 'StatePort', command: '/bin/true', args: ['--mcp'] });
+  assert.deepEqual({ label: servers[0].label, command: servers[0].command, args: servers[0].args }, { label: 'StatePort', command: '/bin/true', args: ['--ozone-platform=headless', '--headless', '--disable-gpu', '--mcp'] });
   assert.equal(await h.provider.resolveMcpServerDefinition(servers[0]), servers[0]);
   assert.equal(h.changeCount, 1);
   await h.commands.get('stateport.disconnectMcp')();
@@ -73,7 +73,7 @@ test('VS Code extension rejects malformed config and requires reset before chang
   assert.deepEqual(await h.provider.provideMcpServerDefinitions(), []);
   h.inputs.push(desktop);
   await h.commands.get('stateport.configureMcp')();
-  h.inputs.push(JSON.stringify({ mcpServers: { stateport: { command: '/bin/echo', args: ['--mcp'] } } }));
+  h.inputs.push(JSON.stringify({ mcpServers: { stateport: { command: '/bin/echo', args: ['--ozone-platform=headless', '--headless', '--disable-gpu', '--mcp'] } } }));
   await h.commands.get('stateport.configureMcp')();
   assert.equal((await h.provider.provideMcpServerDefinitions())[0].command, '/bin/true');
 });

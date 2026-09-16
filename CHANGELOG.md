@@ -11,6 +11,9 @@
 
 ### Packaging and providers
 
+- Accept the exact Linux headless MCP launch supplied by Desktop beta.12 in
+  the Codex, Claude Code, Copilot CLI, and Cursor setup helpers. The helpers
+  still reject guessed commands, extra arguments, and environment overrides.
 - Add one integration release metadata source and deterministic version sync
   across portable plugin, Codex, Claude and native source manifests. Raw skill
   copies carry their version locally. Manual copies remain user-managed.
