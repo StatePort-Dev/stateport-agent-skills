@@ -56,9 +56,9 @@ plugin uninstall does not remove it.
 
 The [recorded CLI evidence](../../docs/compatibility/copilot-cli-source-2026-09-12.md)
 is limited to installation and synthetic configuration. Supplied-Card reuse
-needs a real Desktop MCP connection; create-first Capture needs the public
-lifecycle and managed Page capabilities that are not yet in the inspected
-contract.
+needs a real Desktop MCP connection; create-first Capture additionally needs
+the public lifecycle, available enabled permission, and the exact managed Page
+capability reported by that connection.
 
 ## VS Code Agent
 

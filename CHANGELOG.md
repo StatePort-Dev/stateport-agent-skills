@@ -4,7 +4,10 @@
 
 ### Behavior
 
-- Keep the existing Card reuse and Capture boundaries; no new runtime action.
+- Add instructions for the public, capability-gated agent Capture lifecycle:
+  inspect capability and permission first, use the exact managed Page, then
+  require Review before saving an ordinary Card. Existing-Card reuse remains
+  available when Capture is absent or disabled.
 
 ### Packaging and providers
 
@@ -19,9 +22,8 @@
 
 ### Compatibility
 
-- Define capability-first MCP compatibility decisions and explicit update
-  guidance. A runtime contract projection remains a separate dependency;
-  no real runtime handshake or host update transition is claimed.
+- Define capability-first Capture discovery and explicit safe blockers. A real
+  host workflow and host update transition remain unverified.
 
 ### Breaking changes
 

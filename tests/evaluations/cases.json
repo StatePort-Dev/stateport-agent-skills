@@ -16,7 +16,8 @@
       "name": "Capture first faithful repro",
       "prompt": "The synthetic form displays the wrong total after changing its quantity. No Card is available.",
       "expected": [
-        "Check public Capture and permission.",
+        "Call get_capture_capability and require available, enabled permission.",
+        "Require the complete public Capture lifecycle before starting.",
         "Record the exact managed Page before reproducing.",
         "Confirm symptom before canonical Save."
       ],

@@ -69,10 +69,13 @@ The [debugging skill](skills/stateport-debugging/SKILL.md) directs the agent
 to check the Card's project and target before use. A saved Card or a
 successful tool call does not, by itself, prove the bug was fixed.
 
-**No Card yet?** Capture the reproduction in Desktop and give the resulting
-Card to the agent. Agent-led Capture is not available through the inspected
-public runtime contract yet: it needs a supported Capture lifecycle and
-control of the exact page being recorded.
+**No Card yet?** A runtime that advertises the public Capture lifecycle can
+create one through the agent. First inspect `get_capture_capability`; use only
+an available, permitted managed Capture session. The agent must record the
+exact managed Page before trying the reproduction, stop into Review, confirm
+the observed symptom, and save the ordinary Card only then. If that lifecycle
+or permission is unavailable, capture it in Desktop and give the resulting
+Card to the agent. An unrelated agent browser is not a substitute.
 
 ## Which hosts have been checked?
 
@@ -85,8 +88,8 @@ control of the exact page being recorded.
 | GitHub Copilot Agent in VS Code, Codex desktop/IDE | Preparation only | [Compatibility inventory](docs/COMPATIBILITY.md) |
 
 These checks do not verify an end-to-end StatePort agent workflow. Automatic
-skill selection, a real MCP handshake, Card reuse in a live agent, agent-led
-Capture, and remote execution need separate evidence. See the
+skill selection, a real MCP handshake, Card reuse in a live agent,
+capability-gated agent Capture, and remote execution need separate evidence. See the
 [compatibility inventory](docs/COMPATIBILITY.md) for exact versions and
 recorded results.
 

@@ -79,6 +79,8 @@ delete State Cards, Desktop data, or other servers.
 
 The tested local install/remove and synthetic MCP-configuration results are
 recorded in [the Codex CLI source evidence](../../docs/compatibility/codex-cli-source-2026-09-12.md).
-Existing-Card AG-01 and full Capture AG-02–AG-05 have not run in a real agent
-host. The public runtime currently lacks the Capture lifecycle from the
-separate runtime work, so this package does not advertise create-first repro.
+Existing-Card AG-01 and Capture AG-02–AG-05 have not run in a real agent host.
+Create-first reproduction is available only when the connected runtime
+advertises `get_capture_capability` plus the complete public Capture lifecycle,
+and reports available, enabled permission. This package neither grants that
+permission nor claims host acceptance.

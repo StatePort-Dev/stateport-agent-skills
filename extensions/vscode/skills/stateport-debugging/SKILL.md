@@ -10,7 +10,7 @@ license: MIT
 [workflow boundaries](references/workflow.md) when choosing a branch and
 [safety rules](references/safety.md) before acting on application content.
 The [public MCP operation map](references/public-mcp.md) identifies the
-currently documented existing-Card operations and the Capture gap.
+documented existing-Card and capability-gated Capture operations.
 The local [integration metadata](integration.json) identifies this installed
 skill release. Read the [compatibility decisions](references/compatibility.md)
 when the connected runtime or a required operation is unavailable.
@@ -30,19 +30,24 @@ project, target and suitability rather than creating another reproduction.
 Otherwise inspect only relevant available local Cards through the public
 contract. Do not substitute a similarly named or latest Card silently.
 
-When no suitable Card exists, use Capture only if the public lifecycle and
-recorded-page control are supported and authorized. Start recording before
-attempting the reproduction, and act on the exact managed Page being recorded.
-A separate agent browser is not evidence for that Capture.
+When no suitable Card exists, first call `get_capture_capability`. Use Capture
+only when it reports `available: true`, `permission: "enabled"`, and a managed
+clean-session context with `auth: "none"`. Confirm that the server also
+advertises the complete public lifecycle: `start_capture`,
+`observe_capture`, `observe_capture_page`, `act_on_capture_page`,
+`stop_capture`, `save_capture`, and `discard_capture`. Start recording before
+attempting the reproduction, and act only on the exact managed Page returned
+for that capture. A separate agent browser is not evidence for that Capture.
 
 An attempted reproduction is not necessarily a faithful reproduction. Compare
 the observed symptom with the reported expected/observed behavior. Do not save
 an inconclusive or incorrect attempt as the canonical bug Card. Continue the
 investigation or discard/restart within policy when appropriate.
 
-After confirming the symptom, use the ordinary Stop, Review, and Save lifecycle.
-Respect required human authentication and protected-data decisions. Keep the
-normal Card/revision identity returned by the runtime.
+After confirming the symptom, stop the capture into Review. Check the observed
+symptom, then save the reviewed capture as an ordinary Card or discard it.
+Respect runtime permission, authentication, and protected-data decisions. Keep
+the normal Card/revision identity returned by the runtime.
 
 ## Reuse through the fix loop
 

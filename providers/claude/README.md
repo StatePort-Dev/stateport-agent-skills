@@ -15,8 +15,9 @@ Five manual entry points are also available:
 `/stateport:use-card`, `/stateport:new-repro`, `/stateport:reopen-card`,
 `/stateport:compare-runs`, and `/stateport:check-connection`. They carry only
 host-specific invocation metadata and route the request to the canonical skill;
-they do not add a second debugging strategy. The create-first entry reports an
-unsupported capability until the connected public runtime actually exposes it.
+they do not add a second debugging strategy. The create-first entry first
+requires the connected runtime to advertise the complete public Capture
+lifecycle with available, enabled permission.
 
 The package intentionally has no `.mcp.json` and runs no install hooks. Connect
 only the MCP server supplied by an installed StatePort Desktop using the
@@ -40,8 +41,8 @@ use it only after the installed Desktop is ready. The helper needs Node.js 22+
 and Claude Code on `PATH`. The package cannot infer an executable,
 authenticate the copied configuration, or authorize Capture.
 The [public MCP operation map](../../skills/stateport-debugging/references/public-mcp.md)
-supports supplied-Card reuse; agent Capture and managed-Page control are not
-present in the current public contract.
+supports supplied-Card reuse and capability-gated agent Capture. It does not
+grant Capture permission or prove a Claude Code workflow.
 
 ## Source installation
 

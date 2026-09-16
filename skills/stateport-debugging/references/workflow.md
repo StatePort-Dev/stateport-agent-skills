@@ -4,10 +4,18 @@ A supplied Card selects reuse; it does not prevent this skill from applying.
 Keep exact Card/revision identity and intended project/target together. A stale,
 missing or ambiguous artifact requires explicit recovery or selection.
 
-Existing-card consumption and new-card creation are independent capabilities.
-An installation may support public inspect/open/compare but lack public Capture.
-Do not disable a supported existing-card workflow merely because Capture or an
-integration update is unavailable. Do not claim support until it has been tested.
+Existing-Card consumption and new-Card creation are independent capabilities.
+An installation may support public inspect/open/compare but lack public
+Capture. Do not disable a supported existing-Card workflow merely because
+Capture or an integration update is unavailable.
+
+Agent Capture requires discovery of `get_capture_capability` and the complete
+public lifecycle: `start_capture`, `observe_capture`, `observe_capture_page`,
+`act_on_capture_page`, `stop_capture`, `save_capture`, and `discard_capture`.
+Proceed only when capability discovery says it is available and permission is
+enabled. Use the runtime's clean, managed session and `auth: "none"`; never
+substitute a profile-backed or unrelated browser. Do not claim agent support
+until a real host run has been recorded.
 
 Use tool discovery and the schemas actually advertised by the local MCP server.
 This draft intentionally specifies no executable name, transport endpoint, path,

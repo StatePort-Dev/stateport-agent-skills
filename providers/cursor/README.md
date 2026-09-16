@@ -57,4 +57,5 @@ the recorded `/bin/true --mcp` smoke cannot provide one.
 
 See the [safe local CLI record](../../docs/compatibility/cursor-agent-source-2026-09-12.md).
 Existing-Card workflow still needs a real Desktop connection. Create-first
-Capture remains gated on the public runtime lifecycle and managed Page API.
+Capture additionally requires the public lifecycle, available enabled
+permission, and the exact managed Page capability reported by that connection.
