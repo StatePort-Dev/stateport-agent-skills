@@ -84,3 +84,10 @@ Create-first reproduction is available only when the connected runtime
 advertises `get_capture_capability` plus the complete public Capture lifecycle,
 and reports available, enabled permission. This package neither grants that
 permission nor claims host acceptance.
+
+The installed-Desktop probe on 2026-09-16 reached a different host blocker:
+an ephemeral, read-only Codex CLI session launched the installed Electron
+runtime without a display context, so it exited before MCP discovery. The
+temporary configuration was removed after the probe. See the
+[installed MCP evidence](../../docs/compatibility/codex-cli-installed-mcp-2026-09-16.md);
+it is a negative host result, not Card or Capture workflow evidence.
