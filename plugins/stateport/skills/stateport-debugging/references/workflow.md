@@ -18,8 +18,7 @@ substitute a profile-backed or unrelated browser. Do not claim agent support
 until a real host run has been recorded.
 
 Use tool discovery and the schemas actually advertised by the local MCP server.
-This draft intentionally specifies no executable name, transport endpoint, path,
-or fixed tool name. The provider integration must bind these to a verified
+This draft specifies no executable name, transport endpoint or local path. The provider integration must bind these to a verified
 public runtime contract before release.
 
 Capture lifecycle completion is a runtime property. Whether the reported symptom
@@ -33,3 +32,10 @@ target before presenting results as verification of a code change.
 Browser interaction may itself have side effects in the target application.
 Permission to record does not authorize a purchase, deletion, credential change,
 external message, or unrelated navigation. Apply user and host approval rules.
+
+Explicit installation is a separate user-requested setup workflow. Connection
+verification ends with host discovery and works with zero Cards: do not list
+Cards or start Capture just to verify setup. It does not prove case activation.
+Once a Card is supplied, keep that revision and separate baseline/candidate run
+references throughout code changes; make changed conditions explicit and never
+weaken replay or evidence checks to claim success.

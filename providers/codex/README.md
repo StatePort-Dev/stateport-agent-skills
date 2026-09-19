@@ -10,6 +10,13 @@ and setup helper are generated from the repository sources; run
 `npm run sync` after changing canonical source or metadata and
 `npm run verify` to check freshness. Do not edit the packaged copies directly.
 
+For explicit first-time setup, start with the [setup entrypoint](../../AGENT_INSTALL.md)
+and Desktop **Settings → Local MCP**. A Card is not required. Verify public tool
+discovery in the actual host without listing Cards, calling inspect on a fake
+ID, or starting Capture. Zero Cards means connection may be verified while
+case verification remains unperformed. Once a case is saved in Desktop, use
+its secondary instructions link and Settings **Copy task** (when offered).
+
 ## Observed host contract
 
 On 2026-09-12, Codex CLI `0.154.0-alpha.6.1` accepted the portable Agent Plugins
@@ -93,3 +100,8 @@ temporary configuration was removed after the probe. See the
 beta.11 now advertises the public Capture lifecycle in a direct MCP smoke, but
 the Codex-host display blocker remains. This is not Card or Capture workflow
 evidence.
+
+The later [beta.16 host discovery probe](../../docs/compatibility/codex-cli-discovery-2026-09-19.md)
+discovered inspect/open tools in a real Codex CLI session without Card reads.
+It supersedes the earlier display failure for discovery on that version only;
+it did not load a plugin or prove Capture or the existing-Card fix loop.

@@ -11,15 +11,19 @@ MCP server. This repository contains agent plugins and editor integration
 sources. It contains no Cards, browser profiles, credentials, or recorder.
 
 > **Development preview.** The plugins install from this GitHub repository,
-> but a real Desktop connection and a complete agent debugging run have not
-> been verified. Use a test project and synthetic data. There is no supported
+> but a complete agent debugging run has not been verified. A bounded
+> [Codex CLI tool-discovery probe](docs/compatibility/codex-cli-discovery-2026-09-19.md)
+> is separate from plugin installation and case verification. Use a test project and synthetic data. There is no supported
 > end-user release yet.
 
-## Get started with an existing Card
+## Connect before your first Card
 
-You need StatePort Desktop installed locally, a Card you are allowed to use,
-and one of the coding-agent CLIs below. Keep the **exact Card ID and revision**:
-a similarly named or newer Card may represent a different reproduction.
+Start in installed Desktop **Settings → Local MCP**, available even with zero
+Cards. The empty Library's **Set up coding agent** link leads to that same guide
+in Desktop versions with this entry. Review **Copy setup** and paste it into
+your selected agent, or use the manual instructions below on older Desktop.
+The [setup entrypoint](AGENT_INSTALL.md) explains preview, approvals, discovery
+and recovery. No trial or agent Capture permission is needed for setup.
 
 1. Install the plugin for your agent from the public development source:
 
@@ -58,7 +62,13 @@ a similarly named or newer Card may represent a different reproduction.
    agent can reach the server and discover its public tools; saved settings
    alone do not prove a connection.
 
-3. Give the agent your Card and the bug you want investigated. For example:
+3. With no Cards, setup is complete once the host discovers the public tools;
+   case verification is still unperformed. Record your first case using ordinary
+   Desktop **Capture → Review → Save**. From that exact Card, follow the secondary
+   setup/instructions link to Settings and review **Copy task**. Saved Notes /
+   Observed / Expected are opt-in; the selected AI host may process prompts
+   remotely. On older Desktop, give the agent exact ID/revision and symptom:
+
 
    > Use my StatePort Card `<CARD_ID>` at revision `<REVISION>` to investigate
    > this browser bug. Inspect that Card first, open it against my current
@@ -69,13 +79,10 @@ The [debugging skill](skills/stateport-debugging/SKILL.md) directs the agent
 to check the Card's project and target before use. A saved Card or a
 successful tool call does not, by itself, prove the bug was fixed.
 
-**No Card yet?** A runtime that advertises the public Capture lifecycle can
-create one through the agent. First inspect `get_capture_capability`; use only
-an available, permitted managed Capture session. The agent must record the
-exact managed Page before trying the reproduction, stop into Review, confirm
-the observed symptom, and save the ordinary Card only then. If that lifecycle
-or permission is unavailable, capture it in Desktop and give the resulting
-Card to the agent. An unrelated agent browser is not a substitute.
+**Setup is not a Capture test.** Do not enumerate the library or record a case
+just to verify the connection. Agent-controlled Capture needs a separately
+verified runtime/host workflow and explicit permission. Desktop Capture remains
+the first-case path; an unrelated agent browser is not a StatePort Capture.
 
 ## Which hosts have been checked?
 

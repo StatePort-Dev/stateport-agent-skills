@@ -27,3 +27,8 @@ integration update. An older Desktop with the required public operations may
 still work. Treat an unknown or malformed response as a safe blocker with the
 observed operation and schema, not as proof of a particular version mismatch.
 Do not download, execute, or self-update integration code.
+
+These no-install/no-config-bypass rules govern ordinary debugging. A separately
+requested installation follows the public setup entrypoint and the exact host's
+provider guide, with preview and host approvals. Missing Cards are not a setup
+compatibility failure; successful discovery is independent of Open/fix evidence.
