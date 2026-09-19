@@ -6,6 +6,9 @@ export { parseDesktopConfig } from './desktop-mcp-config.mjs';
 
 export function planCodexMcpSetup(launch, servers) {
   if (!Array.isArray(servers)) throw new Error('Codex MCP inventory is unavailable');
+  if (servers.some(server => server.name === 'scenariodeck' && server.enabled !== false)) {
+    throw new Error('An enabled legacy scenariodeck entry exists; confirm its ownership and resolve migration explicitly before StatePort setup');
+  }
   const existing = servers.find(server => server.name === 'stateport');
   if (!existing) return { action: 'add', launch };
   if (existing.enabled !== false && existing.transport?.type === 'stdio' &&

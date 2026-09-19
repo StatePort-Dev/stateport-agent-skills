@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### 0.1.0-alpha.8 source candidate
+
+- Add the explicit `AGENT_INSTALL.md` setup entrypoint and Settings-first quick
+  start. Setup supports zero Cards and verifies discovery without Capture,
+  library enumeration, permission grants or trial activation.
+- Clarify approved exact-Card handoff, opt-in saved bug context, separate run
+  evidence and same-revision reuse after code changes. Debugging still cannot
+  install or alter configuration to bypass missing capabilities.
+- Stop Codex MCP setup when an enabled legacy `scenariodeck` entry exists,
+  requiring explicit migration before adding or retaining `stateport`.
+- Record bounded beta.16 Codex CLI host discovery separately from fresh-profile
+  plugin setup and a complete current-code fix loop, which remain unverified.
+  No marketplace release or additional host support is claimed.
+
 ### Behavior
 
 - Add instructions for the public, capability-gated agent Capture lifecycle:

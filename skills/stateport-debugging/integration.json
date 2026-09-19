@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "integrationVersion": "0.1.0-alpha.7",
+  "integrationVersion": "0.1.0-alpha.8",
   "mcpContract": {
     "minimum": 1,
     "maximum": 1

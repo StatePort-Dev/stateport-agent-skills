@@ -5,7 +5,11 @@ before acting. The names below match the public StatePort MCP reference as
 inspected on 2026-09-16; the connected runtime's actual capabilities take
 precedence. Do not assume an operation exists because this file lists it.
 
-For an existing Card, use `list_states` only when no exact Card was supplied.
+For explicit setup, stop after public tool discovery: no library enumeration,
+Card inspection or Capture is required, even with zero Cards. This is connection
+proof only.
+
+For an existing-Card debugging job, use `list_states` only when no exact Card was supplied.
 Use `inspect_state` on the exact identifier before `open_state`. The public
 contract also exposes `stop_run`, `get_run_summary`, `compare_runs`, and
 `get_reproduction_outcome` for safe run evidence. Discover each input schema

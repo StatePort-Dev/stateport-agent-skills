@@ -28,3 +28,11 @@ test('rejects config extras and unsupported launch arguments', async () => {
   assert.throws(() => parseDesktopConfig(JSON.stringify({ mcpServers: { stateport: { command: 'stateport', args: ['--mcp'] } } }), 'linux'), /absolute/);
   assert.throws(() => parseDesktopConfig(JSON.stringify({ mcpServers: { stateport: { command: null, args: ['--mcp'] } } }), 'linux'), /absolute/);
 });
+
+test('stops before adding or retaining a duplicate legacy integration', async () => {
+  const { parseDesktopConfig, planCodexMcpSetup } = await import(pathToFileURL(script).href);
+  const launch = parseDesktopConfig(valid, 'linux');
+  const legacy = { name: 'scenariodeck', transport: { type: 'stdio', command: launch.command, args: launch.args } };
+  assert.throws(() => planCodexMcpSetup(launch, [legacy]), /legacy/i);
+  assert.throws(() => planCodexMcpSetup(launch, [legacy, { ...legacy, name: 'stateport' }]), /legacy/i);
+});
