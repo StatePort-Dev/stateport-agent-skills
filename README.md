@@ -20,7 +20,7 @@ sources. It contains no Cards, browser profiles, credentials, or recorder.
 
 Start in installed Desktop **Settings → Coding agents**, available even with zero
 Cards. The empty Library's **Set up coding agent** link leads to that same guide
-in Desktop versions with this entry. Review **Copy setup** and paste it into
+in Desktop versions with this entry. Choose **Connect an agent**, review **Copy setup** and paste it into
 your selected agent, or use the manual instructions below on older Desktop.
 The [single setup entrypoint](AGENT_INSTALL.md) chooses instructions for the
 current agent, including a generic path for agents without a dedicated adapter.
@@ -57,16 +57,17 @@ Older Desktop versions label this section **Local MCP**. No trial or agent Captu
    distinguish manual refresh, conditional auto-update and unverified surfaces.
 
 2. Connect the agent to your local Desktop. In StatePort Desktop, open
-   **Settings → Coding agents → Copy MCP config**. Review the copied command and
+   **Settings → Coding agents → Connection details → Copy MCP config**. Review the copied command and
    arguments, then follow your agent's setup guide above to add that MCP
    server. The plugin does not connect Desktop automatically. Check that the
    agent can reach the server and discover its public tools; saved settings
    alone do not prove a connection.
 
 3. With no Cards, setup is complete once the host discovers the public tools;
-   case verification is still unperformed. Record your first case using ordinary
-   Desktop **Capture → Review → Save**. From that exact Card, follow the secondary
-   setup/instructions link to Settings and review **Copy task**. Saved Notes /
+   case verification is still unperformed. Record a case using Desktop
+   **Capture → Review → Save**, or use **Capture with an agent** with explicit
+   permission and a capable runtime/host. On the saved Card, expand
+   **Use with agent** and review **Copy task** in place. Saved Notes /
    Observed / Expected are opt-in; the selected AI host may process prompts
    remotely. On older Desktop, give the agent exact ID/revision and symptom:
 
@@ -83,7 +84,7 @@ successful tool call does not, by itself, prove the bug was fixed.
 **Setup is not a Capture test.** Do not enumerate the library or record a case
 just to verify the connection. Agent-controlled Capture needs a separately
 verified runtime/host workflow and explicit permission. Desktop Capture remains
-the first-case path; an unrelated agent browser is not a StatePort Capture.
+available; an unrelated agent browser is not a StatePort Capture.
 
 ## Which hosts have been checked?
 
