@@ -18,12 +18,13 @@ sources. It contains no Cards, browser profiles, credentials, or recorder.
 
 ## Connect before your first Card
 
-Start in installed Desktop **Settings → Local MCP**, available even with zero
+Start in installed Desktop **Settings → Coding agents**, available even with zero
 Cards. The empty Library's **Set up coding agent** link leads to that same guide
 in Desktop versions with this entry. Review **Copy setup** and paste it into
 your selected agent, or use the manual instructions below on older Desktop.
-The [setup entrypoint](AGENT_INSTALL.md) explains preview, approvals, discovery
-and recovery. No trial or agent Capture permission is needed for setup.
+The [single setup entrypoint](AGENT_INSTALL.md) chooses instructions for the
+current agent, including a generic path for agents without a dedicated adapter.
+Older Desktop versions label this section **Local MCP**. No trial or agent Capture permission is needed for setup.
 
 1. Install the plugin for your agent from the public development source:
 
@@ -56,7 +57,7 @@ and recovery. No trial or agent Capture permission is needed for setup.
    distinguish manual refresh, conditional auto-update and unverified surfaces.
 
 2. Connect the agent to your local Desktop. In StatePort Desktop, open
-   **Settings → Local MCP → Copy MCP config**. Review the copied command and
+   **Settings → Coding agents → Copy MCP config**. Review the copied command and
    arguments, then follow your agent's setup guide above to add that MCP
    server. The plugin does not connect Desktop automatically. Check that the
    agent can reach the server and discover its public tools; saved settings

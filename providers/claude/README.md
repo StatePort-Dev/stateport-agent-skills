@@ -45,7 +45,7 @@ supports supplied-Card reuse and capability-gated agent Capture. It does not
 grant Capture permission or prove a Claude Code workflow.
 
 For explicit first-time setup, start with the [setup entrypoint](../../AGENT_INSTALL.md)
-and Desktop **Settings → Local MCP**. A Card is not required. Verify public tool
+and Desktop **Settings → Coding agents**. A Card is not required. Verify public tool
 discovery in the actual host without listing Cards, calling inspect on a fake
 ID, or starting Capture. Zero Cards means connection may be verified while
 case verification remains unperformed. Once a case is saved in Desktop, use
