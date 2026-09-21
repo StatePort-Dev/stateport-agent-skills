@@ -1,0 +1,27 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "stateport",
+  "version": "0.1.0-alpha.10",
+  "description": "Use an authorized local StatePort State Card during browser bug investigation and fix verification.",
+  "author": {
+    "name": "StatePort-Dev",
+    "url": "https://github.com/StatePort-Dev"
+  },
+  "repository": "https://github.com/StatePort-Dev/stateport-agent-skills",
+  "license": "MIT",
+  "keywords": ["stateport", "debugging", "state-card"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "StatePort",
+        "shortDescription": "Reuse State Cards while debugging browser bugs.",
+        "longDescription": "Adds the StatePort debugging skill. Connect the installed local Desktop MCP separately before using a Card.",
+        "developerName": "StatePort-Dev",
+        "category": "Developer Tools",
+        "capabilities": ["Read"],
+        "websiteURL": "https://github.com/StatePort-Dev/stateport-agent-skills",
+        "defaultPrompt": ["Use the supplied StatePort State Card to investigate this browser bug."]
+      }
+    }
+  }
+}

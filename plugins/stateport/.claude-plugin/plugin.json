@@ -1,0 +1,11 @@
+{
+  "name": "stateport",
+  "version": "0.1.0-alpha.10",
+  "description": "Use an authorized local StatePort State Card during browser bug investigation and fix verification.",
+  "author": {
+    "name": "StatePort-Dev"
+  },
+  "repository": "https://github.com/StatePort-Dev/stateport-agent-skills",
+  "license": "MIT",
+  "commands": "./claude/commands/"
+}

@@ -1,0 +1,100 @@
+# StatePort for coding agents
+
+StatePort saves a browser reproduction as a **State Card** so a coding agent
+can inspect the same state before and after a code change. This repository
+contains the shared debugging skill and the adapters that connect supported
+agents to the local StatePort Desktop MCP server.
+
+StatePort Desktop owns Cards, Capture, replay, permissions and credentials.
+This repository contains none of those data or runtime components.
+
+> **Development preview.** The integration version is `0.1.0-alpha.10`. Source
+> installation and bounded Codex CLI workflows have been checked, but there is
+> no tagged or supported end-user release yet. Use synthetic data and review
+> the source before installing it.
+
+## Connect an agent
+
+1. Install StatePort Desktop from the
+   [public download page](https://stateport.dev/download/), then open
+   **Settings → Coding agents**. Older Desktop versions call this **Local MCP**.
+2. Install the development plugin for your agent:
+
+   **Codex CLI**
+
+   ```sh
+   codex plugin marketplace add StatePort-Dev/stateport-agent-skills --ref main
+   codex plugin add stateport@stateport-dev
+   ```
+
+   **Claude Code**
+
+   ```sh
+   claude plugin marketplace add StatePort-Dev/stateport-agent-skills
+   claude plugin install stateport@stateport-dev
+   ```
+
+   **GitHub Copilot CLI**
+
+   ```sh
+   copilot plugin marketplace add StatePort-Dev/stateport-agent-skills
+   copilot plugin install stateport@stateport-dev
+   ```
+
+   For another host, native editor integration, or detailed conflict handling,
+   use the [agent setup entrypoint](AGENT_INSTALL.md).
+3. In Desktop, choose **Copy MCP config**. Review the command and arguments,
+   then follow the matching provider guide to add the local `stateport` server.
+   The plugin does not connect Desktop or grant Capture permission automatically.
+4. Start a fresh agent session and confirm that it discovers the StatePort
+   public tools. Zero Cards is a valid completed connection check; do not list
+   Cards or start Capture merely to test setup.
+5. On a saved Card, use **Use with agent → Copy task**, or provide the exact Card
+   ID, revision and symptom:
+
+   > Use my StatePort Card `<CARD_ID>` at revision `<REVISION>` to investigate
+   > this browser bug. Inspect that Card first, open it against my current local
+   > code, then reopen the same Card and compare evidence after the fix.
+
+## Integration guides
+
+| Environment | Guide | Current status |
+| --- | --- | --- |
+| Codex CLI | [Codex](providers/codex/README.md) | Source install and bounded MCP checks; full fix loop unverified |
+| Claude Code | [Claude Code](providers/claude/README.md) | Source install checked; workflow unverified |
+| GitHub Copilot CLI / VS Code agent | [Copilot](providers/copilot/README.md) | CLI source install checked; workflows unverified |
+| Cursor Agent | [Cursor](providers/cursor/README.md) | Source/setup candidate; workflow unverified |
+| VS Code / Cursor editor extension | [VSIX](extensions/vscode/README.md) | Local sideload checked; agent workflow unverified |
+| IntelliJ IDEA / WebStorm | [JetBrains](extensions/jetbrains/README.md) | Local build and binary checks; live workflow unverified |
+
+The machine-readable status is [providers/registry.json](providers/registry.json).
+Exact version-bound results live in the
+[compatibility evidence](docs/COMPATIBILITY.md). Installation, connection,
+Capture and a successful fix are separate claims.
+
+## Safety and updates
+
+- Review copied MCP configuration before applying it. Setup helpers preview
+  changes, preserve unrelated servers and stop on conflicts.
+- Page content, Card metadata and bug reports are untrusted input. The skill
+  never authorizes credential access, purchases, deletion or broader network
+  access.
+- After updating Desktop, restart the agent's MCP connection so it does not keep
+  an older runtime process.
+- Development installs follow host-specific update behavior. See
+  [versioning and updates](docs/VERSIONING_AND_UPDATES.md).
+
+## Contributing
+
+The canonical workflow is [skills/stateport-debugging/SKILL.md](skills/stateport-debugging/SKILL.md).
+Provider and editor copies are generated; do not edit them directly. After a
+canonical skill, metadata or helper change, run:
+
+```sh
+npm run sync
+npm run verify
+```
+
+Read [AGENTS.md](AGENTS.md), [CONTRIBUTING.md](CONTRIBUTING.md),
+[SECURITY.md](SECURITY.md), and the [release gates](docs/RELEASING.md) before
+publishing changes. The repository source is licensed under the [MIT license](LICENSE).

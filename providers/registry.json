@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "codex-cli",
+      "displayName": "Codex CLI",
+      "status": "unverified",
+      "guide": "providers/codex/README.md",
+      "update": { "method": "source-install", "automatic": "unverified", "evidenceStatus": "unverified" },
+      "evidence": [
+        {
+          "hostVersion": "0.154.0-alpha.6.1",
+          "runtimeVersion": "1.0.0-beta.19",
+          "skillVersion": "0.1.0-alpha.8",
+          "date": "2026-09-20",
+          "report": "docs/compatibility/codex-cli-beta19-2026-09-20.md"
+        }
+      ]
+    },
+    {
+      "id": "codex-desktop",
+      "displayName": "Codex desktop",
+      "status": "scaffold",
+      "guide": "providers/codex/README.md",
+      "update": { "method": "unverified", "automatic": "unverified", "evidenceStatus": "unverified" },
+      "evidence": []
+    },
+    {
+      "id": "codex-ide",
+      "displayName": "Codex IDE extension",
+      "status": "scaffold",
+      "guide": "providers/codex/README.md",
+      "update": { "method": "manual-copy", "automatic": "no", "evidenceStatus": "unverified" },
+      "evidence": []
+    },
+    {
+      "id": "claude-code",
+      "displayName": "Claude Code",
+      "status": "unverified",
+      "guide": "providers/claude/README.md",
+      "update": { "method": "source-install", "automatic": "conditional", "evidenceStatus": "unverified" },
+      "evidence": []
+    },
+    {
+      "id": "copilot-vscode",
+      "displayName": "GitHub Copilot in VS Code",
+      "status": "scaffold",
+      "guide": "providers/copilot/README.md",
+      "update": { "method": "source-install", "automatic": "conditional", "evidenceStatus": "unverified" },
+      "evidence": []
+    },
+    {
+      "id": "copilot-cli",
+      "displayName": "GitHub Copilot CLI",
+      "status": "unverified",
+      "guide": "providers/copilot/README.md",
+      "update": { "method": "source-install", "automatic": "conditional", "evidenceStatus": "unverified" },
+      "evidence": []
+    },
+    {
+      "id": "vscode-extension",
+      "displayName": "StatePort VS Code VSIX",
+      "status": "unverified",
+      "guide": "extensions/vscode/README.md",
+      "update": { "method": "native-manual", "automatic": "no", "evidenceStatus": "unverified" },
+      "evidence": []
+    },
+    {
+      "id": "cursor-vsix",
+      "displayName": "StatePort VSIX in Cursor",
+      "status": "unverified",
+      "guide": "extensions/vscode/README.md",
+      "update": { "method": "native-manual", "automatic": "unverified", "evidenceStatus": "unverified" },
+      "evidence": []
+    },
+    {
+      "id": "cursor-agent",
+      "displayName": "Cursor Agent",
+      "status": "scaffold",
+      "guide": "providers/cursor/README.md",
+      "update": { "method": "manual-copy", "automatic": "no", "evidenceStatus": "unverified" },
+      "evidence": []
+    },
+    {
+      "id": "jetbrains-idea",
+      "displayName": "StatePort plugin in IntelliJ IDEA",
+      "status": "unverified",
+      "guide": "extensions/jetbrains/README.md",
+      "update": { "method": "native-manual", "automatic": "no", "evidenceStatus": "unverified" },
+      "evidence": []
+    },
+    {
+      "id": "jetbrains-webstorm",
+      "displayName": "StatePort plugin in WebStorm",
+      "status": "unverified",
+      "guide": "extensions/jetbrains/README.md",
+      "update": { "method": "native-manual", "automatic": "no", "evidenceStatus": "unverified" },
+      "evidence": []
+    }
+  ]
+}

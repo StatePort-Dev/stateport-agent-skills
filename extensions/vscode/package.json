@@ -1,0 +1,33 @@
+{
+  "name": "stateport",
+  "displayName": "StatePort Debugging",
+  "description": "Use StatePort Cards from VS Code with a canonical agent skill and opt-in local MCP setup.",
+  "version": "0.1.0-alpha.10",
+  "publisher": "stateport-dev",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/StatePort-Dev/stateport-agent-skills.git"
+  },
+  "engines": { "vscode": "^1.105.0" },
+  "categories": ["Other"],
+  "extensionKind": ["ui"],
+  "main": "./extension.cjs",
+  "files": ["extension.cjs", "LICENSE", "README.md", "scripts/desktop-mcp-config.mjs", "skills/stateport-debugging/"],
+  "activationEvents": [
+    "onCommand:stateport.configureMcp",
+    "onCommand:stateport.disconnectMcp",
+    "onCommand:stateport.copyCardHandoff",
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "chatSkills": [{ "path": "./skills/stateport-debugging/SKILL.md" }],
+    "mcpServerDefinitionProviders": [{ "id": "stateport.mcp", "label": "StatePort Desktop" }],
+    "commands": [
+      { "command": "stateport.configureMcp", "title": "StatePort: Configure Desktop MCP" },
+      { "command": "stateport.disconnectMcp", "title": "StatePort: Remove Extension MCP Connection" },
+      { "command": "stateport.copyCardHandoff", "title": "StatePort: Copy Exact Card Handoff" }
+    ]
+  }
+}

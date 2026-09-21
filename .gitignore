@@ -1,0 +1,14 @@
+node_modules/
+dist/
+artifacts/
+coverage/
+extensions/jetbrains/.gradle/
+extensions/jetbrains/.intellijPlatform/
+extensions/jetbrains/build/
+.env
+.env.*
+!.env.example
+*.log
+*.pem
+*.key
+.DS_Store

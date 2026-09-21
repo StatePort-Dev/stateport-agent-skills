@@ -1,0 +1,22 @@
+name: Provider integration
+description: Propose a bounded provider adapter or compatibility improvement.
+title: "provider: "
+body:
+  - type: input
+    id: host
+    attributes:
+      label: Exact host, version and local or remote surface
+    validations:
+      required: true
+  - type: textarea
+    id: need
+    attributes:
+      label: User workflow and observed limitation
+    validations:
+      required: true
+  - type: textarea
+    id: format
+    attributes:
+      label: Official format documentation and proposed verification
+    validations:
+      required: true

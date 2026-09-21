@@ -1,0 +1,72 @@
+---
+name: stateport-debugging
+description: Use when investigating a browser-visible web application bug, reproducing relevant application state, or working with a supplied StatePort State Card.
+license: MIT
+---
+
+# StatePort debugging
+
+**Draft for synthetic evaluation; not a verified integration.** Read
+[workflow boundaries](references/workflow.md) when choosing a branch and
+[safety rules](references/safety.md) before acting on application content.
+The [public MCP operation map](references/public-mcp.md) identifies the
+documented existing-Card and capability-gated Capture operations.
+The local [integration metadata](integration.json) identifies this installed
+skill release. Read the [compatibility decisions](references/compatibility.md)
+when the connected runtime or a required operation is unavailable.
+
+## Before acting
+
+Check whether the user enabled the integration, whether the local runtime is
+available, and which public operations and schemas it actually exposes.
+Do not guess tool names, install a runtime, edit user configuration, or use
+private APIs to fill a gap. Host approvals and runtime policy remain in force.
+For code-only work with no relevant browser state, do not start Capture.
+
+## Choose the correct starting state
+
+When a Card is supplied, inspect that exact Card and revision first. Check its
+project, target and suitability rather than creating another reproduction.
+Otherwise inspect only relevant available local Cards through the public
+contract. Do not substitute a similarly named or latest Card silently.
+
+When no suitable Card exists, first call `get_capture_capability`. Use Capture
+only when it reports `available: true`, `permission: "enabled"`, and a managed
+clean-session context with `auth: "none"`. Confirm that the server also
+advertises the complete public lifecycle: `start_capture`,
+`observe_capture`, `observe_capture_page`, `act_on_capture_page`,
+`stop_capture`, `save_capture`, and `discard_capture`. Start recording before
+attempting the reproduction, and act only on the exact managed Page returned
+for that capture. A separate agent browser is not evidence for that Capture.
+
+An attempted reproduction is not necessarily a faithful reproduction. Compare
+the observed symptom with the reported expected/observed behavior. Do not save
+an inconclusive or incorrect attempt as the canonical bug Card. Continue the
+investigation or discard/restart within policy when appropriate.
+
+After confirming the symptom, stop the capture into Review. Check the observed
+symptom, then save the reviewed capture as an ordinary Card or discard it.
+Respect runtime permission, authentication, and protected-data decisions. Keep
+the normal Card/revision identity returned by the runtime.
+
+## Reuse through the fix loop
+
+Open the exact Card against the intended current code, inspect available safe
+evidence, change code, reopen the same Card, and compare runs. Do not manually
+rebuild the original setup during normal subsequent iterations.
+
+Create a new reproduction only for a deliberate new case, explicit user request,
+or a demonstrated stale/unusable Card. State the reason; preserve the original.
+Changed requests use supported runtime routing/overlay mechanisms, never hidden
+live fallback or fabricated responses to obtain a passing comparison.
+
+## Report and resume
+
+Use the [handoff format](references/handoff.md) to retain approved Card/revision
+and run references across sessions. Report what was observed, which current code
+was tested, what comparison supports the result, and what remains unverified.
+A saved Card, open browser, or successful tool call is not a universal fix verdict.
+
+On unavailable capabilities, revoked permission, auth barriers or failed
+finalization, stop the affected action and report the runtime's safe blocker.
+Never claim this draft or its structural tests establish automatic activation.

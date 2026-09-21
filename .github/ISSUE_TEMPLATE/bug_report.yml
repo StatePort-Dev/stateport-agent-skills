@@ -1,0 +1,25 @@
+name: Integration problem
+description: Report a reproducible skill or provider integration problem.
+title: "bug: "
+body:
+  - type: markdown
+    attributes:
+      value: "Use synthetic data only. Never attach credentials, real Cards, captured payloads, or private logs. Read SECURITY.md for sensitive reports."
+  - type: input
+    id: versions
+    attributes:
+      label: Host, operating system, StatePort and skill versions
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Synthetic reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
