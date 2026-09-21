@@ -1,6 +1,6 @@
 # StatePort Debugging for VS Code — source candidate
 
-This thin VSIX contributes the generated canonical `stateport-debugging` skill
+This thin VSIX contributes all five generated canonical StatePort skills
 to VS Code and offers opt-in local MCP setup. It does not include StatePort
 Desktop or claim that an agent has completed a StatePort workflow.
 

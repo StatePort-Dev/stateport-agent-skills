@@ -6,8 +6,8 @@ Source installation and bounded Codex CLI Capture/replay checks have passed on
 Linux; the complete current-code fix/reopen/compare workflow remains unverified.
 Codex desktop and IDE surfaces have separate, unverified setup paths.
 
-The plugin contains the generated copy of the
-[canonical debugging skill](../../skills/stateport-debugging/SKILL.md). It does
+The plugin contains generated copies of all
+[five canonical skills](../../AGENT_INSTALL.md#skills-included). It does
 not bundle Desktop, guess an executable, configure MCP automatically or grant
 Capture permission.
 
@@ -19,7 +19,7 @@ codex plugin add stateport@stateport-dev
 ```
 
 Start a new Codex session after installation. If a standalone
-`stateport-debugging` skill is already installed, remove or disable the duplicate
+StatePort skill set is already installed, remove or disable the duplicate
 before enabling this plugin.
 
 ## Connect Desktop MCP
@@ -49,6 +49,9 @@ host's plugin and MCP controls when available. Neither surface is verified by
 the Codex CLI result.
 
 ## Update and remove
+
+For version checks, alpha migration and recovery, follow the
+[shared update procedure](../../AGENT_INSTALL.md#update-an-existing-installation).
 
 ```sh
 codex plugin marketplace upgrade stateport-dev

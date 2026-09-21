@@ -37,7 +37,7 @@ function host() {
 
 test('VS Code source extension packages the canonical skill and public MCP provider', () => {
   const manifest = JSON.parse(readFileSync(path.join(extensionRoot, 'package.json'), 'utf8'));
-  assert.equal(manifest.contributes.chatSkills[0].path, './skills/stateport-debugging/SKILL.md');
+  assert.ok(manifest.contributes.chatSkills.some(skill => skill.path === './skills/stateport-debugging/SKILL.md'));
   assert.equal(manifest.contributes.mcpServerDefinitionProviders[0].id, 'stateport.mcp');
   for (const name of ['SKILL.md', ...readdirSync(path.join(root, 'skills/stateport-debugging/references')).map(x => `references/${x}`)]) {
     assert.equal(readFileSync(path.join(extensionRoot, 'skills/stateport-debugging', name), 'utf8'), readFileSync(path.join(root, 'skills/stateport-debugging', name), 'utf8'));

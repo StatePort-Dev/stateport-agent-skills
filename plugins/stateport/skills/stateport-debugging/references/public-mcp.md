@@ -1,40 +1,42 @@
 # Public MCP operation map
 
-Discover the tools and input schemas exposed by the connected local MCP server
-before acting. The names below match the public StatePort MCP reference as
-inspected on 2026-09-16; the connected runtime's actual capabilities take
-precedence. Do not assume an operation exists because this file lists it.
+This map covers the 34 public operations in the beta.20 source contract checked
+on 2026-09-21. Discover tools and schemas on the connected runtime before using
+them; features such as credentials and element IDs depend on the advertised
+schema. Source coverage is not host workflow verification.
 
-For explicit setup, stop after public tool discovery: no library enumeration,
-Card inspection or Capture is required, even with zero Cards. This is connection
-proof only.
+| Task | Public operations | Guidance |
+| --- | --- | --- |
+| Choose and inspect a Card | `list_states`, `inspect_state` | Use the exact supplied Card; list only when selection is needed |
+| Read existing evidence | `get_state_history`, `read_console_evidence` | Exact-Card terminal history and redacted baseline console events |
+| Diagnose authentication | `get_auth_requirement`, `inspect_auth` | Non-secret requirement/status; inspect_auth needs the intended local targetOrigin |
+| Capture | `get_capture_capability`, `start_capture`, `observe_capture`, `observe_capture_page`, `act_on_capture_page`, `stop_capture`, `save_capture`, `discard_capture` | [Capture procedure](capture.md), including supplied credentials and exact controls |
+| Replay a Journey | `inspect_journey`, `inspect_journey_action`, `start_journey`, `get_journey_progress` | [Journey procedure](journey.md), using the user's existing exact-Card confirmation |
+| Open and finalize | `open_state`, `stop_run` | Local current-code Open; finalize a run and retain its result |
+| Evaluate results | `get_run_summary`, `get_reproduction_outcome`, `compare_runs` | Keep stable run IDs and exact attempt IDs distinct |
+| Inspect replay routes | `list_routes`, `inspect_exchange` | Safe session targets and exchange projections |
+| Change request matching | `inspect_request_changes`, `apply_request_remap`, `remove_request_remap` | Runtime-issued eligible evidence only |
+| Test routes and responses | `set_route_mode`, `create_response_overlay`, `remove_response_overlay` | [Experiment procedure](experiments.md), including replacement session IDs |
+| Import, export and share | `inspect_state_transfer`, `import_state`, `export_state` | [Transfer procedure](transfer.md), preview digest and requested destination |
 
-For an existing-Card debugging job, use `list_states` only when no exact Card was supplied.
-Use `inspect_state` on the exact identifier before `open_state`. The public
-contract also exposes `stop_run`, `get_run_summary`, `compare_runs`, and
-`get_reproduction_outcome` for safe run evidence. Discover each input schema
-instead of inferring IDs or arguments from the operation name. Keep the exact
-Card and revision, run IDs, target and outcome distinct.
+`read_console_evidence` is paginated (up to 50 events per request) and can filter
+levels. Read the amount useful to the investigation; it is recorded baseline
+evidence, not a live console stream. Auth tools expose status rather than values;
+human sign-in and protected acceptance remain in Desktop when the runtime
+requires them.
 
-For a new Card, first call `get_capture_capability`. Capture may proceed only
-when it returns `available: true` and `permission: "enabled"`, with a managed
-`browserSessionMode: "clean-session"` and `auth: "none"`. The documented
-public lifecycle is `start_capture`, `observe_capture`,
-`observe_capture_page`, `act_on_capture_page`, `stop_capture`,
-`save_capture`, and `discard_capture`. Discover every input schema before use.
-`start_capture` creates a named, origin-scoped Capture session; the default
-browser visibility is headless and visible mode is an explicit request.
+`open_state` needs `stateCardId` and the current loopback `frontendOrigin`.
+Its default browser is headless; pass `browserVisibility: visible` when requested.
+Do not confuse this local target with a captured-source Journey. The connected
+schema determines which paths are actually available.
 
-Use `observe_capture_page` to receive the exact managed Page, then use only
-the bounded semantic operations advertised by `act_on_capture_page`. Start
-before the reproduction. `stop_capture` enters mandatory Review; only a
-reviewed capture may be saved as an ordinary Card. Discard an inconclusive or
-unwanted capture. Permission revocation, scope denial, authentication or
-protected-data decisions, and finalization errors are safe blockers: stop the
-affected action and report them. Do not use development-only validation tools,
-browser debug protocols, raw selectors, arbitrary script execution, a browser
-profile, or an unrelated agent browser as a substitute.
+`stop_run` returns the persisted terminal machine outcome. `get_run_summary`
+uses a stable run ID; old unqualified evidence may return `legacy_unclassified`.
+`get_reproduction_outcome` reads one exact persisted attempt without changing
+or reconciling it. Missing/nonterminal evidence is not success. `compare_runs`
+compares completed baseline/candidate runs; check comparability and meaningful
+evidence before drawing a fix conclusion.
 
-`start_journey` is a human-confirmation handoff, not autonomous Journey
-authority. A successful `open_state` does not itself prove the current code was
-loaded or the bug was fixed; inspect the resulting run and comparison evidence.
+For setup/update verification, discovery is sufficient. No Card enumeration,
+Capture or permission change is needed to prove a connection. On a missing
+operation or contract mismatch, use [compatibility guidance](compatibility.md).

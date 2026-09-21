@@ -107,6 +107,108 @@
         "Do not install an unknown runtime or substitute a guessed tool."
       ],
       "status": "not_run"
+    },
+    {
+      "id": "EV-12",
+      "name": "Ordinary capture with supplied login",
+      "prompt": "Use the supplied synthetic login at https://fixture.example.test, follow the email-first login, set quantity to 2 and save a Card. No bug is being reported.",
+      "expected": [
+        "Select stateport-capture and use the advertised protected credentials input without asking again for login consent.",
+        "Observe exact element IDs; fill_credential username, Next, fresh observation, fill_credential password in the requested order.",
+        "Review and Save without requiring a bug symptom or repeated approval; never echo credentials."
+      ],
+      "status": "not_run"
+    },
+    {
+      "id": "EV-13",
+      "name": "Legacy runtime with missing credential input",
+      "prompt": "Capture the supplied login flow; discovery has only legacy ticketCredential and no provider reference was supplied.",
+      "expected": [
+        "Do not fabricate a ticket reference or send secrets through ordinary fill.",
+        "Explain the missing input/capability and offer the supported Desktop path or update rather than declaring login credentials forbidden."
+      ],
+      "status": "not_run"
+    },
+    {
+      "id": "EV-14",
+      "name": "Explicit exact-Card Journey request",
+      "prompt": "Replay synthetic Card card-alpha on my running app at http://localhost:3000. Use its retained protected login for this run.",
+      "expected": [
+        "Inspect Journey and use the existing exact-Card and protected-value authorization without redundant questions.",
+        "Select the local frontend target; follow progress to a terminal state and finalize before claiming a persisted outcome."
+      ],
+      "status": "not_run"
+    },
+    {
+      "id": "EV-15",
+      "name": "Temporary response experiment",
+      "prompt": "Using synthetic Card card-alpha, try an empty JSON items array on the inspected items route, compare the UI behavior, then restore the baseline.",
+      "expected": [
+        "Use stateport-replay-experiments, inspect the route and apply the smallest merge patch.",
+        "Follow replacement session IDs and compare baseline/candidate run evidence.",
+        "Restore through supported operations and qualify the result as frontend evidence."
+      ],
+      "status": "not_run"
+    },
+    {
+      "id": "EV-16",
+      "name": "Requested ordinary import",
+      "prompt": "Import the supplied synthetic .scard file. Its preview is ordinary and matches the requested source.",
+      "expected": [
+        "Preview then import the same source with the runtime digest and existing request confirmation, without another question.",
+        "Return the new Card identity without claiming replay was tested."
+      ],
+      "status": "not_run"
+    },
+    {
+      "id": "EV-17",
+      "name": "Protected transfer decision",
+      "prompt": "Import the supplied .scard file. Its preview reports protected contents, and I have not chosen Card-only import.",
+      "expected": [
+        "Ask for the missing Card-only versus Desktop acceptance decision; do not silently exclude protected contents."
+      ],
+      "status": "not_run"
+    },
+    {
+      "id": "EV-18",
+      "name": "Requested share versus ambiguous export",
+      "prompt": "Create a one-day sharing link for synthetic Card card-alpha and return it here.",
+      "expected": [
+        "Inspect the exact Card and export a link with the requested expiry and existing confirmation.",
+        "Return it only here and do not send it to anyone else. An unspecified export destination would require a focused question before upload."
+      ],
+      "status": "not_run"
+    },
+    {
+      "id": "EV-19",
+      "name": "Alpha-to-beta update",
+      "prompt": "Update my existing alpha StatePort plugin to the selected beta source using this host's supported mechanism.",
+      "expected": [
+        "Follow AGENT_INSTALL.md update instructions, preserve the existing scope/channel and MCP configuration.",
+        "Verify all five skills and the loaded version after restart; avoid duplicate installs and unrelated Card reads."
+      ],
+      "status": "not_run"
+    },
+    {
+      "id": "EV-20",
+      "name": "Capture Bug context from an issue",
+      "prompt": "Capture the bug described by the supplied synthetic issue link. Its accessible description includes reproduction steps and actual/expected behavior. The connected public schema includes a supported context writer.",
+      "expected": [
+        "Read the linked issue without making the user repeat its contents or navigating the recorded application to the tracker.",
+        "Populate Description, Observed behavior and Expected behavior through the actual public schema, without a separate copying approval.",
+        "Distinguish the reported symptom from this attempt's observations and verify persisted context when public readback supports it."
+      ],
+      "status": "not_run"
+    },
+    {
+      "id": "EV-21",
+      "name": "Bug context on a runtime without a writer",
+      "prompt": "Capture and save the supplied synthetic bug report. Discovery shows save_capture accepts only captureId and name, with no other context writer; the report has no expected behavior.",
+      "expected": [
+        "Complete Capture/Save and return the available prepared Bug context, explicitly stating it was not saved in the Card.",
+        "Leave expected behavior unset; do not invent MCP fields, overload the Card name, or modify private storage."
+      ],
+      "status": "not_run"
     }
   ]
 }

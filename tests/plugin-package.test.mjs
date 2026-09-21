@@ -9,6 +9,25 @@ import { syncCodexSkill } from '../scripts/generate-codex-plugin.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const source = path.join(root, 'skills/stateport-debugging');
 const packaged = path.join(root, 'plugins/stateport/skills/stateport-debugging');
+const skillNames = ['stateport-capture', 'stateport-debugging', 'stateport-journey', 'stateport-replay-experiments', 'stateport-transfer'];
+
+test('all five skills ship self-contained, with shared references, metadata and VS Code discovery', () => {
+  assert.deepEqual(readdirSync(path.join(root, 'skills')).sort(), skillNames);
+  for (const base of ['skills', 'plugins/stateport/skills', 'extensions/vscode/skills']) {
+    assert.deepEqual(readdirSync(path.join(root, base)).sort(), skillNames);
+    for (const skill of skillNames) {
+      const location = path.join(root, base, skill);
+      assert.equal(readFileSync(path.join(location, 'SKILL.md'), 'utf8'), readFileSync(path.join(root, 'skills', skill, 'SKILL.md'), 'utf8'));
+      assert.deepEqual(JSON.parse(readFileSync(path.join(location, 'integration.json'))), JSON.parse(readFileSync(path.join(root, 'integration.json'))));
+      for (const reference of readdirSync(path.join(source, 'references'))) {
+        assert.equal(readFileSync(path.join(location, 'references', reference), 'utf8'), readFileSync(path.join(source, 'references', reference), 'utf8'));
+      }
+    }
+  }
+  const vscode = JSON.parse(readFileSync(path.join(root, 'extensions/vscode/package.json')));
+  assert.deepEqual(vscode.contributes.chatSkills.map(x => x.path).sort(), skillNames.map(x => `./skills/${x}/SKILL.md`));
+  assert.ok(vscode.files.includes('skills/'));
+});
 
 test('Codex plugin distributes the exact canonical skill and references', () => {
   const sourceFiles = ['SKILL.md', ...readdirSync(path.join(source, 'references')).map(name => `references/${name}`).sort()];
@@ -47,7 +66,8 @@ test('Claude marketplace installs the same self-contained skill package', () => 
   for (const command of commands) {
     const content = readFileSync(path.join(root, 'plugins/stateport/claude/commands', command), 'utf8');
     assert.match(content, /disable-model-invocation: true/);
-    assert.match(content, /\$\{CLAUDE_PLUGIN_ROOT\}\/skills\/stateport-debugging\/SKILL\.md/);
+    const skill = command === 'new-repro.md' ? 'stateport-capture' : 'stateport-debugging';
+    assert.ok(content.includes(`\${CLAUDE_PLUGIN_ROOT}/skills/${skill}/SKILL.md`));
   }
 });
 
@@ -60,6 +80,17 @@ test('generated VS Code skill freshness rejects obsolete packaged references', (
     for (const name of ['integration.json', 'package.json']) cpSync(path.join(root, name), path.join(temp, name));
     for (const name of ['plugins', 'extensions']) cpSync(path.join(root, name), path.join(temp, name), { recursive: true });
     syncCodexSkill(temp, false);
+    const shared = path.join(temp, 'skills/stateport-debugging/references/workflow.md');
+    writeFileSync(shared, readFileSync(shared, 'utf8') + '\nSynthetic shared-reference change.\n');
+    const portable = path.join(temp, 'skills/stateport-capture/references/workflow.md');
+    const before = readFileSync(portable, 'utf8');
+    const drift = syncCodexSkill(temp, true);
+    assert.ok(drift.includes('skills/stateport-capture/references/workflow.md'));
+    assert.ok(drift.includes('plugins/stateport/skills/stateport-journey/references/workflow.md'));
+    assert.ok(drift.includes('extensions/vscode/skills/stateport-transfer/references/workflow.md'));
+    assert.equal(readFileSync(portable, 'utf8'), before, 'check mode must not mutate copies');
+    syncCodexSkill(temp, false);
+    assert.equal(readFileSync(portable, 'utf8'), readFileSync(shared, 'utf8'));
     const stale = path.join(temp, 'extensions/vscode/skills/stateport-debugging/references/obsolete.md');
     writeFileSync(stale, 'stale\n');
     assert.ok(syncCodexSkill(temp, true).includes('extensions/vscode/skills/stateport-debugging/references/obsolete.md'));

@@ -2,7 +2,7 @@
 
 The portable StatePort Agent Plugin is a source candidate for Cursor. Local
 plugin loading and a complete StatePort workflow remain unverified. The package
-contains one generated canonical skill and no bundled runtime or automatic MCP
+contains five generated canonical skills and no bundled runtime or automatic MCP
 configuration.
 
 ## Load the development source

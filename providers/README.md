@@ -18,5 +18,6 @@ Keep host surfaces distinct. A working CLI does not establish IDE or cloud
 support. Native VS Code and JetBrains source candidates live under `extensions/`.
 
 The Codex package uses generated canonical skill copies checked for freshness
-in CI. Do not create independently edited SKILL.md files or a generic plugin
-framework for a single skill.
+in CI. Edit canonical entrypoints under `skills/` and shared references under
+`skills/stateport-debugging/references`; regenerate packaged copies. Installation
+and update instructions are in [AGENT_INSTALL.md](../AGENT_INSTALL.md).

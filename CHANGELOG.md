@@ -2,19 +2,39 @@
 
 ## Unreleased
 
-Current development source: `0.1.0-alpha.10`. No tag or supported end-user
+Current beta source: `0.1.0-beta.1`. No tag or supported end-user
 release has been published.
 
 ### User setup
 
+- Include installation and updating in AGENT_INSTALL.md, with host commands,
+  alpha-to-beta migration, restart, verification and recovery guidance.
+
 - Add a Settings-first setup entrypoint that works before the first Card and a
   generic path for local coding agents with stdio MCP support.
-- Package the shared debugging skill for Codex CLI, Claude Code and GitHub
+- Package the five shared skills for Codex CLI, Claude Code and GitHub
   Copilot CLI, with preview-first local MCP setup helpers.
 - Add source candidates for Cursor Agent, VS Code/Cursor VSIX, and IntelliJ
   IDEA/WebStorm.
 
 ### Debugging workflow
+
+- Prepare Bug context from supplied issue descriptions/links during Capture;
+  map Description/Observed/Expected without redundant questions and distinguish
+  actual observations from reported symptoms. Persist through a discovered
+  public writer when available; beta.20 has no such writer, so report prepared
+  context as unsaved instead of claiming it was stored.
+
+- Split task entrypoints into debugging, capture, journey, replay experiments
+  and transfer; share the common MCP procedures without manual copies.
+- Cover all 34 public MCP operations and beta.20 supplied credentials,
+  fill_credential, observed element IDs and available actions.
+- Use existing task authorization and defaults; ask only for consequential
+  missing information. Ordinary captures need no bug symptom.
+
+- Use login credentials supplied for the requested Capture without repeated
+  consent; prefer the runtime's protected credential operation and exact observed
+  element IDs when available. Keep legacy runtime capability checks.
 
 - Define supplied-Card inspection, open, reproduction and same-revision
   comparison as the canonical workflow.
@@ -25,7 +45,7 @@ release has been published.
 
 ### Packaging and safety
 
-- Generate provider and editor copies from one canonical skill and one
+- Generate provider and editor copies from canonical entrypoints, shared references and one
   integration version.
 - Preserve unrelated MCP configuration, reject conflicts and require the
   installed Desktop's copied launch configuration.

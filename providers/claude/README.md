@@ -4,7 +4,7 @@ Claude Code can install the shared StatePort plugin from this repository. Source
 installation and skill discovery have been checked on Linux; a complete
 StatePort agent workflow remains unverified.
 
-The plugin contains the generated canonical skill and five explicit commands:
+The plugin contains the five generated canonical skills and five explicit commands:
 `/stateport:use-card`, `/stateport:new-repro`, `/stateport:reopen-card`,
 `/stateport:compare-runs`, and `/stateport:check-connection`. These commands do
 not bundle Desktop, connect MCP automatically or grant Capture permission.
@@ -39,6 +39,9 @@ just to test setup; Capture additionally requires advertised capability and
 explicit local permission.
 
 ## Update and remove
+
+For version checks, alpha migration and recovery, follow the
+[shared update procedure](../../AGENT_INSTALL.md#update-an-existing-installation).
 
 ```sh
 claude plugin marketplace update stateport-dev

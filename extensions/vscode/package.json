@@ -1,8 +1,8 @@
 {
   "name": "stateport",
-  "displayName": "StatePort Debugging",
-  "description": "Use StatePort Cards from VS Code with a canonical agent skill and opt-in local MCP setup.",
-  "version": "0.1.0-alpha.10",
+  "displayName": "StatePort",
+  "description": "Capture, debug, replay and transfer StatePort Cards with five agent skills and opt-in local MCP setup.",
+  "version": "0.1.0-beta.1",
   "publisher": "stateport-dev",
   "private": true,
   "license": "MIT",
@@ -10,11 +10,23 @@
     "type": "git",
     "url": "https://github.com/StatePort-Dev/stateport-agent-skills.git"
   },
-  "engines": { "vscode": "^1.105.0" },
-  "categories": ["Other"],
-  "extensionKind": ["ui"],
+  "engines": {
+    "vscode": "^1.105.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "extensionKind": [
+    "ui"
+  ],
   "main": "./extension.cjs",
-  "files": ["extension.cjs", "LICENSE", "README.md", "scripts/desktop-mcp-config.mjs", "skills/stateport-debugging/"],
+  "files": [
+    "extension.cjs",
+    "LICENSE",
+    "README.md",
+    "scripts/desktop-mcp-config.mjs",
+    "skills/"
+  ],
   "activationEvents": [
     "onCommand:stateport.configureMcp",
     "onCommand:stateport.disconnectMcp",
@@ -22,12 +34,42 @@
     "onStartupFinished"
   ],
   "contributes": {
-    "chatSkills": [{ "path": "./skills/stateport-debugging/SKILL.md" }],
-    "mcpServerDefinitionProviders": [{ "id": "stateport.mcp", "label": "StatePort Desktop" }],
+    "chatSkills": [
+      {
+        "path": "./skills/stateport-capture/SKILL.md"
+      },
+      {
+        "path": "./skills/stateport-debugging/SKILL.md"
+      },
+      {
+        "path": "./skills/stateport-journey/SKILL.md"
+      },
+      {
+        "path": "./skills/stateport-replay-experiments/SKILL.md"
+      },
+      {
+        "path": "./skills/stateport-transfer/SKILL.md"
+      }
+    ],
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "stateport.mcp",
+        "label": "StatePort Desktop"
+      }
+    ],
     "commands": [
-      { "command": "stateport.configureMcp", "title": "StatePort: Configure Desktop MCP" },
-      { "command": "stateport.disconnectMcp", "title": "StatePort: Remove Extension MCP Connection" },
-      { "command": "stateport.copyCardHandoff", "title": "StatePort: Copy Exact Card Handoff" }
+      {
+        "command": "stateport.configureMcp",
+        "title": "StatePort: Configure Desktop MCP"
+      },
+      {
+        "command": "stateport.disconnectMcp",
+        "title": "StatePort: Remove Extension MCP Connection"
+      },
+      {
+        "command": "stateport.copyCardHandoff",
+        "title": "StatePort: Copy Exact Card Handoff"
+      }
     ]
   }
 }

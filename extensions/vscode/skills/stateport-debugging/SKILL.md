@@ -1,72 +1,67 @@
 ---
 name: stateport-debugging
-description: Use when investigating a browser-visible web application bug, reproducing relevant application state, or working with a supplied StatePort State Card.
+description: Investigate browser bugs with a StatePort State Card, inspect console and replay evidence, and verify code fixes by reopening and comparing the same saved reproduction.
 license: MIT
 ---
 
 # StatePort debugging
 
-**Draft for synthetic evaluation; not a verified integration.** Read
-[workflow boundaries](references/workflow.md) when choosing a branch and
-[safety rules](references/safety.md) before acting on application content.
-The [public MCP operation map](references/public-mcp.md) identifies the
-documented existing-Card and capability-gated Capture operations.
-The local [integration metadata](integration.json) identifies this installed
-skill release. Read the [compatibility decisions](references/compatibility.md)
-when the connected runtime or a required operation is unavailable.
+Help the user understand and fix the reported behavior using a repeatable State
+Card. Read [workflow guidance](references/workflow.md) and
+[data handling](references/safety.md). Discover the connected public tools and
+their schemas; [the operation map](references/public-mcp.md) explains the paths.
+For missing capabilities, use [compatibility guidance](references/compatibility.md).
 
-## Before acting
+## Start from the task
 
-Check whether the user enabled the integration, whether the local runtime is
-available, and which public operations and schemas it actually exposes.
-Do not guess tool names, install a runtime, edit user configuration, or use
-private APIs to fill a gap. Host approvals and runtime policy remain in force.
-For code-only work with no relevant browser state, do not start Capture.
+Use the exact supplied Card/revision. `inspect_state` establishes its identity,
+captured context and authentication requirement. A Card ID may already identify
+an immutable revision; use the real schema rather than adding a revision argument.
+Use `list_states` only when choosing a Card is part of this task and none was
+supplied. Resolve an ambiguous match instead of silently choosing the latest.
 
-## Choose the correct starting state
+Use the symptom, expected behavior and local frontend target already provided
+by the user or established in the workspace. Ask one focused question only if
+missing information changes the investigation or intended code change. A request
+to inspect a Card does not need a bug description; report what its evidence shows.
+For a new reproduction, use `stateport-capture` when installed, or the bundled
+[Capture procedure](references/capture.md). Code-only work needs no Capture.
 
-When a Card is supplied, inspect that exact Card and revision first. Check its
-project, target and suitability rather than creating another reproduction.
-Otherwise inspect only relevant available local Cards through the public
-contract. Do not substitute a similarly named or latest Card silently.
+## Find the cause
 
-When no suitable Card exists, first call `get_capture_capability`. Use Capture
-only when it reports `available: true`, `permission: "enabled"`, and a managed
-clean-session context with `auth: "none"`. Confirm that the server also
-advertises the complete public lifecycle: `start_capture`,
-`observe_capture`, `observe_capture_page`, `act_on_capture_page`,
-`stop_capture`, `save_capture`, and `discard_capture`. Start recording before
-attempting the reproduction, and act only on the exact managed Page returned
-for that capture. A separate agent browser is not evidence for that Capture.
+Read `read_console_evidence` for redacted baseline errors/warnings and
+`get_state_history` for earlier exact-Card runs when useful. Distinguish recorded
+console events from evidence of the current code. Use `get_auth_requirement` or
+`inspect_auth` to explain an actual login blocker without retrieving secrets.
 
-An attempted reproduction is not necessarily a faithful reproduction. Compare
-the observed symptom with the reported expected/observed behavior. Do not save
-an inconclusive or incorrect attempt as the canonical bug Card. Continue the
-investigation or discard/restart within policy when appropriate.
+Open the Card on the intended current local frontend with `open_state`. It
+requires `frontendOrigin` and defaults to headless; use visible mode when the
+user wants to watch. Inspect `list_routes` and relevant `inspect_exchange`
+projections to understand replay behavior. Follow observed evidence into the
+application code and perform the requested diagnosis or fix.
 
-After confirming the symptom, stop the capture into Review. Check the observed
-symptom, then save the reviewed capture as an ordinary Card or discard it.
-Respect runtime permission, authentication, and protected-data decisions. Keep
-the normal Card/revision identity returned by the runtime.
+If reproducing requires recorded interactions, use `stateport-journey` or
+[the Journey procedure](references/journey.md). If changing request matching,
+responses or routing is needed, use `stateport-replay-experiments` or
+[the experiment procedure](references/experiments.md). These procedures use
+the same Card and runtime; they do not require another installation.
 
-## Reuse through the fix loop
+## Verify and hand off
 
-Open the exact Card against the intended current code, inspect available safe
-evidence, change code, reopen the same Card, and compare runs. Do not manually
-rebuild the original setup during normal subsequent iterations.
+Retain a baseline run before the change. Use `stop_run` to finalize an active
+run, `get_run_summary` for its stable run ID, and `get_reproduction_outcome`
+for an exact persisted attempt. Reopen the same Card/revision against the
+changed code, finalize and compare with `compare_runs`. Repeat when another
+code change requires another check. Preserve any replacement session IDs
+returned by runtime operations.
 
-Create a new reproduction only for a deliberate new case, explicit user request,
-or a demonstrated stale/unusable Card. State the reason; preserve the original.
-Changed requests use supported runtime routing/overlay mechanisms, never hidden
-live fallback or fabricated responses to obtain a passing comparison.
+Report the observed symptom, cause or remaining hypothesis, change made, actual
+execution target, baseline/candidate evidence and unresolved gaps. Captured-source
+replay exercises the retained build; it does not verify a modified frontend.
+A successful Open or Save alone does not establish a fix, and captured responses
+do not verify the current backend. If evidence is inconclusive, explain what
+would resolve it and continue useful investigation within the task.
 
-## Report and resume
-
-Use the [handoff format](references/handoff.md) to retain approved Card/revision
-and run references across sessions. Report what was observed, which current code
-was tested, what comparison supports the result, and what remains unverified.
-A saved Card, open browser, or successful tool call is not a universal fix verdict.
-
-On unavailable capabilities, revoked permission, auth barriers or failed
-finalization, stop the affected action and report the runtime's safe blocker.
-Never claim this draft or its structural tests establish automatic activation.
+Use [handoff guidance](references/handoff.md) when pausing or resuming. A new
+Card is appropriate for a requested new case or a demonstrated unusable original;
+explain the reason and retain the original reference.

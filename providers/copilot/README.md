@@ -13,7 +13,7 @@ copilot plugin install stateport@stateport-dev
 copilot skill list --json
 ```
 
-The plugin contains the generated canonical skill. It does not bundle Desktop,
+The plugin contains all five generated canonical skills. It does not bundle Desktop,
 write MCP configuration during installation or grant Capture permission.
 
 In StatePort Desktop, use **Settings → Coding agents → Copy MCP config**. Save

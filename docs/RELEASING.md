@@ -13,7 +13,7 @@ Before the first release:
    and `npm run verify`; review the complete public diff for sensitive data.
 2. Validate the actual provider manifests against current official formats.
 3. Run installation/update/uninstall and workflow cases in each claimed host.
-   Before the first beta, at least one supported host must install from the
+   Before publishing the first supported beta release, at least one supported host must install from the
    immutable candidate and complete public MCP discovery plus the core
    supplied-Card inspect/open/reproduce/change/reopen/compare workflow. Capture
    is a separate claim and needs its own permission-bound evidence.

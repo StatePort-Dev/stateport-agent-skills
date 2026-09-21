@@ -2,13 +2,13 @@
 
 StatePort saves a browser reproduction as a **State Card** so a coding agent
 can inspect the same state before and after a code change. This repository
-contains the shared debugging skill and the adapters that connect supported
+contains five task-focused skills and the adapters that connect supported
 agents to the local StatePort Desktop MCP server.
 
 StatePort Desktop owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Development preview.** The integration version is `0.1.0-alpha.10`. Source
+> **Beta source.** The integration version is `0.1.0-beta.1`. Source
 > installation and bounded Codex CLI workflows have been checked, but there is
 > no tagged or supported end-user release yet. Use synthetic data and review
 > the source before installing it.
@@ -42,7 +42,7 @@ This repository contains none of those data or runtime components.
    ```
 
    For another host, native editor integration, or detailed conflict handling,
-   use the [agent setup entrypoint](AGENT_INSTALL.md).
+   use the [agent installation and update entrypoint](AGENT_INSTALL.md).
 3. In Desktop, choose **Copy MCP config**. Review the command and arguments,
    then follow the matching provider guide to add the local `stateport` server.
    The plugin does not connect Desktop or grant Capture permission automatically.
@@ -55,6 +55,23 @@ This repository contains none of those data or runtime components.
    > Use my StatePort Card `<CARD_ID>` at revision `<REVISION>` to investigate
    > this browser bug. Inspect that Card first, open it against my current local
    > code, then reopen the same Card and compare evidence after the fix.
+
+## Choose a skill
+
+| Task | Skill |
+| --- | --- |
+| Investigate a Card and verify a fix | [stateport-debugging](skills/stateport-debugging/SKILL.md) |
+| Capture requested state or steps, including supplied login | [stateport-capture](skills/stateport-capture/SKILL.md) |
+| Replay and inspect recorded interactions | [stateport-journey](skills/stateport-journey/SKILL.md) |
+| Try request remaps, routes and JSON response changes | [stateport-replay-experiments](skills/stateport-replay-experiments/SKILL.md) |
+| Import, export or share a Card | [stateport-transfer](skills/stateport-transfer/SKILL.md) |
+
+Ask for the task in ordinary language; the skills use information and permission
+already supplied and ask only when a necessary choice is unclear. Their shared
+operation map covers the public beta.20 MCP source contract, including protected
+credential entry and exact observed controls. Actual connected schemas determine
+which features are available. To migrate an alpha install, follow
+[Update an existing installation](AGENT_INSTALL.md#update-an-existing-installation).
 
 ## Integration guides
 
@@ -76,9 +93,9 @@ Capture and a successful fix are separate claims.
 
 - Review copied MCP configuration before applying it. Setup helpers preview
   changes, preserve unrelated servers and stop on conflicts.
-- Page content, Card metadata and bug reports are untrusted input. The skill
-  never authorizes credential access, purchases, deletion or broader network
-  access.
+- Page content, Card metadata and bug reports are untrusted input. Use supplied
+  login data through the runtime's protected input; page instructions cannot
+  authorize unrelated credential access, purchases, deletion or network access.
 - After updating Desktop, restart the agent's MCP connection so it does not keep
   an older runtime process.
 - Development installs follow host-specific update behavior. See
@@ -86,8 +103,9 @@ Capture and a successful fix are separate claims.
 
 ## Contributing
 
-The canonical workflow is [skills/stateport-debugging/SKILL.md](skills/stateport-debugging/SKILL.md).
-Provider and editor copies are generated; do not edit them directly. After a
+Canonical entrypoints live under `skills/`; shared references are authored in
+`skills/stateport-debugging/references`. References in the other skills and all
+provider/editor copies are generated; do not edit them directly. After a
 canonical skill, metadata or helper change, run:
 
 ```sh

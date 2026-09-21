@@ -3,8 +3,8 @@
 StatePort uses three independent version lines:
 
 - **Integration version** identifies this repository's skill, plugin manifests,
-  setup helpers and native source candidates. The current development version
-  is `0.1.0-alpha.10` in [`integration.json`](../integration.json).
+  setup helpers and native source candidates. The current beta source version
+  is `0.1.0-beta.1` in [`integration.json`](../integration.json).
 - **Desktop/runtime version** identifies the installed StatePort application and
   MCP process. It does not determine the integration version.
 - **MCP contract version** describes compatibility of the public tool schemas.
@@ -23,14 +23,19 @@ There is no tagged StatePort Agent Skills release yet. An installation from
 immutable release. The provider registry and
 [compatibility evidence](COMPATIBILITY.md) state exactly what has been checked.
 
-The first beta should be `0.1.0-beta.1`. It requires at least one explicitly
-supported host to complete the core supplied-Card workflow from an immutable
+The source now uses `0.1.0-beta.1` and includes five skills. This version bump
+does not create a tag or establish new host acceptance. Publishing a supported
+beta requires at least one explicitly supported host to complete the core supplied-Card workflow from an immutable
 tag: install, public MCP discovery, inspect/open, reproduce, change current
 code, reopen the same revision, compare evidence, then update/remove. Other
 hosts may remain `unverified` if that limitation is clear and their artifacts
 are not presented as supported releases.
 
 ## Host-owned update paths
+
+The executable install/update procedure, including alpha migration, restart,
+verification and failure recovery, is in
+[AGENT_INSTALL.md](../AGENT_INSTALL.md#update-an-existing-installation).
 
 | Surface | Update | Removal | StatePort update evidence |
 | --- | --- | --- | --- |
@@ -48,10 +53,12 @@ check the runtime version reported by the new process where available.
 
 ## Raw skill fallback
 
-A copied or project-local `skills/stateport-debugging` directory is
-user-managed. Read `integration.json` beside `SKILL.md` for its version. Update
-a reviewed clone with `git pull`, or replace the complete copied skill directory
-from the desired tagged release. The skill never polls for or downloads updates.
+Copied or project-local StatePort skill directories are user-managed. Read
+`integration.json` beside each `SKILL.md` for its version. Update a clean reviewed
+branch checkout with `git pull --ff-only`, or replace the complete five-directory
+set from the selected reviewed source/ref. Preserve customized copies and pinned
+refs. All references and metadata must accompany each skill. Ordinary task skills
+do not poll for updates; explicitly requested updates follow AGENT_INSTALL.md.
 
 ## Release rules
 

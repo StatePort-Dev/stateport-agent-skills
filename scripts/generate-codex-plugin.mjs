@@ -6,7 +6,7 @@ const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 
 export function syncCodexSkill(root = repositoryRoot, check = false) {
   const metadata = JSON.parse(fs.readFileSync(path.join(root, 'integration.json'), 'utf8'));
-  if (metadata.schemaVersion !== 1 || !/^0\.\d+\.\d+(?:-alpha\.\d+)?$/.test(metadata.integrationVersion) ||
+  if (metadata.schemaVersion !== 1 || !/^0\.\d+\.\d+(?:-(?:alpha|beta)\.\d+)?$/.test(metadata.integrationVersion) ||
       !Number.isInteger(metadata.mcpContract?.minimum) || !Number.isInteger(metadata.mcpContract?.maximum) ||
       metadata.mcpContract.minimum < 1 || metadata.mcpContract.maximum < metadata.mcpContract.minimum) {
     throw new Error('Invalid canonical integration metadata');
@@ -23,24 +23,35 @@ export function syncCodexSkill(root = repositoryRoot, check = false) {
     }
   };
   const metadataContent = `${JSON.stringify(metadata, null, 2)}\n`;
-  const canonical = 'skills/stateport-debugging';
-  const names = ['SKILL.md', 'integration.json', ...fs.readdirSync(path.join(root, canonical, 'references')).map(name => `references/${name}`).sort()];
-  put(`${canonical}/integration.json`, metadataContent);
-  for (const target of ['plugins/stateport/skills/stateport-debugging', 'extensions/vscode/skills/stateport-debugging']) {
-    for (const name of names) {
-      const source = name === 'integration.json' ? metadataContent : fs.readFileSync(path.join(root, canonical, name));
-      put(`${target}/${name}`, source);
-    }
-    const referenceDir = path.join(root, target, 'references');
-    if (fs.existsSync(referenceDir)) {
-      const expected = new Set(names.filter(name => name.startsWith('references/')).map(name => path.basename(name)));
-      for (const name of fs.readdirSync(referenceDir)) {
-        if (expected.has(name)) continue;
-        if (check) mismatches.push(`${target}/references/${name}`);
-        else fs.rmSync(path.join(referenceDir, name), { recursive: true, force: true });
+  // Each entrypoint is canonical; shared references have one authoring location.
+  // Copy references into each skill so raw single-skill installs remain portable.
+  const shared = 'skills/stateport-debugging/references';
+  const references = fs.readdirSync(path.join(root, shared)).sort();
+  const skills = fs.readdirSync(path.join(root, 'skills'), { withFileTypes: true })
+    .filter(item => item.isDirectory() && fs.existsSync(path.join(root, 'skills', item.name, 'SKILL.md')))
+    .map(item => item.name).sort();
+  for (const skill of skills) {
+    const canonical = `skills/${skill}`;
+    for (const target of [canonical, `plugins/stateport/skills/${skill}`, `extensions/vscode/skills/${skill}`]) {
+      put(`${target}/SKILL.md`, fs.readFileSync(path.join(root, canonical, 'SKILL.md')));
+      put(`${target}/integration.json`, metadataContent);
+      for (const name of references) put(`${target}/references/${name}`, fs.readFileSync(path.join(root, shared, name)));
+      const referenceDir = path.join(root, target, 'references');
+      if (fs.existsSync(referenceDir)) {
+        for (const name of fs.readdirSync(referenceDir)) {
+          if (references.includes(name)) continue;
+          if (check) mismatches.push(`${target}/references/${name}`);
+          else fs.rmSync(path.join(referenceDir, name), { recursive: true, force: true });
+        }
       }
     }
   }
+  const vscodePath = 'extensions/vscode/package.json';
+  const vscode = JSON.parse(fs.readFileSync(path.join(root, vscodePath), 'utf8'));
+  vscode.version = metadata.integrationVersion;
+  vscode.contributes.chatSkills = skills.map(skill => ({ path: `./skills/${skill}/SKILL.md` }));
+  vscode.files = [...vscode.files.filter(name => !name.startsWith('skills/')), 'skills/'];
+  put(vscodePath, `${JSON.stringify(vscode, null, 2)}\n`);
 
   for (const name of ['desktop-mcp-config.mjs', 'compatibility.mjs', 'setup-codex-mcp.mjs', 'setup-claude-mcp.mjs', 'setup-copilot-mcp.mjs', 'setup-cursor-mcp.mjs']) {
     put(`plugins/stateport/scripts/${name}`, fs.readFileSync(path.join(root, 'scripts', name)));

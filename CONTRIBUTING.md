@@ -20,7 +20,9 @@ No contributions may require a private StatePort source checkout to use a skill.
 
 ## Provider adapters
 
-An adapter must reference the canonical skill. Include official format sources,
+An adapter must use the canonical skills. Edit shared references only under
+`skills/stateport-debugging/references` and run `npm run sync` to update portable
+skill directories, provider packages and VS Code discovery. Include official format sources,
 minimum/actual tested versions, scope, transport, install/update/uninstall
 behavior, collision handling, and a reproducible verification record.
 Do not overwrite an existing user MCP or agent configuration.

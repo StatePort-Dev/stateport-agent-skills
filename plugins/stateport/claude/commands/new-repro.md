@@ -3,7 +3,7 @@ description: Start a new StatePort browser reproduction when the public Capture 
 disable-model-invocation: true
 ---
 
-Read `${CLAUDE_PLUGIN_ROOT}/skills/stateport-debugging/SKILL.md` and the relevant
-bundled references, then handle this browser bug report: `$ARGUMENTS`.
-Follow the canonical create-first branch only when the connected public
-runtime exposes and authorizes it; otherwise report the bounded limitation.
+Read `${CLAUDE_PLUGIN_ROOT}/skills/stateport-capture/SKILL.md` and its relevant
+references, then capture the state or reproduction requested here: `$ARGUMENTS`.
+Use the supplied steps and login data through the advertised public runtime.
+A request to capture and save needs no repeated action/Review/Save questions.

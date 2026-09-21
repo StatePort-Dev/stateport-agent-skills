@@ -5,9 +5,11 @@ This is a public integration source repository, not the StatePort runtime.
 
 ## Source of truth
 
-Canonical behavior lives in skills/stateport-debugging/SKILL.md and its
-references. Provider adapters may change packaging and host metadata, not the
-meaning of the debugging workflow. Do not duplicate skills manually. Add a
+Canonical entrypoints live in skills/*/SKILL.md. Shared behavior and references
+are authored in skills/stateport-debugging/references; npm run sync copies
+them and integration.json into each portable skill and provider package.
+Provider adapters may change packaging and host metadata, not workflow meaning.
+Do not edit generated references or duplicate skills manually. Add a
 deterministic generator and freshness check when a host actually needs copies.
 
 ## Public boundary

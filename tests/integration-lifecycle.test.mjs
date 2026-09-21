@@ -14,7 +14,7 @@ const json = name => JSON.parse(read(name));
 test('one integration release version owns all distribution manifests and local raw-skill metadata', () => {
   const metadata = json('integration.json');
   const version = metadata.integrationVersion;
-  assert.match(version, /^0\.\d+\.\d+(?:-alpha\.\d+)?$/);
+  assert.match(version, /^0\.\d+\.\d+(?:-(?:alpha|beta)\.\d+)?$/);
   for (const name of ['package.json', 'plugins/stateport/plugin.json', 'plugins/stateport/.codex-plugin/plugin.json', 'plugins/stateport/.claude-plugin/plugin.json', 'extensions/vscode/package.json']) {
     assert.equal(json(name).version, version, name);
   }
@@ -31,6 +31,8 @@ test('sync detects stale generated versions and skills, repairs them, and is byt
     for (const name of ['integration.json', 'package.json', 'LICENSE', 'skills', 'scripts', 'plugins', 'extensions']) {
       fs.cpSync(path.join(root, name), path.join(temp, name), { recursive: true });
     }
+    const beta = { ...json('integration.json'), integrationVersion: '0.1.0-beta.1' };
+    fs.writeFileSync(path.join(temp, 'integration.json'), JSON.stringify(beta));
     const manifest = path.join(temp, 'extensions/vscode/package.json');
     const skill = path.join(temp, 'plugins/stateport/skills/stateport-debugging/SKILL.md');
     const helper = path.join(temp, 'plugins/stateport/scripts/compatibility.mjs');
@@ -41,6 +43,7 @@ test('sync detects stale generated versions and skills, repairs them, and is byt
     assert.ok(syncCodexSkill(temp, true).some(name => name.includes('SKILL.md')));
     assert.ok(syncCodexSkill(temp, true).some(name => name.includes('compatibility.mjs')));
     syncCodexSkill(temp, false);
+    assert.equal(JSON.parse(fs.readFileSync(manifest)).version, beta.integrationVersion);
     assert.deepEqual(syncCodexSkill(temp, true), []);
     const once = [manifest, skill].map(name => fs.readFileSync(name, 'utf8'));
     syncCodexSkill(temp, false);

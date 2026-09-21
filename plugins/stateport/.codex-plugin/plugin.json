@@ -1,18 +1,17 @@
 {
   "name": "stateport",
-  "version": "0.1.0-alpha.10",
-  "description": "Use an authorized local StatePort State Card during browser bug investigation and fix verification.",
+  "version": "0.1.0-beta.1",
+  "description": "Capture, debug, replay, experiment with and transfer StatePort State Cards.",
   "author": {
     "name": "StatePort-Dev"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "StatePort",
-    "shortDescription": "Reuse State Cards while debugging browser bugs.",
-    "longDescription": "Adds the StatePort debugging skill. Connect the installed local Desktop MCP separately before using a Card.",
+    "shortDescription": "Capture, debug, replay and share State Cards.",
+    "longDescription": "Adds five StatePort skills for Capture, debugging, Journey, replay experiments and Card transfers. Connect the local Desktop MCP separately.",
     "developerName": "StatePort-Dev",
     "category": "Developer Tools",
-    "capabilities": ["Read"],
     "defaultPrompt": ["Use the supplied StatePort State Card to investigate this browser bug."]
   }
 }
