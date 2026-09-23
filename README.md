@@ -13,12 +13,13 @@ This repository contains none of those data or runtime components.
 > no tagged or supported end-user release yet. Use synthetic data and review
 > the source before installing it.
 
-> **Founder field run (September 2026).** The founder confirmed one complete
-> coding-agent cycle on a Mac: capture a State Card from a supplied bug task,
-> change the code, reopen the same Card and compare the result. The exact host,
-> Desktop and skill versions and shareable run receipts have not yet been
-> recorded in the public compatibility evidence. Provider-specific statuses
-> and automatic skill selection therefore remain unverified.
+> **Founder field checks (September 2026).** The founder reports repeated
+> successful tests on Linux and macOS: install, connect a coding agent, capture
+> a State Card from a supplied bug task, change the code, reopen the same Card
+> and compare the result. The exact agent host, Desktop and skill versions and
+> shareable run receipts have not yet been recorded in the public compatibility
+> evidence. Provider-specific statuses and automatic skill selection remain
+> unverified.
 
 ## Connect an agent
 
