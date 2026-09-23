@@ -21,6 +21,13 @@ This repository contains none of those data or runtime components.
 > evidence. Provider-specific statuses and automatic skill selection remain
 > unverified.
 
+## Try a small debugging exercise
+
+[Reproduction Lab: zero is not missing](examples/repro-lab/README.md) is a
+dependency-free localhost app with a deliberate bug, a failing regression test,
+a technical walkthrough and an optional StatePort capture/fix task. It uses
+only synthetic data and runs without a StatePort account or installation.
+
 ## Connect an agent
 
 1. Install StatePort Desktop from the
