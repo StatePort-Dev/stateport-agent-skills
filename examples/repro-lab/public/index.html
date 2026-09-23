@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reproduction Lab — zero is not missing</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.mjs"></script>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">STATEPORT / REPRODUCTION LAB</p>
+    <h1>Zero is not missing.</h1>
+    <p class="intro">A tiny debugging exercise. Same page, different state, different result.</p>
+    <div class="grid">
+      <section aria-labelledby="setup-title">
+        <h2 id="setup-title">01 / Set up the case</h2>
+        <label for="role">Demo role</label>
+        <select id="role"><option value="member">Member</option><option value="reviewer">Reviewer</option></select>
+        <label for="scenario">API fixture</label>
+        <select id="scenario"><option value="normal">Normal quota · 100</option><option value="exhausted">Exhausted quota · 0</option><option value="missing">Missing quota · null</option></select>
+        <label for="amount">Credits requested</label>
+        <input id="amount" type="number" min="1" step="1" value="10">
+        <button id="reset" type="button" class="secondary">Reset this demo</button>
+      </section>
+      <section aria-labelledby="result-title">
+        <h2 id="result-title">02 / Inspect the decision</h2>
+        <p>API response</p>
+        <pre id="payload">Loading…</pre>
+        <p>UI says available: <strong id="available">—</strong></p>
+        <p id="decision" role="status">Loading…</p>
+        <button id="allocate" type="button" disabled>Simulate allocation</button>
+        <p id="receipt" role="status"></p>
+      </section>
+    </div>
+    <aside>
+      <h2>The bug to reproduce</h2>
+      <p>Choose <strong>Reviewer → Exhausted quota → 10 credits</strong>. The API says zero remain, so allocation should be blocked. Compare the API response with the UI decision.</p>
+      <p>Role, fixture and input persist in this browser's local storage. Reset only removes this demo's three keys.</p>
+    </aside>
+    <footer>Synthetic data only. Roles are UI fixtures, not authentication. Allocation is a local message; nothing is purchased or sent.</footer>
+  </main>
+</body>
+</html>
