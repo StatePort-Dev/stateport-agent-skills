@@ -1,11 +1,10 @@
 # Capture procedure
 
-Discover schemas before use. Call `get_capture_capability`; creation needs
-`available: true`, enabled permission and the public lifecycle: `start_capture`,
-`observe_capture`, `observe_capture_page`, `act_on_capture_page`, `stop_capture`,
-`save_capture`, `discard_capture`. If permission is off, explain how to enable
-**Allow coding agents to control Capture** in Desktop Settings. Existing enabled
-permission and the user's request need no repeated confirmation.
+Follow [task authorization](authorization.md) from the original request, then
+check public Capture capability and operations. Capture is enabled by default;
+scoped task authorization also works with a stored disabled global preference.
+Do not ask the user to enable a separate permission or reconfirm Review/Save.
+
 
 ## Start and follow the requested steps
 

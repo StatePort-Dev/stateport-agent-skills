@@ -7,7 +7,7 @@ Linux; the complete current-code fix/reopen/compare workflow remains unverified.
 Codex desktop and IDE surfaces have separate, unverified setup paths.
 
 The plugin contains generated copies of all
-[five canonical skills](../../AGENT_INSTALL.md#skills-included). It does
+[seven canonical skills](../../AGENT_INSTALL.md#skills-included). It does
 not bundle Desktop, guess an executable, configure MCP automatically or grant
 Capture permission.
 

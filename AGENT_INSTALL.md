@@ -7,13 +7,15 @@ environment and use its supported integration mechanism. It is separate from the
 debugging must not install a runtime or change user configuration to bypass a
 missing capability. Use this entrypoint when the user requests setup or an update.
 If StatePort is already installed, use the update procedure below instead of
-creating another copy. The current source version is `0.1.0-beta.1`.
+creating another copy. The current source version is `0.1.0-beta.2`.
 
 ## Skills included
 
 Install the complete set through the host's plugin or skill mechanism:
 
 - [stateport-debugging](skills/stateport-debugging/SKILL.md): investigate a Card and verify code changes.
+- [stateport-check-changes](skills/stateport-check-changes/SKILL.md): check a bounded relevant case set without editing code.
+- [stateport-harden](skills/stateport-harden/SKILL.md): check independent data variants of one case without fixing by default.
 - [stateport-capture](skills/stateport-capture/SKILL.md): record requested state, steps and supplied login, then Review and Save.
 - [stateport-journey](skills/stateport-journey/SKILL.md): inspect and replay recorded interactions.
 - [stateport-replay-experiments](skills/stateport-replay-experiments/SKILL.md): test request remaps, routing and JSON response changes.
@@ -60,7 +62,7 @@ includes its references and version metadata so a raw install is self-contained.
    connection is verified only after host discovery, and that a case has not
    yet been tested.
 6. Continue with the user's task. For a new case, they can capture it in Desktop
-   or use **Capture with an agent** in Capture with explicit permission and a
+   or use **Capture with an agent** in Capture with the original task request and a
    capable runtime/host. For a saved Card, **Use with agent** previews **Copy task**
    on that exact Card, with optional saved context. First-time connection is
    available inline; no Settings detour or repeated installation is needed.
@@ -72,7 +74,8 @@ universal unattended installer. No private product repository is required.
 
 ## Choose the integration for this environment
 
-The five canonical skills above define the same workflows for all agents.
+The seven canonical skills (Capture, Fix & Verify, Journey, Replay Experiments,
+Transfer, Check Changes, and Harden) define the same workflows for all agents.
 These guides adapt installation and updates to each host:
 
 | Environment | Guide |
@@ -94,7 +97,7 @@ These guides adapt installation and updates to each host:
    If no configuration was supplied, obtain it with installed `stateport mcp config`
    where available, or ask the user for **Copy MCP config** from Desktop. Do not
    substitute a source checkout or another runtime.
-3. Load all five canonical directories under `skills/`, including
+3. Load all seven canonical directories under `skills/`, including
    their references and integration metadata, using the agent's supported skill
    mechanism. If it has no skill installer, use its documented project-instruction
    or context mechanism to read the relevant canonical skill and references.
@@ -122,7 +125,7 @@ evidence plus explicit authorization; setup grants none of them.
    unrelated plugins, local customizations and the working MCP configuration.
    The update request authorizes the ordinary update steps; use host approvals
    where required, without asking again for each command.
-3. For an alpha installation, ensure all five skills replace the old single-skill
+3. For an alpha installation, ensure all seven skills replace the old single-skill
    package. If switching from raw skills to a plugin, remove or disable only the
    confirmed duplicate StatePort copy. Keep a backup of customized copies and
    resolve overlapping changes instead of overwriting them.
@@ -130,7 +133,7 @@ evidence plus explicit authorization; setup grants none of them.
    the MCP connection and inspect its initialization version and fresh schemas.
    Updating skills alone does not require rewriting a working server entry or
    changing Capture permission.
-5. Confirm the installed integration version, all five skill entrypoints and
+5. Confirm the installed integration version, all seven skill entrypoints and
    actual host MCP discovery. Report precisely what was checked and any remaining
    manual step. This check needs no Card reads or new Capture. Resume the task.
 
@@ -172,7 +175,7 @@ See the [Copilot plugin reference](https://docs.github.com/en/copilot/reference/
 checkout or replace the installed StatePort directories from the chosen source.
 For a clean clone tracking the requested branch, use `git pull --ff-only`.
 If it has local changes or is pinned to a tag, preserve them and resolve the
-requested target first. Copy all five complete skill directories, not just
+requested target first. Copy all seven complete skill directories, not just
 SKILL.md; plugin installs need the whole `plugins/stateport` directory. Restart
 the host and check discovery.
 

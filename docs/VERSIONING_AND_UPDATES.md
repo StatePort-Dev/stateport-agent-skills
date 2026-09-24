@@ -4,7 +4,7 @@ StatePort uses three independent version lines:
 
 - **Integration version** identifies this repository's skill, plugin manifests,
   setup helpers and native source candidates. The current beta source version
-  is `0.1.0-beta.1` in [`integration.json`](../integration.json).
+  is `0.1.0-beta.2` in [`integration.json`](../integration.json).
 - **Desktop/runtime version** identifies the installed StatePort application and
   MCP process. It does not determine the integration version.
 - **MCP contract version** describes compatibility of the public tool schemas.
@@ -23,7 +23,7 @@ There is no tagged StatePort Agent Skills release yet. An installation from
 immutable release. The provider registry and
 [compatibility evidence](COMPATIBILITY.md) state exactly what has been checked.
 
-The source now uses `0.1.0-beta.1` and includes five skills. This version bump
+The source now uses `0.1.0-beta.2` and includes seven skills. This version bump
 does not create a tag or establish new host acceptance. Publishing a supported
 beta requires at least one explicitly supported host to complete the core supplied-Card workflow from an immutable
 tag: install, public MCP discovery, inspect/open, reproduce, change current
@@ -55,7 +55,7 @@ check the runtime version reported by the new process where available.
 
 Copied or project-local StatePort skill directories are user-managed. Read
 `integration.json` beside each `SKILL.md` for its version. Update a clean reviewed
-branch checkout with `git pull --ff-only`, or replace the complete five-directory
+branch checkout with `git pull --ff-only`, or replace the complete seven-directory
 set from the selected reviewed source/ref. Preserve customized copies and pinned
 refs. All references and metadata must accompany each skill. Ordinary task skills
 do not poll for updates; explicitly requested updates follow AGENT_INSTALL.md.

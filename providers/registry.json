@@ -14,6 +14,13 @@
           "skillVersion": "0.1.0-alpha.8",
           "date": "2026-09-20",
           "report": "docs/compatibility/codex-cli-beta19-2026-09-20.md"
+        },
+        {
+          "hostVersion": "0.155.0-alpha.16.3",
+          "runtimeVersion": "1.0.0-beta.23 local unpacked candidate",
+          "skillVersion": "0.1.0-beta.2",
+          "date": "2026-09-24",
+          "report": "docs/compatibility/skills-beta2-source-2026-09-24.md"
         }
       ]
     },

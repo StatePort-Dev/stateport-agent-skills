@@ -39,3 +39,7 @@ The [Cursor Agent source check](compatibility/cursor-agent-source-2026-09-12.md)
 records only a synthetic MCP setup and an authentication-blocked agent attempt.
 The [JetBrains source check](compatibility/jetbrains-source-2026-09-12.md)
 records ZIP build and binary verification, without a live IDE command run.
+
+The [seven-skill candidate record](compatibility/skills-beta2-source-2026-09-24.md)
+adds source checks, actual Linux Codex discovery/Capture and incomplete routing
+evidence. Full A/B/C and macOS acceptance remain unverified.

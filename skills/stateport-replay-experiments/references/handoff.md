@@ -40,3 +40,10 @@ baseline/candidate run references and compare meaningful evidence. Report the
 current code actually executed, replay/live traffic, changed routes/overlays and
 unverified backend. Successful Open alone is neither a reproduction nor a fix.
 A timeout, replay miss or absent evidence remains blocked/inconclusive.
+
+For Bug Workflows also retain the versioned verification/experiment descriptor's
+public run reference, fixed criteria and expectation source, separate runtime
+and behavior verdicts, known build evidence, and remaining two-attempt/120-second
+recovery budget. Reload `read_run_checks` by exact run ID after resumption; do not
+read private paths. Recheck source/target/conditions and discover changed schemas.
+A warm PASS or missing/corrupt receipt remains unverified.

@@ -9,9 +9,9 @@ import { syncCodexSkill } from '../scripts/generate-codex-plugin.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const source = path.join(root, 'skills/stateport-debugging');
 const packaged = path.join(root, 'plugins/stateport/skills/stateport-debugging');
-const skillNames = ['stateport-capture', 'stateport-debugging', 'stateport-journey', 'stateport-replay-experiments', 'stateport-transfer'];
+const skillNames = ['stateport-capture', 'stateport-check-changes', 'stateport-debugging', 'stateport-harden', 'stateport-journey', 'stateport-replay-experiments', 'stateport-transfer'];
 
-test('all five skills ship self-contained, with shared references, metadata and VS Code discovery', () => {
+test('all seven skills ship self-contained, with shared references, metadata and VS Code discovery', () => {
   assert.deepEqual(readdirSync(path.join(root, 'skills')).sort(), skillNames);
   for (const base of ['skills', 'plugins/stateport/skills', 'extensions/vscode/skills']) {
     assert.deepEqual(readdirSync(path.join(root, base)).sort(), skillNames);

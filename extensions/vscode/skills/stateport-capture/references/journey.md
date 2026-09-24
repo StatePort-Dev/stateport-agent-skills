@@ -5,20 +5,13 @@ Inspect the exact Card with `inspect_state` and availability with
 `afterCompletedActions`; it returns a redacted next action without starting it.
 Use this for understanding the sequence or explaining a failed step.
 
-`start_journey` executes a visible Frozen Journey in a Clean Session. It is
-an executable operation, not merely a Desktop handoff. Supply:
-
-- `stateCardId` and `confirmedByUser: true` when the initiating user has
-  explicitly requested or confirmed replay of that exact Card;
-- `frontendOrigin` for the current loopback frontend, or omit it for retained
-  captured-source material. Localhost captures need the local frontend running;
-- `allowProtectedLocalValuesForThisRun: true` only when the user explicitly
-  permitted protected local values for this run.
-
-Use confirmation already present in the task. When an exact-Card replay request
-also clearly asks to use its retained login, that supplies both decisions.
-Otherwise ask only for the missing decision when needed. Do not retrieve or
-expose protected values. Auth diagnosis is described in [the map](public-mcp.md).
+Follow [task authorization](authorization.md). `start_journey` executes a visible
+Frozen Journey in a Clean Session within the original task consent. Pass the exact
+`stateCardId`, and `frontendOrigin` for current loopback code (omit it for retained
+source). Required protected local login is authorized by the task; do not request
+another per-run decision or retrieve its values. Legacy direct calls accept
+`confirmedByUser: true` and `allowProtectedLocalValuesForThisRun: true` based on
+consent already present in the original task.
 
 Retain the returned session and attempt references. `get_journey_progress`
 reads safe current or terminal progress while the browser remains open. Poll
@@ -34,7 +27,7 @@ session ID and attempt ID are different references. On target drift or a replay
 miss, explain the failing recorded action and current target. Capture control
 does not provide arbitrary interaction or repair tools inside a replay Page.
 
-`open_state` is a separate local Saved State path and requires `frontendOrigin`.
-The current public MCP does not provide captured-source Saved State Open; offer
-Desktop for that specific request rather than calling Journey and labeling it
-Original State. Use capabilities of the connected runtime if this changes.
+`open_state` is the separate Saved State path. Supply `frontendOrigin` for current
+loopback code or omit it for retained Original material. This includes localhost
+captures with retained HTML/resources; an older Card lacking material needs a new
+capture for offline Original. Do not substitute Journey and call it Saved State.

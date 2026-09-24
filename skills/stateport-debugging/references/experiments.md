@@ -24,9 +24,25 @@ to Live silently to make a replay failure disappear.
 
 `create_response_overlay` applies an RFC 7396 merge patch to a replayable JSON
 exchange. Object keys merge, null deletes a key, and arrays are replaced as a
-whole. Choose the smallest patch that tests the requested behavior. Some
-session-checkpoint Cards are Frozen-only and cannot create Capsule overlays;
-an advertised tool is not a promise that every Card supports it.
+whole; null deletion is not literal-null testing. Choose the smallest safe patch.
+Compatible runtimes support ordinary Session Cards with a versioned single-exchange
+source/checkpoint/occurrence binding. Older runtimes/unsupported Cards may refuse;
+an advertised operation alone does not establish that this Card supports it.
+Use schema/code and safe structural information; never dump captured bodies.
+
+For Harden Case use independent fresh runs, normally 3–5 relevant contract-valid
+variants. No status/headers/delay/socket/multi-route injection. Record the hypothesis
+and expected check first. Invalid API data is a labelled robustness probe.
+After stop, `read_run_checks` returns the safe experiment and patchDelivery.
+Delivery must be `delivered`, and a related UI observation/action must demonstrate
+application consumption. Otherwise report **experiment not exercised**. In
+particular, overlapping capture/local origins may not exercise a replay patch;
+never infer consumption from an unchanged page or successful tool call.
+The safe descriptor can repeat exact source/checkpoint/exchange/patch conditions;
+pass its source as `expectedSource` to `create_response_overlay` on repetition,
+and retain original Card/revision references. A changed source must be rejected.
+`applicationConsumption: requires_behavior_check` is not a consumption verdict.
+Never silently persist a revision or mutate original Card bytes.
 
 Route and overlay operations reopen sessions. Keep the new `sessionId` returned
 by each operation; old session references may no longer be valid. The current
@@ -37,7 +53,10 @@ result and explain this limitation for multi-route experiments.
 ## Compare and restore
 
 Finalize candidate runs with `stop_run` and read `get_run_summary`; compare
-baseline and candidate using `compare_runs`. Track the exact remap/patch/route
+baseline and candidate using `compare_runs` for network evidence and
+`compare_run_checks` for semantic criteria. Different source or patch conditions remain
+`not_comparable` for same-conditions fix claims; report them as experiments.
+Track the exact remap/patch/route
 conditions. Captured-response remaps and patches establish frontend behavior
 under those conditions, not current backend correctness.
 

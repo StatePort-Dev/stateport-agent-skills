@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-Current beta source: `0.1.0-beta.1`. No tag or supported end-user
+Current beta source: `0.1.0-beta.2`. No tag or supported end-user
 release has been published.
 
 ### User setup
@@ -62,3 +62,21 @@ release has been published.
 ### Breaking changes
 
 - None claimed.
+
+## 0.1.0-beta.2 source candidate
+
+- Strengthened Fix & Verify with baseline failure, fresh current-build verification,
+  durable named checks, finite recovery and separate runtime/behavior/agent results.
+- Added Check Changes (bounded relevant cases; no edits by default) and Harden Case
+  (independent valid data variants; delivery and consumption required).
+- Preserved Capture, Journey, Replay Experiments and Transfer. Generated seven-skill
+  packages remain self-contained; installation/update paths use the complete set.
+- New behavior controls and ordinary-Card response experiments require discovered
+  runtime support. Skills authorize the necessary Capture/replay/Journey and protected
+  login steps from the original task, without repeated permission prompts or global
+  permission changes. Agent Capture defaults on while preserving explicit choices.
+  Host acceptance remains unverified;
+  this source candidate is not a published release or a performance claim.
+
+- Original replay guidance now distinguishes retained localhost application material
+  from Local/current-code replay; old Cards missing HTML need recapture for offline Original.

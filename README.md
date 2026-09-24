@@ -2,15 +2,16 @@
 
 StatePort saves a browser reproduction as a **State Card** so a coding agent
 can inspect the same state before and after a code change. This repository
-contains five task-focused skills and the adapters that connect supported
+contains seven task-focused skills and the adapters that connect supported
 agents to the local StatePort Desktop MCP server.
 
 StatePort Desktop owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Beta source.** The integration version is `0.1.0-beta.1`. Source
+> **Beta source.** The integration version is `0.1.0-beta.2`. Source
 > installation and bounded Codex CLI workflows have been checked, but there is
-> no tagged or supported end-user release yet. Use synthetic data and review
+> no tagged or supported end-user release yet. New Bug Workflows real-host acceptance
+> remains unverified until version-bound results are recorded. Use synthetic data and review
 > the source before installing it.
 
 > **Founder field checks (September 2026).** The founder reports repeated
@@ -71,11 +72,13 @@ only synthetic data and runs without a StatePort account or installation.
    > this browser bug. Inspect that Card first, open it against my current local
    > code, then reopen the same Card and compare evidence after the fix.
 
-## Choose a skill
+## StatePort Bug Workflows
 
 | Task | Skill |
 | --- | --- |
-| Investigate a Card and verify a fix | [stateport-debugging](skills/stateport-debugging/SKILL.md) |
+| Fix & Verify: reproduce a browser bug and verify the same case | [stateport-debugging](skills/stateport-debugging/SKILL.md) |
+| Check Changes: regressions in relevant saved cases | [stateport-check-changes](skills/stateport-check-changes/SKILL.md) |
+| Harden Case: related data edge cases | [stateport-harden](skills/stateport-harden/SKILL.md) |
 | Capture requested state or steps, including supplied login | [stateport-capture](skills/stateport-capture/SKILL.md) |
 | Replay and inspect recorded interactions | [stateport-journey](skills/stateport-journey/SKILL.md) |
 | Try request remaps, routes and JSON response changes | [stateport-replay-experiments](skills/stateport-replay-experiments/SKILL.md) |
@@ -83,8 +86,9 @@ only synthetic data and runs without a StatePort account or installation.
 
 Ask for the task in ordinary language; the skills use information and permission
 already supplied and ask only when a necessary choice is unclear. Their shared
-operation map covers the public beta.20 MCP source contract, including protected
-credential entry and exact observed controls. Actual connected schemas determine
+operation map preserves Capture/replay and describes the Bug Workflows source
+candidate. New replay checks require a compatible runtime. The original task authorizes its
+necessary Capture, replay and supplied-credential steps through scoped task authorization. Actual connected schemas determine
 which features are available. To migrate an alpha install, follow
 [Update an existing installation](AGENT_INSTALL.md#update-an-existing-installation).
 
