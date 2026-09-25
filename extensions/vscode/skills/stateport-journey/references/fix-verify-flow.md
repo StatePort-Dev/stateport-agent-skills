@@ -33,6 +33,22 @@ its exact identity, never claim restoration proves an unexercised transition.
 
 ## Prepare and capture
 
+Discover capabilities and the provided browser toolchain once per connection.
+Retain the available Playwright/playwright-core or supported runner path from the
+actual environment; do not search for another driver unless that path has a
+concrete blocker. Known actions/waits/assertions should run programmatically when
+a supported executable adapter is available. Capture must record that same Page,
+with `setup(page)` separate from `exerciseAndAssert(page)`. A private prototype is
+not an advertised capability; retain an unavailable-adapter gap explicitly.
+
+Read relevant code while independent Capture/finalize work runs. An early observed
+reproduction result may allow read-only investigation, but do not edit an unsealed
+Capture or treat a pending Save as a durable Card. Preserve real pre-edit FAIL,
+source/build identity and the final fresh same-Card proof. A supported adapter's
+`capture_observed` result is distinct from a replay-validated baseline; repeat
+pre-fix replay only for a named qualification/comparability requirement. The
+bounded MCP path below retains its own required baseline gate.
+
 Use authorized task live URLs/running server origins, not an illustrative docs
 port; resolve genuinely conflicting running targets before begin. Begin once with
 `prepare: {kind: capture, input: {name, sourceUrl}}` or
@@ -81,7 +97,8 @@ details for missing original source or an unavailable pinned target.
 
 ## Fix, verify, stop
 
-Diagnose concrete hypotheses. Choose the smallest source read,
+For a material unresolved question, read [one diagnostic question](diagnostics.md)
+only as needed. Diagnose concrete hypotheses. Choose the smallest source read,
 project test or authorized runtime probe that can disprove it; a focused probe may
 be better than broad source reading. Once enough evidence supports a scoped fix,
 implement and test it; avoid another confirmation of the same hypothesis. Label

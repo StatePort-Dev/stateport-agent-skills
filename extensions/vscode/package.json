@@ -2,7 +2,7 @@
   "name": "stateport",
   "displayName": "StatePort",
   "description": "Capture, debug, replay and transfer StatePort Cards with five agent skills and opt-in local MCP setup.",
-  "version": "0.1.0-beta.10",
+  "version": "0.1.0-beta.19",
   "publisher": "stateport-dev",
   "private": true,
   "license": "MIT",

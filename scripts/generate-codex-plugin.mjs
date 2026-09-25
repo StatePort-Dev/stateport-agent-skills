@@ -29,6 +29,7 @@ export function syncCodexSkill(root = repositoryRoot, check = false) {
   const referenceContent = new Map(fs.readdirSync(path.join(root, shared)).map(name => [name, fs.readFileSync(path.join(root, shared, name))]));
   // One lazy load includes authorization from its single canonical source.
   referenceContent.set('fix-verify.md', Buffer.from('<!-- Generated from authorization.md and fix-verify-flow.md. -->\n\n' + referenceContent.get('authorization.md').toString() + '\n' + referenceContent.get('fix-verify-flow.md').toString()));
+  referenceContent.set('executable-fix-verify.md', Buffer.from('<!-- Generated from authorization.md and executable-fix-verify-flow.md. -->\n\n' + referenceContent.get('authorization.md').toString() + '\n' + referenceContent.get('executable-fix-verify-flow.md').toString()));
   const references = [...referenceContent.keys()].sort();
   const skills = fs.readdirSync(path.join(root, 'skills'), { withFileTypes: true })
     .filter(item => item.isDirectory() && fs.existsSync(path.join(root, 'skills', item.name, 'SKILL.md')))
