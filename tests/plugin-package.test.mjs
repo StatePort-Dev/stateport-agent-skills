@@ -100,3 +100,20 @@ test('generated VS Code skill freshness rejects obsolete packaged references', (
     rmSync(temp, { recursive: true, force: true });
   }
 });
+
+test('Fix & Verify bundle has one canonical authorization source and detects its drift',()=>{
+ const temp=mkdtempSync(path.join(os.tmpdir(),'stateport-workflow-bundle-'));
+ try {
+  for(const name of ['skills','scripts','plugins','extensions'])cpSync(path.join(root,name),path.join(temp,name),{recursive:true});
+  for(const name of ['LICENSE','integration.json','package.json'])cpSync(path.join(root,name),path.join(temp,name));
+  syncCodexSkill(temp,false);
+  const auth=path.join(temp,'skills/stateport-debugging/references/authorization.md');
+  writeFileSync(auth,readFileSync(auth,'utf8')+'\nSynthetic authorization amendment.\n');
+  const drift=syncCodexSkill(temp,true);
+  assert.ok(drift.includes('skills/stateport-debugging/references/fix-verify.md'));
+  syncCodexSkill(temp,false);
+  const bundle=readFileSync(path.join(temp,'skills/stateport-debugging/references/fix-verify.md'),'utf8');
+  assert.equal(bundle.split('Synthetic authorization amendment.').length,2);
+  assert.deepEqual(syncCodexSkill(temp,true),[]);
+ }finally{rmSync(temp,{recursive:true,force:true});}
+});

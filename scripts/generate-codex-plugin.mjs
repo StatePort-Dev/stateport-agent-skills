@@ -26,7 +26,10 @@ export function syncCodexSkill(root = repositoryRoot, check = false) {
   // Each entrypoint is canonical; shared references have one authoring location.
   // Copy references into each skill so raw single-skill installs remain portable.
   const shared = 'skills/stateport-debugging/references';
-  const references = fs.readdirSync(path.join(root, shared)).sort();
+  const referenceContent = new Map(fs.readdirSync(path.join(root, shared)).map(name => [name, fs.readFileSync(path.join(root, shared, name))]));
+  // One lazy load includes authorization from its single canonical source.
+  referenceContent.set('fix-verify.md', Buffer.from('<!-- Generated from authorization.md and fix-verify-flow.md. -->\n\n' + referenceContent.get('authorization.md').toString() + '\n' + referenceContent.get('fix-verify-flow.md').toString()));
+  const references = [...referenceContent.keys()].sort();
   const skills = fs.readdirSync(path.join(root, 'skills'), { withFileTypes: true })
     .filter(item => item.isDirectory() && fs.existsSync(path.join(root, 'skills', item.name, 'SKILL.md')))
     .map(item => item.name).sort();
@@ -35,7 +38,7 @@ export function syncCodexSkill(root = repositoryRoot, check = false) {
     for (const target of [canonical, `plugins/stateport/skills/${skill}`, `extensions/vscode/skills/${skill}`]) {
       put(`${target}/SKILL.md`, fs.readFileSync(path.join(root, canonical, 'SKILL.md')));
       put(`${target}/integration.json`, metadataContent);
-      for (const name of references) put(`${target}/references/${name}`, fs.readFileSync(path.join(root, shared, name)));
+      for (const name of references) put(`${target}/references/${name}`, referenceContent.get(name));
       const referenceDir = path.join(root, target, 'references');
       if (fs.existsSync(referenceDir)) {
         for (const name of fs.readdirSync(referenceDir)) {

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-Current beta source: `0.1.0-beta.2`. No tag or supported end-user
+Current beta source: `0.1.0-beta.10`. No tag or supported end-user
 release has been published.
 
 ### User setup
@@ -16,6 +16,57 @@ release has been published.
   Copilot CLI, with preview-first local MCP setup helpers.
 - Add source candidates for Cursor Agent, VS Code/Cursor VSIX, and IntelliJ
   IDEA/WebStorm.
+
+### Fix & Verify source candidate
+
+- Select button/link availability targets by intent and route advertised failed
+  check diagnostics to focused target, criterion or behavior review.
+- Preserve old failures and the working fix when repairing an assertion; repeat
+  the revised assertion on original-code baseline and fresh candidate.
+- Reuse applicable external verification while retaining missing live request
+  and destination proof; legacy diagnostic gaps stay explicit.
+
+- Pin the verified baseline frontend origin for fresh candidates and use the
+  advertised baselineRunId guard for granular comparison Open.
+- Preserve working fixes when recreating baseline through isolated known pre-fix
+  source; unavailable original source or targets remain explicit gaps.
+- Reuse exact applicable returned comparisons while retaining independent live
+  API obligations and fresh proof after further code changes.
+
+- Separate bounded source/test/runtime diagnosis from acceptance evidence;
+  authorized diagnostic probes do not add acceptance obligations.
+- Interpret task-required checks against actual requested outcomes; preserve
+  live-effect proof and all explicitly required Capture steps.
+
+- Choose a reusable precondition for action-outcome verification; preserve
+  checkpoint verification for rendering recomputed from unchanged setup/data.
+- Reuse ready supplied Cards, consume complete verification results directly,
+  and limit extra references/probes to named evidence gaps.
+- Use current task origins and bounded diagnostic output while preserving full
+  local logs, explicit regression obligations and baseline-before-edit proof.
+
+- Compact the default workflow and load intermediate-state/recovery details only
+  when needed; preserve every material proof and explicit internal requirement.
+- Use Save with baseline preparation after Review when criteria share the saved
+  checkpoint, retaining the Card on failed or pending baseline preparation.
+
+- Separate acceptance outcomes from setup controls and optional diagnostics;
+  preserve explicit internal requirements and requested regression behavior.
+- Overlap independent read-only diagnosis with reproduction, preserve restored
+  checkpoints, and use terminal compound verification when evidence shares one state.
+
+- Route combined Capture/Debugging tasks through one compact canonical procedure;
+  keep standalone Capture separate and load detailed references only for a gap.
+- Select fresh action-based verification directly when criteria require actions
+  beyond the saved checkpoint; retain full acceptance and security boundaries.
+
+- Load one focused canonical reference with shared authorization included once.
+- Use ready/compound operations, focused semantic queries, unique safe rebind,
+  native visual evidence and same-Card final verification when available.
+- Cover every material criterion, retain unsupported evidence gaps, and stop
+  after sufficient proof without automatically starting another workflow.
+- Preserve compatibility fallback and explicit StatePort usage; no suitability gate.
+- Structural package checks and focused pressure tests are distinct from host acceptance.
 
 ### Debugging workflow
 

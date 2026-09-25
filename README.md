@@ -8,7 +8,7 @@ agents to the local StatePort Desktop MCP server.
 StatePort Desktop owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Beta source.** The integration version is `0.1.0-beta.2`. Source
+> **Beta source.** The integration version is `0.1.0-beta.10`. Source
 > installation and bounded Codex CLI workflows have been checked, but there is
 > no tagged or supported end-user release yet. New Bug Workflows real-host acceptance
 > remains unverified until version-bound results are recorded. Use synthetic data and review

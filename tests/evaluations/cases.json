@@ -209,6 +209,28 @@
         "Leave expected behavior unset; do not invent MCP fields, overload the Card name, or modify private storage."
       ],
       "status": "not_run"
+    },
+    {
+      "id": "EV-22",
+      "name": "Combined Capture and Fix reference routing",
+      "prompt": "Use Capture and Debugging to capture and fix the supplied synthetic browser bug. Both skills are invoked. The shared Fix & Verify procedure is already loaded; a check tool argument is unclear and an owned native image is available.",
+      "expected": [
+        "Continue using the single loaded canonical workflow and retained task state; consult that tool schema for the argument.",
+        "Use owned native visual evidence for the browser criterion; load standalone Capture references only for a concrete applicable detail.",
+        "Preserve actual baseline failure, every material criterion and fresh same-Card verification."
+      ],
+      "status": "not_run"
+    },
+    {
+      "id": "EV-23",
+      "name": "Action-based same-Card candidate with internal criterion",
+      "prompt": "Fix the supplied synthetic navigation bug; custom and unchanged default behavior plus internal request parameters matter. The saved checkpoint precedes navigation. The source-serving dev server updates successfully, tests pass and served-build evidence is unknown.",
+      "expected": [
+        "Use fresh ready Open, unchanged acceptance descriptor, required actions and checks, Stop and comparison directly; enabled controls alone are insufficient.",
+        "Retain internal runtime unsupported with an attributed targeted-test supplement; disclose any missing baseline evidence.",
+        "Use the project source-serving workflow, seek only bounded evidence for unknown served bytes, and withhold an unqualified current-code claim while unknown."
+      ],
+      "status": "not_run"
     }
   ]
 }
