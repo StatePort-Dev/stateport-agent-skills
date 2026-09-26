@@ -6,12 +6,14 @@ license: MIT
 
 # Fix & Verify
 
-When the task explicitly supplies a documented executable Capture/verification
-adapter, read [the executable path](references/executable-fix-verify.md) once.
-Otherwise read [Fix & Verify](references/fix-verify.md) once, including when Capture
-and Debugging are both invoked. Both retain canonical task authorization. Continue
-from retained task state when already loaded; a missing argument requires the
-connected schema, not another reading of the procedure.
+For a local browser fix, call `get_capture_capability` once and inspect
+`executableWorkflow`. If available and the host authorizes local project-code
+execution, read [the executable path](references/executable-fix-verify.md) once.
+A documented adapter explicitly supplied by the task also uses that path.
+Otherwise read [Fix & Verify](references/fix-verify.md) once. Retain the result
+when Capture and Debugging are both invoked; do not rediscover or reread it.
+A supplied Card still follows its supported reuse path; do not recapture it
+merely to use the helper.
 
 An explicit StatePort request uses StatePort, including simple/visual bugs, with
 no suitability gate. The original request controls scope: inspection/Capture-only

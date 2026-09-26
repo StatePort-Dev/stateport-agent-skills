@@ -38,9 +38,40 @@ or the source Card. Unsupported remote topology remains a reported gap.
 
 # Fix & Verify with a supplied executable adapter
 
-Use this path only when the task environment explicitly provides an authorized
-adapter with documented Capture and fresh same-Card execution. It is not a claim
-that every installation has a runner. Otherwise use [the MCP procedure](fix-verify.md).
+Use the installed `get_capture_capability.executableWorkflow` descriptor when
+`available` is true and the coding host authorizes local project-code execution.
+Use its exact `command` and `args`; never guess a binary or fall back to a source
+checkout. The initial shipped helper is Linux-only. MCP-only hosts without local
+execution use [the MCP procedure](fix-verify.md). A documented adapter explicitly
+supplied by the task may instead use its own documented invocation.
+
+The installed `executable-workflow/1` helper takes, as separate arguments:
+`capture|verify|recheck --workspace <absolute-project> --verifier <relative-file.mjs>
+--url <loopback-app-url> --runtime-root <descriptor.runtimeRoot>`.
+Use the MCP connection's same HOME/XDG_CONFIG_HOME environment. Do not change
+permission settings or copy credentials to repair a mismatch. Existing Capture
+and run permissions and Developer access must be available. The host's local-code
+authorization is required; a descriptor does not authorize executing untrusted code.
+The helper is an ordinary trusted project execution, not a sandbox.
+
+Write one self-contained ESM `.mjs` verifier with ordinary assertions and exports
+`setup(page, url)` and `exerciseAndAssert(page, url)`. Node built-ins are available;
+mutable imported project helpers are unsupported for evidence identity. The
+helper provides the Page and browser; no second launch or dependency discovery.
+Default total deadline is 120000 ms; `--deadline-ms` accepts 1000–600000, bounded
+by the remaining task budget. Capture defaults to replay-qualified baseline;
+when comparability does not require replay, explicitly pass
+`--capture-observed-reason same_capture_verifier` and preserve its weaker status.
+Never add a baseline replay solely for output formatting.
+
+Capture seals `.stateport-runner/baseline.json` in that workspace. Run verify
+from the same workspace after the fix/build; it restores the saved Card and runs
+only exercise/assertions. Recheck is only for a changed exercise on unchanged
+prerequisites and unchanged original served code. Do not overwrite receipts or
+repair identity by hand. Each call closes its own sessions; unrelated sessions
+and original Cards remain. A terminal `completed` means the helper finished,
+not that assertions passed: inspect behavior, qualification and build separately.
+
 Task authorization is included above. Retain already loaded instructions;
 no repeated discovery, skill reads or manual MCP setup alongside the adapter.
 

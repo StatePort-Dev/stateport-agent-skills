@@ -8,7 +8,7 @@ license: MIT
 
 Choose one procedure from the user's task:
 
-- **Capture plus investigation/fix/verification:** read [Fix & Verify](references/fix-verify.md) once. This includes Capture, even when Capture and Debugging are both invoked.
+- **Capture plus investigation/fix/verification:** inspect `get_capture_capability` once. An available `executableWorkflow` plus host-authorized local execution uses [the executable path](references/executable-fix-verify.md); otherwise use [Fix & Verify](references/fix-verify.md). Retain that choice when Debugging is also invoked.
 - **Capture only:** read [Standalone Capture](references/capture-only.md). This scope does not authorize code changes or replay.
 
 If the selected procedure is already loaded, continue from retained task state.
