@@ -8,7 +8,7 @@ agents to the local StatePort Desktop MCP server.
 StatePort Desktop owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Beta source.** The integration version is `0.1.0-beta.20`. Source
+> **Beta source.** The integration version is `0.1.0-beta.37`. Source
 > installation and bounded Codex CLI workflows have been checked, but there is
 > no tagged or supported end-user release yet. New Bug Workflows real-host acceptance
 > remains unverified until version-bound results are recorded. Use synthetic data and review
@@ -135,3 +135,8 @@ npm run verify
 Read [AGENTS.md](AGENTS.md), [CONTRIBUTING.md](CONTRIBUTING.md),
 [SECURITY.md](SECURITY.md), and the [release gates](docs/RELEASING.md) before
 publishing changes. The repository source is licensed under the [MIT license](LICENSE).
+
+The local beta.36 skills can use the optional `contextBroker` descriptor in Linux
+StatePort beta.39 when advertised. It runs before the first broad source read,
+uses host-authorized local reads and falls back to focused reads. No Capture is
+needed for source context. This integration does not establish stable cost savings.

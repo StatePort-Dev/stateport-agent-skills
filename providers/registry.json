@@ -6,7 +6,11 @@
       "displayName": "Codex CLI",
       "status": "unverified",
       "guide": "providers/codex/README.md",
-      "update": { "method": "source-install", "automatic": "unverified", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "source-install",
+        "automatic": "unverified",
+        "evidenceStatus": "unverified"
+      },
       "evidence": [
         {
           "hostVersion": "0.154.0-alpha.6.1",
@@ -21,6 +25,13 @@
           "skillVersion": "0.1.0-beta.2",
           "date": "2026-09-24",
           "report": "docs/compatibility/skills-beta2-source-2026-09-24.md"
+        },
+        {
+          "hostVersion": "0.155.0-alpha.16.3",
+          "runtimeVersion": "1.0.0-beta.39 local Linux candidate",
+          "skillVersion": "0.1.0-beta.36",
+          "date": "2026-09-27",
+          "report": "docs/compatibility/skills-beta36-context-2026-09-27.md"
         }
       ]
     },
@@ -29,7 +40,11 @@
       "displayName": "Codex desktop",
       "status": "scaffold",
       "guide": "providers/codex/README.md",
-      "update": { "method": "unverified", "automatic": "unverified", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "unverified",
+        "automatic": "unverified",
+        "evidenceStatus": "unverified"
+      },
       "evidence": []
     },
     {
@@ -37,7 +52,11 @@
       "displayName": "Codex IDE extension",
       "status": "scaffold",
       "guide": "providers/codex/README.md",
-      "update": { "method": "manual-copy", "automatic": "no", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "manual-copy",
+        "automatic": "no",
+        "evidenceStatus": "unverified"
+      },
       "evidence": []
     },
     {
@@ -45,7 +64,11 @@
       "displayName": "Claude Code",
       "status": "unverified",
       "guide": "providers/claude/README.md",
-      "update": { "method": "source-install", "automatic": "conditional", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "source-install",
+        "automatic": "conditional",
+        "evidenceStatus": "unverified"
+      },
       "evidence": []
     },
     {
@@ -53,7 +76,11 @@
       "displayName": "GitHub Copilot in VS Code",
       "status": "scaffold",
       "guide": "providers/copilot/README.md",
-      "update": { "method": "source-install", "automatic": "conditional", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "source-install",
+        "automatic": "conditional",
+        "evidenceStatus": "unverified"
+      },
       "evidence": []
     },
     {
@@ -61,7 +88,11 @@
       "displayName": "GitHub Copilot CLI",
       "status": "unverified",
       "guide": "providers/copilot/README.md",
-      "update": { "method": "source-install", "automatic": "conditional", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "source-install",
+        "automatic": "conditional",
+        "evidenceStatus": "unverified"
+      },
       "evidence": []
     },
     {
@@ -69,7 +100,11 @@
       "displayName": "StatePort VS Code VSIX",
       "status": "unverified",
       "guide": "extensions/vscode/README.md",
-      "update": { "method": "native-manual", "automatic": "no", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "native-manual",
+        "automatic": "no",
+        "evidenceStatus": "unverified"
+      },
       "evidence": []
     },
     {
@@ -77,7 +112,11 @@
       "displayName": "StatePort VSIX in Cursor",
       "status": "unverified",
       "guide": "extensions/vscode/README.md",
-      "update": { "method": "native-manual", "automatic": "unverified", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "native-manual",
+        "automatic": "unverified",
+        "evidenceStatus": "unverified"
+      },
       "evidence": []
     },
     {
@@ -85,7 +124,11 @@
       "displayName": "Cursor Agent",
       "status": "scaffold",
       "guide": "providers/cursor/README.md",
-      "update": { "method": "manual-copy", "automatic": "no", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "manual-copy",
+        "automatic": "no",
+        "evidenceStatus": "unverified"
+      },
       "evidence": []
     },
     {
@@ -93,7 +136,11 @@
       "displayName": "StatePort plugin in IntelliJ IDEA",
       "status": "unverified",
       "guide": "extensions/jetbrains/README.md",
-      "update": { "method": "native-manual", "automatic": "no", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "native-manual",
+        "automatic": "no",
+        "evidenceStatus": "unverified"
+      },
       "evidence": []
     },
     {
@@ -101,7 +148,11 @@
       "displayName": "StatePort plugin in WebStorm",
       "status": "unverified",
       "guide": "extensions/jetbrains/README.md",
-      "update": { "method": "native-manual", "automatic": "no", "evidenceStatus": "unverified" },
+      "update": {
+        "method": "native-manual",
+        "automatic": "no",
+        "evidenceStatus": "unverified"
+      },
       "evidence": []
     }
   ]

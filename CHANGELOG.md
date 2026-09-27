@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.0-beta.36
+
+- Discover optional task-only source context alongside the existing executable
+  workflow; use it before broad source reads when the implementation is unknown.
+- Keep one lazy shared reference, normal host authorization, bounded fallback,
+  stale-source refusal and metadata-cache cleanup.
+- Synchronize all seven raw, plugin and VS Code skill copies. A bounded real
+  Codex/Linux beta.39 proof passes; broad provider verification and stable
+  token-cost savings remain unproved.
+
+
 ## Unreleased
 
 Current beta source: `0.1.0-beta.10`. No tag or supported end-user

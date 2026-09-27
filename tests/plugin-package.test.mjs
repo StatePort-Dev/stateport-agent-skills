@@ -117,3 +117,29 @@ test('Fix & Verify bundle has one canonical authorization source and detects its
   assert.deepEqual(syncCodexSkill(temp,true),[]);
  }finally{rmSync(temp,{recursive:true,force:true});}
 });
+
+test('executable procedure owns its authorization and does not prepend the manual MCP handshake', () => {
+ const temp=mkdtempSync(path.join(os.tmpdir(),'stateport-executable-bundle-'));
+ try {
+  for(const name of ['skills','scripts','plugins','extensions'])cpSync(path.join(root,name),path.join(temp,name),{recursive:true});
+  for(const name of ['LICENSE','integration.json','package.json'])cpSync(path.join(root,name),path.join(temp,name));
+  const flow=path.join(temp,'skills/stateport-debugging/references/executable-fix-verify-flow.md');
+  writeFileSync(flow,readFileSync(flow,'utf8')+'\nSynthetic executable amendment.\n');
+  syncCodexSkill(temp,false);
+  const bundle=readFileSync(path.join(temp,'skills/stateport-debugging/references/executable-fix-verify.md'),'utf8');
+  assert.equal(bundle.split('Synthetic executable amendment.').length,2);
+  assert.ok(!bundle.includes('Call `begin_agent_task` once for execution'));
+  assert.deepEqual(syncCodexSkill(temp,true),[]);
+ }finally{rmSync(temp,{recursive:true,force:true});}
+});
+
+test('selected executable procedure retains first-source context and bounded same-helper recovery',()=>{
+ const flow=readFileSync(path.join(source,'references/executable-fix-verify-flow.md'),'utf8');
+ assert.match(flow,/contextBroker/);
+ assert.match(flow,/before.*source search/i);
+ assert.match(flow,/selectOption/);
+ assert.match(flow,/locator\.press/);
+ assert.match(flow,/host_execution_restricted/);
+ assert.match(flow,/baseline_restore_pending/);
+ assert.match(flow,/resume/);
+});
