@@ -1,6 +1,6 @@
 ---
 name: stateport-check-changes
-description: Use when the user asks StatePort to check frontend changes for regressions against relevant saved browser cases, including after a bug fix. Does not imply permission to change code or inspect every Card.
+description: Use for a separate request to check regressions against existing saved browser cases. Ordinary verification of the bug being fixed belongs to stateport-debugging. Does not imply permission to change code or inspect every Card.
 license: MIT
 ---
 

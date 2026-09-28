@@ -133,10 +133,11 @@ test('executable procedure owns its authorization and does not prepend the manua
  }finally{rmSync(temp,{recursive:true,force:true});}
 });
 
-test('selected executable procedure retains first-source context and bounded same-helper recovery',()=>{
+test('selected executable procedure keeps context optional and bounded same-helper recovery',()=>{
  const flow=readFileSync(path.join(source,'references/executable-fix-verify-flow.md'),'utf8');
  assert.match(flow,/contextBroker/);
- assert.match(flow,/before.*source search/i);
+ assert.match(flow,/not a prerequisite\s+for reading source/);
+ assert.match(readFileSync(path.join(source,'SKILL.md'),'utf8'),/source\s+reading need not wait for discovery/);
  assert.match(flow,/selectOption/);
  assert.match(flow,/locator\.press/);
  assert.match(flow,/host_execution_restricted/);

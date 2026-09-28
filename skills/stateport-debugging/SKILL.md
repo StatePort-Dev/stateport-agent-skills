@@ -21,12 +21,11 @@ Retain the selected procedure when Capture and Debugging are both invoked.
 A supplied Card still follows its supported reuse path; do not recapture it
 merely to use the helper.
 
-Before the first source read, inspect `contextBroker` in that same discovery.
-When available and the relevant implementation is still unknown, use
-[bounded source context](references/context-broker.md) once instead of starting
-with broad search/file dumps. Skip it when source is already known or a tiny
-file is sufficient. This optional path needs no Capture and does not replace
-runtime evidence or the selected Fix & Verify procedure.
+Read a known source path or search an exact observed symbol directly; source
+reading need not wait for discovery. Use the optional `contextBroker` from the
+same discovery only when an unknown area would otherwise require broad multi-file
+search: [bounded source context](references/context-broker.md). It is not a
+mandatory first-read phase and does not replace runtime evidence.
 
 An explicit StatePort request uses StatePort, including simple/visual bugs, with
 no suitability gate. The original request controls scope: inspection/Capture-only

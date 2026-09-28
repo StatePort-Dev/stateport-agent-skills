@@ -1,8 +1,9 @@
 # Optional first source context
 
 Use only when the existing `get_capture_capability` result advertises
-`contextBroker.available: true` and the relevant implementation is not already
-known. It is a host-local read-only source helper, not a new MCP read/execute tool.
+`contextBroker.available: true` and locating the relevant implementation would
+otherwise require broad multi-file search. Read a supplied/known path or search
+an exact observed symbol directly; no broker preparation is required for that. It is a host-local read-only source helper, not a new MCP read/execute tool.
 Do not call discovery again or Capture solely to obtain source context.
 
 1. Retain the user's full task and required behavior. Create a small private JSON
