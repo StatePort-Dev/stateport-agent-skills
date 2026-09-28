@@ -20,33 +20,34 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
    sandbox connection refusal does not establish that a supplied service stopped:
    use the permitted host path, without replacing that service or bypassing denial.
 
-2. **Plan the complete requested checks before Capture.** Assign each criterion
-   to the coherent browser exercise, an existing project test, or an independent
-   live check. For additional browser/server-journal checks, use this same helper's
-   `live` mode with a separate self-contained `.stateport-runner/live.mjs` exporting
-   the same setup/exercise functions. Reuse the discovered command, runtimeRoot
-   and actual URL; no Playwright import, browser-path search or new installation.
-   No plan file, new checklist or extra coverage is needed. Use actual
-   response data and observed input normalization for expected values; schema
-   labels and example values need not describe the current records.
+2. **Prepare one coherent exercise before Capture.** Map the requested criteria
+   to this exercise and the available focused project checks. Combine compatible
+   browser checks in the exercise; use a separate live script only for distinct
+   prerequisites or additional backend effects. No plan file or extra coverage.
+   Inspect the relevant render/source once for actual accessible names, route
+   path/query/hash and completion behavior. Use observed data for expectations;
+   do not guess labels, records or a request that caching may legitimately avoid.
 
-   Write a self-contained ESM `.stateport-runner/verify.mjs` with `node:assert/strict`,
+   Write self-contained ESM `.stateport-runner/verify.mjs` with `node:assert/strict`,
    exporting `setup(page,url)` and `exerciseAndAssert(page,url)`. No mutable imported
-   project helpers. The Page is already at the URL. Setup ends before the first
-   transition affected by the bug; exercise performs that transition and checks
-   its consequences. A checkpoint is not a JS heap or pointer snapshot: put transient
-   in-memory/hover prerequisites needed by the bug in exercise. Setup establishes
-   shared preconditions, never the buggy value. Keep exercise-only helpers there.
+   project helpers. The Page is already at the URL. Setup contains replayable
+   preconditions only. Start exercise before the first bug-related transition;
+   include transient JS state, pointer/hover state and their dependent actions
+   together. A checkpoint restores neither JS heap nor pointer state. Keep
+   exercise-only helpers inside exercise.
 
-   Separate readiness from correctness. Wait for an independent completion signal,
-   then read and assert the actual result. After animation or repeated requests,
-   wait for that action to finish; unchanged text or a previous response is not completion. Do not wait for the bug to be fixed as
-   a prerequisite to asserting it. For an eventual value, bound the wait and then
-   assert the last actual value; propagate non-timeout errors. A timeout alone is
-   not a behavioral FAIL. After reorder/save follow item identity and current state.
-   On a locator timeout inspect visibility/container state once before rerunning;
-   hidden row controls may require hover. Avoid fixed sleeps, blanket networkidle
-   and forced clicks.
+   Wait for completion of each dependent action before the next. A visible control,
+   old text or server release acknowledgement may precede the frontend update;
+   identify the relevant animation, request consumption or render completion.
+   Optimistic UI is also asynchronous: a pending/release control or server journal
+   entry does not mean the updated value has rendered. For a required intermediate
+   UI value without a separate completion signal, bound polling for that value and
+   assert the last actual value; propagate non-timeout errors. Then finish the
+   releases and settlement needed to expose the bug before unrelated accounting
+   assertions can abort Capture. Preserve required intermediate behavior checks;
+   intentionally pending bugs stay pending. A timeout alone is not a behavioral
+   FAIL. After reorder/save follow item identity. On locator timeout inspect the
+   container once; avoid guessed/forced clicks, fixed sleeps and blanket networkidle.
 
    Native `<select>` setup uses `locator.focus()` and bounded `locator.press()` keys and confirms the resulting value;
    synthetic `selectOption()` is unrecorded. Browser exercise requests must use
@@ -65,12 +66,13 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
    evidence before edits. Capture already includes baseline replay. Do not repeat
    Capture, restored setup, control benchmarks or a completed baseline for reporting.
 
-4. **Fix and check, then Verify the final build.** Use the supported affected
-   project checks whose local runner/dependencies are already available; a package-manager
-   bootstrap is not an availability check. Do not launch a whole-repository suite just because a checker
-   exists, unless the task/repository requires it. Do not install a new toolchain
-   to repair unrelated missing test dependencies. Complete planned independent
-   checks before final proof so a late source fix does not force another Verify.
+4. **Complete the fix before final Verify.** Review the affected source path and
+   diff against all requested behavior, including validation and boundary behavior
+   implicated by the change. Passing the reproduced symptom alone is insufficient.
+   Finish necessary implementation, focused project tests, build and planned
+   independent checks before Verify. Use available local runners/dependencies;
+   do not bootstrap a toolchain for unrelated missing tests or launch whole-repo
+   suites unless required. Avoid optional refactors after a valid final proof.
 
    Keep the sealed verifier stable. If a missing additional criterion is noticed
    later, check it independently; do not extend a valid core verifier after PASS.
@@ -81,7 +83,9 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
    not prove backend writes. When checks differ from the sealed core exercise, run
    `live --workspace <absolute-project> --verifier .stateport-runner/live.mjs
    --url <actual-loopback-app-url> --runtime-root <descriptor.runtimeRoot>`.
-   This creates a fresh Page and runs setup/exercise without Capture or changing
+   Reuse the discovered command, runtimeRoot and URL; no Playwright installation
+   or browser-path discovery. Export the same setup/exercise functions. This creates
+   a fresh Page and runs setup/exercise without Capture or changing
    the saved baseline. It also works when replay remains unsupported; preserve
    that gap. Live/project checks do not replace same-Card proof.
 
@@ -90,7 +94,8 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
    terminal receipt without extra MCP readback unless a named fact is missing or
    comparison was requested. Preserve verifier/Card/receipts and report results
    and gaps once. With unchanged app/verifier, independent checks do not invalidate
-   a completed proof: do not repeat Verify just to finish. No automatic Harden,
+   a completed proof. A check/build with identical served bytes needs no repeated
+   Verify; changed app/verifier still requires new proof. No automatic Harden,
    Check Changes or new verification cycle.
 
 For a demonstrated failure read [bounded recovery](executable-recovery.md).

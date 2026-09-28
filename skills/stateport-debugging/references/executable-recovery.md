@@ -9,7 +9,10 @@ For an invalid or missing required exercise assertion, keep prerequisites and us
 `recheck --recheck-source local` while original served code remains, or advertised
 `recheck --recheck-source captured_source` after app edits. The latter uses retained
 original material, preserves the original local run, and needs fresh `verify` with
-that exact repaired verifier. Do not revert the app, edit receipt identities,
+that exact repaired verifier. Prefer local recheck while original code remains:
+retained responses cannot recreate mutable server coordination or concurrent
+response timing. Check the reported assertion line before changing the app; an
+early prerequisite assertion is not the later bug criterion. Do not revert the app, edit receipt identities,
 silently recapture, or substitute a weaker live script.
 
 - `preparation.captureObservation.kind: requests_pending_at_stop`: Capture
