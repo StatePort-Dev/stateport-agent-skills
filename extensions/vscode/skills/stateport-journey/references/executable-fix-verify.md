@@ -5,7 +5,7 @@
 Use the discovered descriptor's exact command/args and `runtimeRoot`; do not
 rediscover tools or add an MCP handshake. Invoke through the normal host command
 tool with separate arguments:
-`capture|verify|recheck --workspace <absolute-project> --verifier <relative.mjs>
+`capture|verify|recheck|live --workspace <absolute-project> --verifier <relative.mjs>
 --url <actual-loopback-app-url> --runtime-root <descriptor.runtimeRoot>`.
 The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–600000.
 
@@ -22,7 +22,11 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
 
 2. **Plan the complete requested checks before Capture.** Assign each criterion
    to the coherent browser exercise, an existing project test, or an independent
-   live check. No plan file, new checklist or extra coverage is needed. Use actual
+   live check. For additional browser/server-journal checks, use this same helper's
+   `live` mode with a separate self-contained `.stateport-runner/live.mjs` exporting
+   the same setup/exercise functions. Reuse the discovered command, runtimeRoot
+   and actual URL; no Playwright import, browser-path search or new installation.
+   No plan file, new checklist or extra coverage is needed. Use actual
    response data and observed input normalization for expected values; schema
    labels and example values need not describe the current records.
 
@@ -30,10 +34,13 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
    exporting `setup(page,url)` and `exerciseAndAssert(page,url)`. No mutable imported
    project helpers. The Page is already at the URL. Setup ends before the first
    transition affected by the bug; exercise performs that transition and checks
-   its consequences. Keep exercise-only helpers inside exercise.
+   its consequences. A checkpoint is not a JS heap or pointer snapshot: put transient
+   in-memory/hover prerequisites needed by the bug in exercise. Setup establishes
+   shared preconditions, never the buggy value. Keep exercise-only helpers there.
 
    Separate readiness from correctness. Wait for an independent completion signal,
-   then read and assert the actual result. Do not wait for the bug to be fixed as
+   then read and assert the actual result. After animation or repeated requests,
+   wait for that action to finish; unchanged text or a previous response is not completion. Do not wait for the bug to be fixed as
    a prerequisite to asserting it. For an eventual value, bound the wait and then
    assert the last actual value; propagate non-timeout errors. A timeout alone is
    not a behavioral FAIL. After reorder/save follow item identity and current state.
@@ -46,7 +53,11 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
    the owned Page; Node fetch/page.request cannot prove replay. Optional `prepare(url)`
    is only for explicitly authorized mutable local fixtures, before local entry
    and restore, never captured_source. Read [authoring details](executable-authoring.md)
-   only when those features are needed. A Card is not a backend snapshot.
+   for those features or an API whose responses advance per request. Use advertised `localRequests = 'recorded'` only when method/URL/body repeat
+   exactly and the original exercise records every required response. Omit it for
+   generated request IDs, changed writes or new post-fix requests; use ordinary
+   Local Open plus authorized live checks. Never substitute hand-written responses.
+   A Card is not a backend snapshot.
 
 3. **Capture before edits.** Require the reported assertion failure, qualified
    restoration and established build in the compact receipt. `capture_observed`
@@ -55,7 +66,8 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
    Capture, restored setup, control benchmarks or a completed baseline for reporting.
 
 4. **Fix and check, then Verify the final build.** Use the supported affected
-   project checks; do not launch a whole-repository suite just because a checker
+   project checks whose local runner/dependencies are already available; a package-manager
+   bootstrap is not an availability check. Do not launch a whole-repository suite just because a checker
    exists, unless the task/repository requires it. Do not install a new toolchain
    to repair unrelated missing test dependencies. Complete planned independent
    checks before final proof so a late source fix does not force another Verify.
@@ -66,7 +78,12 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
    the same Card/revision and runs exercise only, without setup/reload. For planned
    live effects already covered there, `--live-check required` reuses this toolchain
    for a separate fresh live run. Read that result separately: replayed writes do
-   not prove backend writes. Live/project checks do not replace same-Card proof.
+   not prove backend writes. When checks differ from the sealed core exercise, run
+   `live --workspace <absolute-project> --verifier .stateport-runner/live.mjs
+   --url <actual-loopback-app-url> --runtime-root <descriptor.runtimeRoot>`.
+   This creates a fresh Page and runs setup/exercise without Capture or changing
+   the saved baseline. It also works when replay remains unsupported; preserve
+   that gap. Live/project checks do not replace same-Card proof.
 
 5. **Finish from the evidence.** Check assertion outcome, qualification, changed
    build and planned live/project results; `completed` alone is not PASS. Use the

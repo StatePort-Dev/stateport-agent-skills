@@ -22,6 +22,15 @@ silently recapture, or substitute a weaker live script.
   is necessary, and record the actual reproduction before any app edit. This is
   not permission to silently recapture, rerun a control benchmark, weaken an
   assertion, revert an existing fix, or route replay requests live.
+- Capture assertion followed by replay timeout: inspect the earlier prerequisite
+  and retained transport once. A sign-in screen is not the original bug. Check
+  completed login versus pending response and supported protected auth; never
+  copy cookies/passwords into a Card. Do not repeat unchanged recheck/verify:
+  an app edit alone does not repair an unreachable replay prerequisite. Use the
+  same helper's standalone `live` mode for separate authorized checks; retain the
+  failed baseline instead of spending another Verify on the same restore failure.
+  If restoration is unsupported, preserve the gap and finish authorized independent
+  tests/live checks rather than repairing assertions around an unreachable screen.
 - `browser_launch_failed` with `host_execution_restricted`: retry the exact helper
   command through the host's permitted execution/approval path. Keep the verifier.
   Do not treat a sandbox failure as helper unavailability, switch to stepwise MCP,
