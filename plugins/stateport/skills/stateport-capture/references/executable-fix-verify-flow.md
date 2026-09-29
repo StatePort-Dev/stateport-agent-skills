@@ -98,7 +98,8 @@ Restore/exercise have separate 30000 ms limits; a larger overall budget does not
    the saved baseline. It also works when replay remains unsupported; preserve
    that gap. Live/project checks do not replace same-Card proof.
 
-5. **Finish from the evidence.** Check assertion outcome, qualification, changed
+5. **Finish from the evidence.** Read the compact `continuation` first: changed
+   facts, proven facts and named gaps; it is not a task verdict. Check assertion outcome, qualification, changed
    build and planned live/project results; `completed` alone is not PASS. Use the
    terminal receipt without extra MCP readback unless a named fact is missing or
    comparison was requested. Preserve verifier/Card/receipts and report results

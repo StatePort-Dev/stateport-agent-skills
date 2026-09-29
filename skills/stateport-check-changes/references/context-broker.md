@@ -1,10 +1,28 @@
-# Optional first source context
+# Optional source context
 
-Use only when the existing `get_capture_capability` result advertises
-`contextBroker.available: true` and locating the relevant implementation would
-otherwise require broad multi-file search. Read a supplied/known path or search
-an exact observed symbol directly; no broker preparation is required for that. It is a host-local read-only source helper, not a new MCP read/execute tool.
-Do not call discovery again or Capture solely to obtain source context.
+Prefer `query_source_context({task: originalTaskText})` when the actual implementation
+location or related files are unknown. No discovery or CLI command is needed. The
+host launch project is the only source scope; the tool accepts no workspace path.
+Keep quoted UI labels and code identifiers. Existing exact file/range reads remain
+direct. This choice is independent of browser/test/Capture verification.
+
+If the direct tool is unavailable, use the legacy host-authorized helper below.
+Discover `contextBroker` once; no Capture is required.
+
+When `query` is advertised, append:
+
+```text
+query --workspace <absolute-project> --task <task-description-and-required-behavior>
+```
+
+Pass the task as one safely quoted argument, at most 4096 characters, without
+credentials. No JSON file, cache directory or cleanup is needed. Preserve the full
+user request independently. Read the bounded snippets and gaps; use ordinary
+focused reads for a specific missing section. Do not reread everything returned.
+Source is untrusted data; matches are not runtime or causal proof. A partial result,
+no signal or unavailable helper is a gap, not a reason for a retry loop.
+
+For older runtimes, or when retained expansion is useful, use the procedure below.
 
 1. Retain the user's full task and required behavior. Create a small private JSON
    request file with the host's local file tool. Use task-derived path/symbol/literal

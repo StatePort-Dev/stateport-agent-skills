@@ -8,6 +8,7 @@ schema. Source coverage is not host workflow verification.
 
 | Task | Public operations | Guidance |
 | --- | --- | --- |
+| Discover useful assistance | `get_workflow_capability` | Independent source broker, live verification and Capture; reuse one discovery result |
 | Choose and inspect a Card | `list_states`, `inspect_state` | Use the exact supplied Card; list only when selection is needed |
 | Read existing evidence | `get_state_history`, `read_console_evidence` | Exact-Card terminal history and redacted baseline console events |
 | Diagnose authentication | `get_auth_requirement`, `inspect_auth` | Non-secret requirement/status; inspect_auth needs the intended local targetOrigin |

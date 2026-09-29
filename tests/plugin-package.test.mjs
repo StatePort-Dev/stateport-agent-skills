@@ -137,7 +137,9 @@ test('selected executable procedure keeps context optional and bounded same-help
  const flow=readFileSync(path.join(source,'references/executable-fix-verify-flow.md'),'utf8');
  assert.match(flow,/contextBroker/);
  assert.match(flow,/not a prerequisite\s+for reading source/);
- assert.match(readFileSync(path.join(source,'SKILL.md'),'utf8'),/source\s+reading need not wait for discovery/);
+ assert.match(readFileSync(path.join(source,'SKILL.md'),'utf8'),/Choose source lookup separately from verification/);
+ assert.match(readFileSync(path.join(source,'SKILL.md'),'utf8'),/query_source_context/);
+ assert.match(readFileSync(path.join(source,'SKILL.md'),'utf8'),/exact file\/range is already known/);
  assert.match(flow,/selectOption/);
  assert.match(flow,/locator\.press/);
  assert.match(flow,/host_execution_restricted/);
