@@ -5,7 +5,8 @@ rediscover tools or add an MCP handshake. Invoke through the normal host command
 tool with separate arguments:
 `capture|verify|recheck|live --workspace <absolute-project> --verifier <relative.mjs>
 --url <actual-loopback-app-url> --runtime-root <descriptor.runtimeRoot>`.
-The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–600000.
+The overall deadline defaults to 120000 ms; `--deadline-ms` accepts 1000–600000.
+Restore/exercise have separate 30000 ms limits; a larger overall budget does not extend them.
 
 1. **Prepare once.** Read the task, environment, relevant source and available
    build/check scripts together. Use a known path or exact symbol for a focused
@@ -17,6 +18,14 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
    this app; a hint is not a verified identity. The helper checks readiness. A
    sandbox connection refusal does not establish that a supplied service stopped:
    use the permitted host path, without replacing that service or bypassing denial.
+   Prefer the existing app/route and supported launch command. Start a long-running
+   dev server as a managed background process, retain its handle and inspect its
+   bounded startup log plus the actual route before Capture. Reuse it for later
+   checks. A command that is still serving is not a finite build to wait out;
+   missing generated dependencies require the project preparation step identified
+   by the error, not repeated browser/toolchain discovery. A blank page alone
+   does not prove compilation failed; inspect the actual startup/navigation error
+   before repairing setup or replacing the harness.
 
 2. **Prepare one coherent exercise before Capture.** Map the requested criteria
    to this exercise and the available focused project checks. Combine compatible
@@ -66,7 +75,8 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
 
 4. **Complete the fix before final Verify.** Review the affected source path and
    diff against all requested behavior, including validation and boundary behavior
-   implicated by the change. Passing the reproduced symptom alone is insufficient.
+   implicated by the change, including its public API/compatibility contract.
+   A passing narrow browser assertion does not establish the whole task.
    Finish necessary implementation, focused project tests, build and planned
    independent checks before Verify. Use available local runners/dependencies;
    do not bootstrap a toolchain for unrelated missing tests or launch whole-repo
@@ -77,7 +87,8 @@ The default deadline is 120000 ms; optional `--deadline-ms` accepts 1000–60000
    Correct a genuinely wrong bug criterion via same-Card recheck. `verify` restores
    the same Card/revision and runs exercise only, without setup/reload. For planned
    live effects already covered there, `--live-check required` reuses this toolchain
-   for a separate fresh live run. Read that result separately: replayed writes do
+   for a separate fresh live run after safe restoration and returned exercise,
+   even with a build-proof gap. That gap stays explicit. Read live separately: replayed writes do
    not prove backend writes. When checks differ from the sealed core exercise, run
    `live --workspace <absolute-project> --verifier .stateport-runner/live.mjs
    --url <actual-loopback-app-url> --runtime-root <descriptor.runtimeRoot>`.

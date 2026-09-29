@@ -4,6 +4,9 @@ Diagnose from the safe diagnostic and source before another browser action;
 use [one bounded diagnostic](diagnostics.md) for an unresolved fact. Observation
 labels can concatenate container text and are not exact accessible names.
 A correct assertion failing at the bug is evidence, not an assertion to repair.
+Retry only after changing the demonstrated blocker (server, route, prerequisite,
+verifier or app). Repeating an unchanged failure adds no evidence; keep the saved
+receipts and finish independently authorized project/live checks when blocked.
 
 For an invalid or missing required exercise assertion, keep prerequisites and use
 `recheck --recheck-source local` while original served code remains, or advertised
@@ -47,6 +50,12 @@ silently recapture, or substitute a weaker live script.
   advertised `resume` with the same arguments, verifier and original build.
   It restores the same Card without Capture or setup. A changed build cannot
   replace the original baseline. Do not rerun Capture to manufacture qualification.
+- `internal_deadline`: inspect the named restore/verifier phase. Increasing the
+  outer deadline does not extend it; repair the blocker or bound the exercise.
+- `capture_replay_observation_unresolved`: compare the retained diagnostics;
+  different lines alone do not identify a cause. If the criterion was incorrect,
+  a qualified original-code recheck establishes a replacement baseline while
+  preserving the original discrepancy. Do not weaken a valid bug assertion.
 - `BASELINE_VERIFIER_MISMATCH`: repair through recheck, not repeated verify.
 - `BASELINE_SETUP_MISMATCH`: restore original prerequisite meaning; keep
   exercise-only helpers inside exercise.
