@@ -1,6 +1,6 @@
 ---
 name: stateport-debugging
-description: Use when investigating or fixing a browser-state bug with StatePort, a supplied State Card, or a requested repeatable browser reproduction.
+description: Use when investigating or fixing a web UI behavior, interaction, rendering or styling bug that needs source investigation or browser verification, including tasks without a saved State Card or an explicit StatePort request.
 license: MIT
 ---
 
@@ -38,7 +38,11 @@ Each descriptor has its own availability and access requirements:
 
 Preserve the original task criteria and required project checks. Verify the actual
 reported result; relevant warnings and missing evidence remain gaps. Reuse successful
-setup and sufficient checks. Do not add duplicate proof to obtain a StatePort receipt
+setup and sufficient checks. Put the required assertion in the first reproduction
+so before/after runs reuse it. Read returned source ranges as already-read context;
+expand only missing ranges or changed code. Reconsider retained Capture once if
+actual browser-state preparation proves costly or history-dependent; a project
+test runner alone does not establish that preparation is cheap. Do not add duplicate proof to obtain a StatePort receipt
 or undo a working fix solely to reconstruct missing original evidence.
 Read `continuation` first and expand only a named missing fact. Stop when the requested
 work and required checks are complete.
