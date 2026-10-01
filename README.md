@@ -8,7 +8,7 @@ agents to the local StatePort Desktop MCP server.
 StatePort Desktop owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Beta source.** The integration version is `0.1.0-beta.39`. Source
+> **Beta source.** The integration version is `0.1.0-beta.69`. Source
 > installation and bounded Codex CLI workflows have been checked, but there is
 > no tagged or supported end-user release yet. New Bug Workflows real-host acceptance
 > remains unverified until version-bound results are recorded. Use synthetic data and review
@@ -71,6 +71,10 @@ only synthetic data and runs without a StatePort account or installation.
    > Use my StatePort Card `<CARD_ID>` at revision `<REVISION>` to investigate
    > this browser bug. Inspect that Card first, open it against my current local
    > code, then reopen the same Card and compare evidence after the fix.
+
+Source lookup through `query_source_context` is available directly from MCP.
+The debugging skill has a short source entrypoint; it loads the browser workflow
+only for a supplied Card, explicit Fix & Verify, or a selected live/Capture scenario.
 
 ## StatePort Bug Workflows
 
