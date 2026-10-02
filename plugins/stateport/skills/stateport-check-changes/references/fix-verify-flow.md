@@ -59,6 +59,12 @@ validate it, do not repeat them. Mismatch is a gap; pending Open resumes exactly
 Follow every explicit step/regression. For unspecified choices, take the shortest
 sequence distinguishing the outcomes; stop unrelated exploration once reproduced.
 Use focused observations, elementId, observeAfter and returned observations.
+When the public action schema advertises `operations`, batch 1–12 already known
+same-page steps (including protected username/password fields) with explicit
+`allowRebind: true` and one final `observeAfter`. Replay also needs the initial
+`observationId` and targets advertised there. Split at navigation or an unknown
+next state. A stopped sequence retains its completed prefix; inspect before
+resuming and never repeat completed actions automatically.
 Duplicate names need container, not position; row clicks remain clicks. Choose
 criterion targets by intent before baseline: button/link availability uses
 advertised `kind: control` with exact name/container. An explicit

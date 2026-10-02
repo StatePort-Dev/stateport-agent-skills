@@ -3,7 +3,7 @@
 Use the discovered descriptor's exact command/args and `runtimeRoot`; do not
 rediscover tools or add an MCP handshake. Invoke through the normal host command
 tool with separate arguments:
-`capture|verify|recheck|live --workspace <absolute-project> --verifier <relative.mjs>
+`capture|baseline|verify|recheck|live --workspace <absolute-project> --verifier <relative.mjs>
 --url <actual-loopback-app-url> --runtime-root <descriptor.runtimeRoot>`.
 The overall deadline defaults to 120000 ms; `--deadline-ms` accepts 1000–600000.
 Restore/exercise have separate 30000 ms limits; a larger overall budget does not extend them.
@@ -35,6 +35,9 @@ Restore/exercise have separate 30000 ms limits; a larger overall budget does not
    path/query/hash and completion behavior. Use observed data for expectations;
    do not guess labels, records or a request that caching may legitimately avoid.
 
+   Preserve task-specified entry and mode transitions in setup; a direct URL to
+   the same visible editor need not create the same application state.
+
    Write self-contained ESM `.stateport-runner/verify.mjs` with `node:assert/strict`,
    exporting `setup(page,url)` and `exerciseAndAssert(page,url)`. No mutable imported
    project helpers. The Page is already at the URL. Setup contains replayable
@@ -43,6 +46,8 @@ Restore/exercise have separate 30000 ms limits; a larger overall budget does not
    together. A checkpoint restores neither JS heap nor pointer state. Keep
    exercise-only helpers inside exercise.
 
+   Await event waiters together with their triggering actions (for example,
+   `Promise.all`), so a failed action leaves no detached rejection.
    Wait for completion of each dependent action before the next. A visible control,
    old text or server release acknowledgement may precede the frontend update;
    identify the relevant animation, request consumption or render completion.
@@ -67,7 +72,16 @@ Restore/exercise have separate 30000 ms limits; a larger overall budget does not
    Local Open plus authorized live checks. Never substitute hand-written responses.
    A Card is not a backend snapshot.
 
-3. **Capture before edits.** Require the reported assertion failure, qualified
+3. **Capture before edits.** For supplied credentials use managed protected
+   Capture/Save. When `existingCard` is advertised, select one executable exercise:
+   run `baseline --card-id <saved-id> --card-revision <saved-revision>` with the
+   standard arguments on original code, then `verify` after edits. Baseline restores
+   that Card without setup or Capture; keep setup empty, credentials out of the
+   verifier, and prerequisites in the saved Card. Skip an additional managed
+   baseline when choosing this path. Existing qualified proof needs no duplicate.
+   Never manufacture original evidence on already changed code.
+
+   For executable Capture or this existing-Card baseline, require the reported assertion failure, qualified
    restoration and established build in the compact receipt. `capture_observed`
    permits independent read-only work while finalization completes; wait for sealed
    evidence before edits. Capture already includes baseline replay. Do not repeat

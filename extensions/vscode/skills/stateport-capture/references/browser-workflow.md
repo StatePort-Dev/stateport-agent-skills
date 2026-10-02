@@ -10,40 +10,56 @@ work the task needs:
   If the exact file/range is already known, read it directly.
 - **Live:** choose the owned browser for a needed page scenario that would otherwise
   require a standalone browser launcher. Reuse compatible page actions and checks.
-- **Capture:** retain costly state/setup when reuse or transfer helps. Reuse a
-  supplied Card and honor explicit Capture/replay requests.
+- **Capture:** follow the runtime's automatic policy for the first useful browser
+  bug reproduction; reuse a supplied Card rather than creating another.
 
-Start with the existing project check for the task criterion. If it reproduces the
-reported problem and verifies the fix, do not add a second browser scenario for
-the same proof. Choose live/Capture for a remaining browser-specific requirement
-or an explicit request; preserve required visual, interaction and project checks.
-Missing browser binaries, launch flags or project dependencies are runner setup
-problems, not reasons for StatePort discovery.
-Live does not run Karma/Jest suites. Reconsider live only if the task needs a
-separate page scenario, not merely because the existing runner failed to launch.
-No saved session excludes Capture only; source context and live remain independent.
-When direct checks suffice, keep them; this does not decide whether source lookup helps.
-Never select by case identity or historical benchmark result.
+Simple changes with no browser-state requirement keep sufficient project checks.
+A broken build or test runner alone does not justify a browser scenario. Source
+assistance and live remain independent of Capture. Never route by case identity
+or historical benchmark results.
 
 For live/Capture or a legacy source helper, call `get_workflow_capability` once
 with `responseMode: "text"` or reuse its result. This returns one JSON representation
 without opening a task; if an older server rejects this option, retry once without it.
 Use `get_capture_capability` only as a fallback when the neutral tool is absent.
+When workflowPolicy is present, follow its effective Capture policy: for a
+supported browser bug and capture.automatic=true, save the first sufficient
+reproduction before edits even if setup looks quick. Reuse a suitable existing
+Card with its own run access. Simple/no-state changes skip Capture. If automatic
+Capture is off, do not impose it; explicit user requests still use the permitted
+Capture path. Permission or capability denial wins over preferences. If task type
+is unclear, use existing context instead of extra discovery to classify it.
+An older server without this policy retains explicit-request/reuse behavior;
+do not infer a new permission or preference.
+
+Use the task/environment's declared access requirements before opening Capture.
+If it supplies login data or names a credential file, select the protected route
+now; an anonymous first visit is not required to rediscover the login requirement.
+Read only the necessary credential keys, never dump a whole environment file.
+
 Each descriptor has its own availability and access requirements:
 - `contextBroker`: [bounded source context](context-broker.md).
 - Live: [live Fix & Verify](live-fix-verify.md).
-- Saved-state: [executable path](executable-fix-verify.md) when available;
-  otherwise [MCP procedure](fix-verify.md). Explicit individual MCP calls
-  also select that procedure.
+- Saved-state with task-authorized login (including a credential file named in
+  the task/environment) and advertised `existingCard`:
+  [protected Capture → executable verification](managed-executable.md). Read this
+  one route, not both full procedures.
+- Other saved-state work: [executable path](executable-fix-verify.md) when available
+  and suitable. Otherwise use the [MCP procedure](fix-verify.md). A suitable supplied
+  Card is reused; do not recapture it. Saving alone does not establish the bug.
 
-Preserve the original task criteria and required project checks. Verify the actual
+Preserve the original task criteria, entry/mode transitions and required project
+checks. Do not replace reported navigation steps with guessed deep links; identical
+visible pages may have different application state. Verify the actual
 reported result; relevant warnings and missing evidence remain gaps. Reuse successful
-setup and sufficient checks. Put the required assertion in the first reproduction
-so before/after runs reuse it. Read returned source ranges as already-read context;
-expand only missing ranges or changed code. Reconsider retained Capture once if
-actual browser-state preparation proves costly or history-dependent; a project
-test runner alone does not establish that preparation is cheap. Do not add duplicate proof to obtain a StatePort receipt
-or undo a working fix solely to reconstruct missing original evidence.
+setup and sufficient checks. Put login/navigation/mode changes in the reusable
+precondition, and the actual faulty transition in the exercise. Keep transient
+unsupported state in that exercise. Ground locators in observed controls or
+inspected markup rather than guessing roles from descriptive labels. Put the
+required assertion in the first reproduction so before/after runs reuse it.
+Read returned source ranges as already-read context;
+expand only missing ranges or changed code. Do not add duplicate proof for a
+StatePort receipt or undo a working fix to reconstruct missing original evidence.
 Read `continuation` first and expand only a named missing fact. Stop when the requested
 work and required checks are complete.
 

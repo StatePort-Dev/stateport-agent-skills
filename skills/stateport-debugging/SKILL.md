@@ -21,13 +21,11 @@ reads; do not repeat the query to fill the same gap.
 Batch independent, bounded reads and already-selected lightweight checks in one
 host-tool turn; inspect every result. Keep dependent work and heavy checks sequential.
 
-Continue the task with existing project checks. A source query does not select a
-browser workflow. If those checks reproduce the problem and verify the fix, they
-are sufficient for that criterion; preserve other required checks.
-
-Read [browser workflow](references/browser-workflow.md) only for a supplied Card,
-an explicit Fix & Verify request, or a chosen StatePort live/Capture scenario for
-remaining browser evidence. Live replaces a needed standalone page launcher;
-Capture retains reusable browser state. A broken project build alone selects
-neither. Keep credentials out of tools and artifacts; inspection alone does not
-authorize code changes.
+For a browser bug, read [browser workflow](references/browser-workflow.md) and
+reuse one capability discovery. Follow its workflowPolicy: normally save the first
+useful reproduction before editing, then verify the same Card. A supplied Card
+uses the reuse path. Simple changes needing no browser state keep direct checks;
+do not create a browser scenario merely for a receipt. With automatic Capture off,
+unavailable or unsupported, use independent project/live checks and preserve gaps.
+Do not repeat completed preparation or baseline work. Inspection alone does not
+authorize edits; credentials stay out of ordinary tool output and artifacts; supplied login uses only the existing explicit protected input operations.

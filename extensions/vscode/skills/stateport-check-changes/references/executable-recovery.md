@@ -65,3 +65,9 @@ silently recapture, or substitute a weaker live script.
   anonymous retries or removing credentials do not repair it. Use supported
   protected MCP login for authenticated Capture. Unsupported restoration stays a gap.
 
+
+When continuation selects independent_checks with
+retry: relevant_prerequisite_change_required, retain the saved Card and stop
+unchanged Capture/resume/Verify retries. Complete authorized independent checks;
+retry restoration only after the named prerequisite changes. A technical Save,
+login page or timeout does not prove the original bug or fix.

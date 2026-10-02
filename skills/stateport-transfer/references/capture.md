@@ -26,6 +26,11 @@ open shadow roots are included; an unlabeled control can still have a usable ID.
 On older runtimes without IDs, use an observed item's kind as target.role and
 its name as target.name; ambiguity calls for another observation, not guessing.
 
+For already known same-page steps, use advertised `operations` (1–12) with
+`allowRebind: true` and final `observeAfter`, including protected input fields.
+Split at navigation or unknown state. Inspect a stopped sequence before resuming;
+its completed prefix must not be executed again automatically.
+
 ## Supplied login data
 
 When the user includes login credentials for the task, use them for that login
