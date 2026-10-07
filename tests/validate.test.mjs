@@ -27,6 +27,11 @@ test('external documentation links are not treated as local files', () => assert
 test('rejects malformed URL escapes', () => assert.ok(validateRelativeLink('references/%ZZ.md', '/repo', '/repo').length));
 test('exports a public GitHub repository link validator', () => assert.equal(typeof validators.validatePublicGitHubRepositories, 'function'));
 test('exports a workflow local-path validator', () => assert.equal(typeof validators.validateWorkflowLocalPaths, 'function'));
+test('accepts the reviewed public Desktop release channel without broadening the repository boundary', () => {
+  assert.deepEqual(validators.validatePublicGitHubRepositories('https://github.com/StatePort-Dev/stateport-releases/releases'), []);
+  const unreviewed = ['https://github.com', 'StatePort-Dev', 'another-repository'].join('/');
+  assert.deepEqual(validators.validatePublicGitHubRepositories(unreviewed), ['unreviewed GitHub repository link: stateport-dev/another-repository']);
+});
 test('rejects an unreviewed GitHub repository link', () => {
   const unreviewed = ['https://github.com', 'example', 'private-product'].join('/');
   assert.deepEqual(

@@ -2,7 +2,8 @@ import path from 'node:path';
 
 const reviewedPublicGitHubRepositories = new Set([
   'paddlehq/paddle-agent-skills',
-  'stateport-dev/stateport-agent-skills'
+  'stateport-dev/stateport-agent-skills',
+  'stateport-dev/stateport-releases'
 ]);
 
 export function validatePublicGitHubRepositories(text) {

@@ -13,10 +13,15 @@
 
 ## Unreleased
 
-Current beta source: `0.1.0-beta.10`. No tag or supported end-user
+Current beta source: <!-- integration-version:start -->`0.1.0-beta.77`<!-- integration-version:end -->. No tag or supported end-user
 release has been published.
 
 ### User setup
+
+- Generate current integration versions in installation documentation from
+  integration.json; detect documentation drift in the existing sync/check path.
+- Resolve requested Desktop installs/updates from the official release channel
+  at setup time, preserving explicit pins and stopping on lookup/asset failures.
 
 - Include installation and updating in AGENT_INSTALL.md, with host commands,
   alpha-to-beta migration, restart, verification and recovery guidance.

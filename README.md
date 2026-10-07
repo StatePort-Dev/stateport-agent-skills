@@ -8,7 +8,7 @@ agents to the local StatePort Desktop MCP server.
 StatePort Desktop owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Beta source.** The integration version is `0.1.0-beta.76`. Source
+> **Beta source.** The integration version is <!-- integration-version:start -->`0.1.0-beta.77`<!-- integration-version:end -->. Source
 > installation and bounded Codex CLI workflows have been checked, but there is
 > no tagged or supported end-user release yet. New Bug Workflows real-host acceptance
 > remains unverified until version-bound results are recorded. Use synthetic data and review
@@ -31,8 +31,9 @@ only synthetic data and runs without a StatePort account or installation.
 
 ## Connect an agent
 
-1. Install StatePort Desktop from the
-   [public download page](https://stateport.dev/download/), then open
+1. Resolve the current Desktop release in the selected channel using the
+   [installation entrypoint](AGENT_INSTALL.md#resolve-the-desktop-release), install
+   its reviewed public installer, then open
    **Settings → Coding agents**. Older Desktop versions call this **Local MCP**.
 2. Install the development plugin for your agent:
 

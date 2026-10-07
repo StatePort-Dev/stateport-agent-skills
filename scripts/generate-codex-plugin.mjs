@@ -4,13 +4,31 @@ import { fileURLToPath } from 'node:url';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+const versionDocuments = ['README.md', 'AGENT_INSTALL.md', 'docs/VERSIONING_AND_UPDATES.md', 'CHANGELOG.md'];
+
+function versionDocumentation(root, version) {
+  const start = '<!-- integration-version:start -->';
+  const end = '<!-- integration-version:end -->';
+  const slot = /<!-- integration-version:start -->`[^`\n]+`<!-- integration-version:end -->/g;
+  // Validate every slot before writing; never replace historical evidence versions.
+  return versionDocuments.map(name => {
+    const text = fs.readFileSync(path.join(root, name), 'utf8');
+    if (text.split(start).length !== 2 || text.split(end).length !== 2 || (text.match(slot) ?? []).length !== 1) {
+      throw new Error(`${name}: missing, duplicate or malformed integration version slot`);
+    }
+    return [name, text.replace(slot, `${start}\`${version}\`${end}`)];
+  });
+}
+
 export function syncCodexSkill(root = repositoryRoot, check = false) {
   const metadata = JSON.parse(fs.readFileSync(path.join(root, 'integration.json'), 'utf8'));
-  if (metadata.schemaVersion !== 1 || !/^0\.\d+\.\d+(?:-(?:alpha|beta)\.\d+)?$/.test(metadata.integrationVersion) ||
+  if (metadata.schemaVersion !== 1 || typeof metadata.integrationVersion !== 'string' ||
+      !/^0\.\d+\.\d+(?:-(?:alpha|beta)\.\d+)?$/.test(metadata.integrationVersion) ||
       !Number.isInteger(metadata.mcpContract?.minimum) || !Number.isInteger(metadata.mcpContract?.maximum) ||
       metadata.mcpContract.minimum < 1 || metadata.mcpContract.maximum < metadata.mcpContract.minimum) {
     throw new Error('Invalid canonical integration metadata');
   }
+  const documentation = versionDocumentation(root, metadata.integrationVersion);
   const mismatches = [];
   const put = (name, content) => {
     const output = path.join(root, name);
@@ -22,6 +40,7 @@ export function syncCodexSkill(root = repositoryRoot, check = false) {
       fs.writeFileSync(output, bytes);
     }
   };
+  for (const [name, content] of documentation) put(name, content);
   const metadataContent = `${JSON.stringify(metadata, null, 2)}\n`;
   // Each entrypoint is canonical; shared references have one authoring location.
   // Copy references into each skill so raw single-skill installs remain portable.

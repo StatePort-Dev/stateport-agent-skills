@@ -4,16 +4,23 @@ StatePort uses three independent version lines:
 
 - **Integration version** identifies this repository's skill, plugin manifests,
   setup helpers and native source candidates. The current beta source version
-  is `0.1.0-beta.2` in [`integration.json`](../integration.json).
+  is <!-- integration-version:start -->`0.1.0-beta.77`<!-- integration-version:end -->
+  in [`integration.json`](../integration.json).
 - **Desktop/runtime version** identifies the installed StatePort application and
   MCP process. It does not determine the integration version.
+  Resolve a requested install/update from the official public release channel
+  using [AGENT_INSTALL.md](../AGENT_INSTALL.md#resolve-the-desktop-release),
+  preserving the selected channel and explicit pins.
 - **MCP contract version** describes compatibility of the public tool schemas.
   The integration accepts the range declared in `integration.json` when a
   runtime advertises that value. Otherwise it uses discovered public tools and
   reports contract compatibility as unverified.
 
 `npm run sync` propagates the integration version and generated canonical files
-to provider and editor packages. `npm run check` rejects drift. Neither command
+to provider and editor packages and the marked current-version slots in README,
+AGENT_INSTALL, this document and CHANGELOG. `npm run check` rejects drift and
+missing, duplicate or malformed slots; sync validates all slots before writing.
+Historical compatibility evidence and pinned refs are not rewritten. Neither command
 proves that a host loaded the package or completed a StatePort workflow.
 
 ## Development source
@@ -23,7 +30,7 @@ There is no tagged StatePort Agent Skills release yet. An installation from
 immutable release. The provider registry and
 [compatibility evidence](COMPATIBILITY.md) state exactly what has been checked.
 
-The source now uses `0.1.0-beta.2` and includes seven skills. This version bump
+The current source includes seven skills. An integration version bump
 does not create a tag or establish new host acceptance. Publishing a supported
 beta requires at least one explicitly supported host to complete the core supplied-Card workflow from an immutable
 tag: install, public MCP discovery, inspect/open, reproduce, change current

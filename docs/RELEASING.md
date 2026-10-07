@@ -9,7 +9,12 @@ Before the first release:
 1. Bump `integrationVersion` in `integration.json` for any distributable source
    change. Keep the same release version for the current portable and native
    sources; native independent versions require a documented, centrally owned
-   mapping and separate release evidence. Run `npm run sync`, `npm run check`,
+   mapping and separate release evidence. Do not hand-edit current integration
+   version slots in installation documentation: sync generates them from
+   integration.json, while historical evidence keeps its original versions.
+   Desktop releases have their own public channel and are resolved at setup
+   time; never copy a Desktop release number into integrationVersion.
+   Run `npm run sync`, `npm run check`,
    and `npm run verify`; review the complete public diff for sensitive data.
 2. Validate the actual provider manifests against current official formats.
 3. Run installation/update/uninstall and workflow cases in each claimed host.

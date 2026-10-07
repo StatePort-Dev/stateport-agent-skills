@@ -77,8 +77,8 @@ test('generated VS Code skill freshness rejects obsolete packaged references', (
     cpSync(path.join(root, 'skills'), path.join(temp, 'skills'), { recursive: true });
     cpSync(path.join(root, 'scripts'), path.join(temp, 'scripts'), { recursive: true });
     cpSync(path.join(root, 'LICENSE'), path.join(temp, 'LICENSE'));
-    for (const name of ['integration.json', 'package.json']) cpSync(path.join(root, name), path.join(temp, name));
-    for (const name of ['plugins', 'extensions']) cpSync(path.join(root, name), path.join(temp, name), { recursive: true });
+    for (const name of ['integration.json', 'package.json', 'README.md', 'AGENT_INSTALL.md', 'CHANGELOG.md']) cpSync(path.join(root, name), path.join(temp, name));
+    for (const name of ['plugins', 'extensions', 'docs']) cpSync(path.join(root, name), path.join(temp, name), { recursive: true });
     syncCodexSkill(temp, false);
     const shared = path.join(temp, 'skills/stateport-debugging/references/workflow.md');
     writeFileSync(shared, readFileSync(shared, 'utf8') + '\nSynthetic shared-reference change.\n');
@@ -104,8 +104,8 @@ test('generated VS Code skill freshness rejects obsolete packaged references', (
 test('Fix & Verify bundle has one canonical authorization source and detects its drift',()=>{
  const temp=mkdtempSync(path.join(os.tmpdir(),'stateport-workflow-bundle-'));
  try {
-  for(const name of ['skills','scripts','plugins','extensions'])cpSync(path.join(root,name),path.join(temp,name),{recursive:true});
-  for(const name of ['LICENSE','integration.json','package.json'])cpSync(path.join(root,name),path.join(temp,name));
+  for(const name of ['skills','scripts','plugins','extensions','docs'])cpSync(path.join(root,name),path.join(temp,name),{recursive:true});
+  for(const name of ['LICENSE','integration.json','package.json','README.md','AGENT_INSTALL.md','CHANGELOG.md'])cpSync(path.join(root,name),path.join(temp,name));
   syncCodexSkill(temp,false);
   const auth=path.join(temp,'skills/stateport-debugging/references/authorization.md');
   writeFileSync(auth,readFileSync(auth,'utf8')+'\nSynthetic authorization amendment.\n');
@@ -121,8 +121,8 @@ test('Fix & Verify bundle has one canonical authorization source and detects its
 test('executable procedure owns its authorization and does not prepend the manual MCP handshake', () => {
  const temp=mkdtempSync(path.join(os.tmpdir(),'stateport-executable-bundle-'));
  try {
-  for(const name of ['skills','scripts','plugins','extensions'])cpSync(path.join(root,name),path.join(temp,name),{recursive:true});
-  for(const name of ['LICENSE','integration.json','package.json'])cpSync(path.join(root,name),path.join(temp,name));
+  for(const name of ['skills','scripts','plugins','extensions','docs'])cpSync(path.join(root,name),path.join(temp,name),{recursive:true});
+  for(const name of ['LICENSE','integration.json','package.json','README.md','AGENT_INSTALL.md','CHANGELOG.md'])cpSync(path.join(root,name),path.join(temp,name));
   const flow=path.join(temp,'skills/stateport-debugging/references/executable-fix-verify-flow.md');
   writeFileSync(flow,readFileSync(flow,'utf8')+'\nSynthetic executable amendment.\n');
   syncCodexSkill(temp,false);

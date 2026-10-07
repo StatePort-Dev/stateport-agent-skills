@@ -28,7 +28,7 @@ test('one integration release version owns all distribution manifests and local 
 test('sync detects stale generated versions and skills, repairs them, and is byte-idempotent', () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'stateport-lifecycle-'));
   try {
-    for (const name of ['integration.json', 'package.json', 'LICENSE', 'skills', 'scripts', 'plugins', 'extensions']) {
+    for (const name of ['integration.json', 'package.json', 'LICENSE', 'skills', 'scripts', 'plugins', 'extensions', 'README.md', 'AGENT_INSTALL.md', 'CHANGELOG.md', 'docs']) {
       fs.cpSync(path.join(root, name), path.join(temp, name), { recursive: true });
     }
     const beta = { ...json('integration.json'), integrationVersion: '0.1.0-beta.1' };

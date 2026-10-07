@@ -7,7 +7,10 @@ environment and use its supported integration mechanism. It is separate from the
 debugging must not install a runtime or change user configuration to bypass a
 missing capability. Use this entrypoint when the user requests setup or an update.
 If StatePort is already installed, use the update procedure below instead of
-creating another copy. The current source version is `0.1.0-beta.2`.
+creating another copy. This checkout's integration source version is <!-- integration-version:start -->`0.1.0-beta.77`<!-- integration-version:end -->,
+generated from [`integration.json`](integration.json) by `npm run sync` and
+validated by `npm run check`. It is independent of the Desktop version and is
+not a claim about the newest remote source or the version an agent has loaded.
 
 ## Skills included
 
@@ -26,7 +29,8 @@ includes its references and version metadata so a raw install is self-contained.
 
 ## Connect before the first Card
 
-1. Install Desktop from the [public download page](https://stateport.dev/download/).
+1. [Resolve the Desktop release](#resolve-the-desktop-release) in the selected
+   channel, then install its reviewed public installer.
    In Desktop, open **Settings → Coding agents** (**Local MCP** on older Desktop), or follow **Set up coding agent**
    from the empty Library. No Card, Developer trial or agent Capture permission
    is needed to connect. Desktop versions offering **Copy setup** show the
@@ -71,6 +75,43 @@ includes its references and version metadata so a raw install is self-contained.
 If the registry is offline or a host cannot perform a step, report the blocker
 and give the smallest exact manual action from its guide. Do not promise a
 universal unattended installer. No private product repository is required.
+
+### Resolve the Desktop release
+
+Resolve the version when setup or a Desktop update is requested; do not use an
+integration version, a historical compatibility report or a number embedded in
+an old setup prompt as the current Desktop version.
+
+1. Retain an existing installation's selected channel and any deliberately
+   pinned tag. A requested exact version stays pinned; moving it to another
+   version or channel requires that requested change. New unpinned installs
+   use the public beta channel.
+2. Read the official [public release channel](https://github.com/StatePort-Dev/stateport-releases/releases)
+   (or its [GitHub releases API](https://api.github.com/repos/StatePort-Dev/stateport-releases/releases)).
+   For an unpinned beta install, select the highest numeric `vMAJOR.MINOR.PATCH-beta.N`
+   version among published, non-draft beta releases. Include prereleases;
+   GitHub's `/releases/latest` endpoint excludes them. Follow pagination rather
+   than assuming the first response is complete. Ignore unrelated tags and
+   other channels; compare numeric version components, not strings or dates.
+   For a pin, resolve that exact published tag and keep it even when a newer
+   release exists. Report its exact version and release URL before installing.
+3. Review that release's notes and actual assets. Use only the published
+   installer for the user's OS and architecture and verify it against the
+   release's `SHA256SUMS`. The [download page](https://stateport.dev/download/)
+   may lag the release channel: check the linked tag before treating it as
+   current. Do not construct asset filenames, switch platforms or silently
+   fall back to an older release when the selected release lacks an installer.
+4. If lookup fails (offline, HTTP error or rate limit), the release data is
+   malformed, the pin is unavailable, or the channel/installer cannot be
+   verified, stop the Desktop installation/update step, preserve the existing
+   installation and report the failed step. Give the official release link for
+   manual review; do not report a cached version as current or substitute a
+   source launcher. Resume only after the requested target is verified.
+
+Ordinary debugging does not check releases or update Desktop. Updating Desktop
+does not change the selected agent integration source/ref or grant Capture
+permission. Verify the runtime version after the requested installation and a
+fresh MCP connection; release lookup alone proves neither.
 
 ## Choose the integration for this environment
 
