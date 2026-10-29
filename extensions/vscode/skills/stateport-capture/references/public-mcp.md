@@ -46,3 +46,11 @@ evidence before drawing a fix conclusion.
 For setup/update verification, discovery is sufficient. No Card enumeration,
 Capture or permission change is needed to prove a connection. On a missing
 operation or contract mismatch, use [compatibility guidance](compatibility.md).
+
+## Optional additional help (capability gated)
+
+New source candidates may advertise `agent-additional-help/1` inside workflowPolicy.
+Use `run_additional_check`, `prepare_task_observations` and the explicit-request
+`set_workflow_preferences` only when present in the connected schema. See
+[admission, limits and reporting](additional-help.md). Old runtimes retain their
+normal workflow; no automatic fallback or extra permission is inferred.

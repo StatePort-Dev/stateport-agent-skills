@@ -184,8 +184,12 @@ bytes; unknown or Git SHA alone cannot prove current code. Runtime qualification
 routing equivalence cannot prove UI behavior.
 
 Finish after baseline FAIL, fix, required tests, fresh same-Card candidate, all
-material outcomes, current served code and no mandatory gap/blocker. Report exact
-case/runs, outcomes, visual assessment, build, tests and gaps; end_agent_task directly.
+material outcomes, current served code and no mandatory gap/blocker. Retain exact
+case/run identities in evidence. Report meaningful outcomes, visual assessment,
+observed build scope, tests and material gaps; raw IDs need an explicit detailed
+report request. Before ending the
+task, apply [optional additional help](additional-help.md) only when its capability
+and semantic admission are satisfied; then end_agent_task.
 No extra comparison/browser/receipt/test is required. Missing a required field or
 criterion? Name it and read/test only its resolution. No automatic Check Changes/
 Harden. Load details only for intermediate states, compatibility, privacy, target

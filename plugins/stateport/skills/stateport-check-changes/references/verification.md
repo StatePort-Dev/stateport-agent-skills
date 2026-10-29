@@ -88,7 +88,10 @@ Useful independent code/tests may continue within scope. Label other-browser or
 project-test PASS as supplemental/fallback evidence and retain the StatePort
 blocker. No time/token/visual superiority claim follows from functional success.
 
-Use a concise final report, expanding only relevant diagnostics:
+Use a concise final report. Retain the following exact identities in the evidence;
+expand them in chat only for an explicitly requested detailed/diagnostic report.
+Ordinary answers state the result, meaningful checks and material limits, without
+raw-ID footers or optional skipped-status lists:
 
 - Result and scope: confirmed / finding / unconfirmed / blocked; actual checks.
 - Case/code: exact Card/revision/source/checkpoint, target and known build identity.
@@ -105,3 +108,8 @@ present), or a genuinely stable semantic target. Do not freeze the buggy text as
 the target name while expecting different text: the fixed state would no longer
 match that target. If an earlier criterion made this mistake, disclose the change
 and record a new baseline before editing; never silently compare unlike criteria.
+
+When advertised for the current adapter, use [optional additional help](additional-help.md)
+before final handoff. Its single variant and compact observations remain separate
+from main verification. Absence or opt-out is silent; essential main proof limits
+remain part of the task result.
