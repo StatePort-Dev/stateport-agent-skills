@@ -36,3 +36,15 @@ test('stops before adding or retaining a duplicate legacy integration', async ()
   assert.throws(() => planCodexMcpSetup(launch, [legacy]), /legacy/i);
   assert.throws(() => planCodexMcpSetup(launch, [legacy, { ...legacy, name: 'stateport' }]), /legacy/i);
 });
+
+test('accepts installed Linux DEB bundled node and only its sibling MCP entrypoint', async () => {
+  const { parseDesktopConfig } = await import(pathToFileURL(script).href);
+  const launch = { command: '/opt/State Port/resources/mcp-runtime/node', args: ['/opt/State Port/resources/mcp-runtime/mcp-main.cjs'] };
+  assert.deepEqual(parseDesktopConfig(JSON.stringify({ mcpServers: { stateport: launch } }), 'linux'), launch);
+  for (const wrong of [
+    { ...launch, args: ['/tmp/mcp-main.cjs'] },
+    { ...launch, command: '/usr/bin/node' },
+    { ...launch, args: [...launch.args, '--eval', 'unsafe'] },
+    { ...launch, args: ['/opt/State Port/resources/mcp-runtime/../mcp-main.cjs'] },
+  ]) assert.throws(() => parseDesktopConfig(JSON.stringify({ mcpServers: { stateport: wrong } }), 'linux'));
+});

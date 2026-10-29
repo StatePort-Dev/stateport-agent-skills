@@ -33,7 +33,22 @@
           "date": "2026-09-27",
           "report": "docs/compatibility/skills-beta36-context-2026-09-27.md"
         }
-      ]
+      ],
+      "desktopSetup": {
+        "method": "standalone-skills-and-user-mcp",
+        "surface": "Codex CLI",
+        "status": "unverified",
+        "evidence": [
+          {
+            "hostVersion": "0.164.0-alpha.11.1",
+            "runtimeVersion": "1.0.0-beta.107 local unpacked Linux candidate",
+            "skillVersion": "0.1.0-beta.77",
+            "date": "2026-10-29",
+            "report": "docs/compatibility/desktop-setup-linux-2026-10-29.md"
+          }
+        ],
+        "guide": "AGENT_INSTALL.md#desktop-setup-button"
+      }
     },
     {
       "id": "codex-desktop",
@@ -69,7 +84,14 @@
         "automatic": "conditional",
         "evidenceStatus": "unverified"
       },
-      "evidence": []
+      "evidence": [],
+      "desktopSetup": {
+        "method": "standalone-skills-and-user-mcp",
+        "surface": "Claude Code local CLI",
+        "status": "unverified",
+        "evidence": [],
+        "guide": "AGENT_INSTALL.md#desktop-setup-button"
+      }
     },
     {
       "id": "copilot-vscode",
@@ -129,7 +151,14 @@
         "automatic": "no",
         "evidenceStatus": "unverified"
       },
-      "evidence": []
+      "evidence": [],
+      "desktopSetup": {
+        "method": "standalone-skills-and-user-mcp",
+        "surface": "Cursor IDE local agent",
+        "status": "unverified",
+        "evidence": [],
+        "guide": "AGENT_INSTALL.md#desktop-setup-button"
+      }
     },
     {
       "id": "jetbrains-idea",

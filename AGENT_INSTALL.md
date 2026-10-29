@@ -12,6 +12,32 @@ generated from [`integration.json`](integration.json) by `npm run sync` and
 validated by `npm run check`. It is independent of the Desktop version and is
 not a claim about the newest remote source or the version an agent has loaded.
 
+## Desktop setup button
+
+If your installed Desktop offers **Install skills and connect**, use that button
+on first launch or in **Settings → Coding agents** for local Codex CLI, Claude Code
+or Cursor IDE. Desktop resolves this repository's current main to one immutable
+commit and installs the complete compatible standalone skills plus its generated
+MCP configuration. When the repository is unavailable it uses its included,
+versioned fallback and labels that result. Invalid content is rejected.
+
+This path needs no Git, external Node or marketplace. It does not install an agent,
+grant tool permissions, trust hooks, start Capture/trial, or inspect Cards.
+Restart/confirm in the selected host and verify public tool and skill discovery.
+An installed configuration or successful Desktop probe is not host discovery.
+Confirmed skip is remembered; Settings supports later installation and retry.
+
+Keep existing plugins, pinned versions, modified skills and conflicting MCP entries
+until reviewed manually. The button does not merge them or install duplicate skills.
+Codex CLI and Cursor IDE can share one owned user skills set; Cursor can also reuse
+an owned Claude set. Multiple visible sets need manual resolution. Custom profiles,
+WSL/SSH/container/cloud sessions and other surfaces use the manual paths below.
+**Connection details → Copy setup / Copy MCP config** remain available, including
+on Desktop versions without this button. No background update is implied.
+
+This describes the setup-capable Desktop path, not a new marketplace release or
+qualification of all host/OS combinations. See [provider status](providers/registry.json).
+
 ## Skills included
 
 Install the complete set through the host's plugin or skill mechanism:

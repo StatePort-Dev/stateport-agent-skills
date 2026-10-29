@@ -13,7 +13,7 @@ export function parseDesktopConfig(text, platform = process.platform) {
     throw new Error('Desktop MCP configuration contains unsupported fields or servers');
   }
   const { command, args } = config.mcpServers.stateport;
-  if (typeof command !== 'string') throw new Error('Desktop MCP command must be an absolute installed path');
+  if (typeof command !== 'string' || /[\0\r\n]/.test(command)) throw new Error('Desktop MCP command must be an absolute installed path');
   const absolute = platform === 'win32' ? path.win32.isAbsolute(command) : path.isAbsolute(command);
   if (!absolute) throw new Error('Desktop MCP command must be an absolute installed path');
   const expected = platform === 'win32'
@@ -21,6 +21,11 @@ export function parseDesktopConfig(text, platform = process.platform) {
     : platform === 'linux'
       ? ['--ozone-platform=headless', '--headless', '--disable-gpu', '--mcp']
       : ['--mcp'];
+  const linuxBundled = platform === 'linux' && path.posix.basename(command) === 'node' &&
+    path.posix.basename(path.posix.dirname(command)) === 'mcp-runtime' &&
+    Array.isArray(args) && args.length === 1 &&
+    args[0] === path.posix.join(path.posix.dirname(command), 'mcp-main.cjs');
+  if (linuxBundled) return { command, args };
   if (!Array.isArray(args) || args.length !== expected.length || args.some((arg, i) => arg !== expected[i])) {
     throw new Error('Desktop MCP arguments do not match the installed runtime contract');
   }
