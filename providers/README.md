@@ -21,3 +21,9 @@ The Codex package uses generated canonical skill copies checked for freshness
 in CI. Edit canonical entrypoints under `skills/` and shared references under
 `skills/stateport-debugging/references`; regenerate packaged copies. Installation
 and update instructions are in [AGENT_INSTALL.md](../AGENT_INSTALL.md).
+
+Desktop standalone setup and fresh skill/MCP discovery have version-bound Ubuntu
+checks for Codex CLI, Claude Code and Cursor IDE, plus a native Windows Codex CLI
+check. See the
+[installed setup report](../docs/compatibility/desktop-setup-installed-2026-10-29.md).
+This does not change their full workflow or marketplace/update qualification.

@@ -37,7 +37,7 @@
       "desktopSetup": {
         "method": "standalone-skills-and-user-mcp",
         "surface": "Codex CLI",
-        "status": "unverified",
+        "status": "verified",
         "evidence": [
           {
             "hostVersion": "0.164.0-alpha.11.1",
@@ -45,9 +45,26 @@
             "skillVersion": "0.1.0-beta.77",
             "date": "2026-10-29",
             "report": "docs/compatibility/desktop-setup-linux-2026-10-29.md"
+          },
+          {
+            "hostVersion": "0.164.0-alpha.11.1",
+            "runtimeVersion": "1.0.0-beta.107 OS-installed DEB local candidate",
+            "skillVersion": "0.1.0-beta.77",
+            "date": "2026-10-29",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/desktop-setup-installed-2026-10-29.md"
+          },
+          {
+            "hostVersion": "0.165.0",
+            "runtimeVersion": "1.0.0-beta.107 OS-installed NSIS local candidate",
+            "skillVersion": "0.1.0-beta.77",
+            "date": "2026-10-29",
+            "platform": "win32-x64 (Windows 11 Pro build 26200)",
+            "report": "docs/compatibility/desktop-setup-installed-2026-10-29.md"
           }
         ],
-        "guide": "AGENT_INSTALL.md#desktop-setup-button"
+        "guide": "AGENT_INSTALL.md#desktop-setup-button",
+        "scope": "Installed local candidate setup, fresh skill/MCP discovery and repeat only; limited to listed OS and host versions."
       }
     },
     {
@@ -88,9 +105,19 @@
       "desktopSetup": {
         "method": "standalone-skills-and-user-mcp",
         "surface": "Claude Code local CLI",
-        "status": "unverified",
-        "evidence": [],
-        "guide": "AGENT_INSTALL.md#desktop-setup-button"
+        "status": "verified",
+        "evidence": [
+          {
+            "hostVersion": "2.1.312",
+            "runtimeVersion": "1.0.0-beta.107 OS-installed DEB local candidate",
+            "skillVersion": "0.1.0-beta.77",
+            "date": "2026-10-29",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/desktop-setup-installed-2026-10-29.md"
+          }
+        ],
+        "guide": "AGENT_INSTALL.md#desktop-setup-button",
+        "scope": "Installed local candidate setup, fresh skill/MCP discovery and repeat only; limited to listed OS and host versions."
       }
     },
     {
@@ -155,9 +182,19 @@
       "desktopSetup": {
         "method": "standalone-skills-and-user-mcp",
         "surface": "Cursor IDE local agent",
-        "status": "unverified",
-        "evidence": [],
-        "guide": "AGENT_INSTALL.md#desktop-setup-button"
+        "status": "verified",
+        "evidence": [
+          {
+            "hostVersion": "3.7.27",
+            "runtimeVersion": "1.0.0-beta.107 OS-installed DEB local candidate",
+            "skillVersion": "0.1.0-beta.77",
+            "date": "2026-10-29",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/desktop-setup-installed-2026-10-29.md"
+          }
+        ],
+        "guide": "AGENT_INSTALL.md#desktop-setup-button",
+        "scope": "Installed local candidate setup, fresh skill/MCP discovery and repeat only; limited to listed OS and host versions."
       }
     },
     {

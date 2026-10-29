@@ -1,5 +1,7 @@
 # Desktop setup — bounded Linux candidate check
 
+Historical initial checkpoint. See the later [OS-installed host checks](desktop-setup-installed-2026-10-29.md) for current qualification.
+
 Date: 29 October 2026. This is local candidate evidence, not a marketplace release,
 OS-installed acceptance, or a qualified agent × OS matrix.
 
