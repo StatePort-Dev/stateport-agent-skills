@@ -43,6 +43,7 @@ Windows app.asar SHA-256:
 `136add32b221d6e318d1f938c659f4df9f691b83777af17795706149b9bd85f4`.
 NSIS SHA-256: `45d75d445b03e99a6078f2e5dba15b9076b71ad581745f78a3cf99dd88ce6307`.
 The local installer is unsigned; no signed/public Windows release is claimed.
-macOS has no accessible host. Private evidence remains in the product repository's
+The founder explicitly excluded macOS from issue #241 acceptance after these
+checks. It remains untested and is not a remaining gate for this issue. Private evidence remains in the product repository's
 ignored `.issue-work/241/installed-host-20261029/`; no private screenshots or logs
 are published here.
