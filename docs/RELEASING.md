@@ -1,10 +1,15 @@
 # Releasing
 
-No release has been published. The package is marked `private` to prevent
+Source prereleases and supported-host releases are separate claims.
+The package is marked `private` to prevent
 accidental npm publication; GitHub source visibility is independent of that
 flag.
 
-Before the first release:
+For a source prerelease, verify source validity, publish the exact immutable
+tag, and state unverified host/native/Marketplace boundaries. Before claiming
+a supported-host release, also complete the applicable host acceptance below.
+
+Release procedure:
 
 1. Bump `integrationVersion` in `integration.json` for any distributable source
    change. Keep the same release version for the current portable and native

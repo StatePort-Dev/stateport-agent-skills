@@ -4,7 +4,7 @@ StatePort uses three independent version lines:
 
 - **Integration version** identifies this repository's skill, plugin manifests,
   setup helpers and native source candidates. The current beta source version
-  is <!-- integration-version:start -->`0.1.0-beta.77`<!-- integration-version:end -->
+  is <!-- integration-version:start -->`0.1.0-beta.78`<!-- integration-version:end -->
   in [`integration.json`](../integration.json).
 - **Desktop/runtime version** identifies the installed StatePort application and
   MCP process. It does not determine the integration version.
@@ -25,9 +25,10 @@ proves that a host loaded the package or completed a StatePort workflow.
 
 ## Development source
 
-There is no tagged StatePort Agent Skills release yet. An installation from
-`main` follows a moving development source and must not be presented as an
-immutable release. The provider registry and
+Tagged source prereleases bind a reviewed integration version to immutable
+source. They do not by themselves establish supported-host workflow or update
+acceptance. An installation from `main` follows moving development source and
+must not be presented as an immutable release. The provider registry and
 [compatibility evidence](COMPATIBILITY.md) state exactly what has been checked.
 
 The current source includes seven skills. An integration version bump

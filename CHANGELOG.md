@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.0-beta.78
+
+- Start source observations for ordinary application edits, including known files,
+  without requiring Capture, a Card or a browser run.
+- Prepare short attributed material choices with exact changed-source anchors;
+  review preserve/reset policies when the runtime identifies new object copies.
+- Honor the existing observations preference, task-local opt-out and quiet
+  results. Older runtimes without these optional MCP operations remain quiet.
+- Synchronize all seven portable skills and plugin/editor source copies.
+- Verified source-candidate positive, disabled and trivial-task paths in Codex
+  CLI on Linux; see [bounded host evidence](docs/compatibility/source-observations-linux-codex-2026-10-31.md).
+- Canonical source prerelease only: no Marketplace submission, native editor
+  binary release, universal decision detection or expanded host support claim.
+
+
 ## 0.1.0-beta.36
 
 - Discover optional task-only source context alongside the existing executable
@@ -13,8 +28,7 @@
 
 ## Unreleased
 
-Current beta source: <!-- integration-version:start -->`0.1.0-beta.77`<!-- integration-version:end -->. No tag or supported end-user
-release has been published.
+Current integration source: <!-- integration-version:start -->`0.1.0-beta.78`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
 
 ### User setup
 

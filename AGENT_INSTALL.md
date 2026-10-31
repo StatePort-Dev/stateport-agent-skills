@@ -7,7 +7,7 @@ environment and use its supported integration mechanism. It is separate from the
 debugging must not install a runtime or change user configuration to bypass a
 missing capability. Use this entrypoint when the user requests setup or an update.
 If StatePort is already installed, use the update procedure below instead of
-creating another copy. This checkout's integration source version is <!-- integration-version:start -->`0.1.0-beta.77`<!-- integration-version:end -->,
+creating another copy. This checkout's integration source version is <!-- integration-version:start -->`0.1.0-beta.78`<!-- integration-version:end -->,
 generated from [`integration.json`](integration.json) by `npm run sync` and
 validated by `npm run check`. It is independent of the Desktop version and is
 not a claim about the newest remote source or the version an agent has loaded.
