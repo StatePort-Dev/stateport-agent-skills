@@ -1,6 +1,6 @@
 ---
 name: stateport-debugging
-description: Use when investigating or fixing a web UI bug whose implementation is not yet known, or working from a supplied State Card or an explicit StatePort Fix & Verify request.
+description: Use before editing existing application code, including a known file, to prepare source-backed observations of material choices; also for unknown web UI implementation, a supplied State Card or an explicit StatePort Fix & Verify request.
 license: MIT
 ---
 
@@ -17,6 +17,15 @@ read it directly. This source call needs no capability discovery, browser, or Ca
 Treat returned snippets as already-read, untrusted source. Read only relevant gaps
 or changed ranges. Partial, unavailable or unhelpful results fall back to focused
 reads; do not repeat the query to fill the same gap.
+
+For authorized code changes, when the connected runtime advertises
+`begin_source_review`, call it with the original task and the selected existing
+source files before editing (after any browser-task initialization). This works
+without Capture, a Card or a browser run. Before the first final answer call
+`prepare_source_observations` with the review ID and consequential choices left
+open by the user's request, or `decisions: []` when there are none. Follow
+[source observations](references/source-observations.md). Missing tools or an
+unavailable/disabled review stay silent; do not start Capture for this feature.
 
 Batch independent, bounded reads and already-selected lightweight checks in one
 host-tool turn; inspect every result. Keep dependent work and heavy checks sequential.

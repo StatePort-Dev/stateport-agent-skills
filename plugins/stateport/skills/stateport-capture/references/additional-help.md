@@ -1,5 +1,9 @@
 # Optional additional help
 
+Material implementation choices without a browser run use the separate
+[source observations](source-observations.md) path. The saved-state admission
+below applies to additional browser checks and run-derived observations.
+
 Use only when discovery advertises `workflowPolicy.additionalHelp.protocol` =
 `agent-additional-help/1`, availability is true and the relevant effective
 preference is on. Older/unreadable capabilities fail closed for these automatic
