@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile, rm, symlink } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, rm, symlink, realpath } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -8,7 +8,7 @@ import { installCandidate, rollback, uninstallPointer, readCurrent } from '../li
 
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 async function fixture(run) {
-  const root = await mkdtemp(join(tmpdir(), 'stateport-bootstrap-'));
+  const root = await mkdtemp(join(await realpath(tmpdir()), 'stateport-bootstrap-'));
   try {
     const source = join(root, 'source'), cache = join(root, 'cache'); await mkdir(source);
     const content = 'process.stdout.write("synthetic runtime");';

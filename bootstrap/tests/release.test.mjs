@@ -4,7 +4,7 @@ import { generateKeyPairSync, sign, createHash } from 'node:crypto';
 import { verifyReleaseEnvelope, installPublishedRelease } from '../lib/release.mjs';
 import { encodeRuntimeArchive } from '../lib/archive.mjs';
 import { readCurrent } from '../lib/install.mjs';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, mkdir, realpath, symlink, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -24,7 +24,11 @@ test('requires an independently pinned signing key, version and manifest digest'
 });
 
 test('authenticates the complete downloaded closure before switching and requires explicit browser download consent', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'stateport-signed-fixture-'));
+  const root = await mkdtemp(join(await realpath(tmpdir()), 'stateport-signed-fixture-'));
+  const temporaryRoot = join(root, 'system-temp'); await mkdir(temporaryRoot);
+  const alias = join(root, 'system-temp-alias'); await symlink(temporaryRoot, alias, process.platform === 'win32' ? 'junction' : 'dir');
+  const previous = Object.fromEntries(['TMPDIR', 'TEMP', 'TMP'].map(key => [key, process.env[key]]));
+  for (const key of Object.keys(previous)) process.env[key] = alias;
   const hash = value => createHash('sha256').update(value).digest('hex');
   const base = 'https://github.com/StatePort-Dev/stateport-releases/releases/download/synthetic/';
   const key = generateKeyPairSync('ed25519');
@@ -57,5 +61,9 @@ test('authenticates the complete downloaded closure before switching and require
     assert.equal((await readCurrent(root)).digest, installed.digest);
     corrupt = false;
     assert.equal((await installPublishedRelease(config, root, fetcher, { browserPreference: 'pinned', confirmDownload: consent.sha256 })).browserPreference, 'pinned');
-  } finally { await rm(root, { recursive: true, force: true }); }
+    assert.deepEqual(await readdir(temporaryRoot), [], 'remove only owned extraction directories through the canonical system temp root');
+  } finally {
+    for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }
+    await rm(root, { recursive: true, force: true });
+  }
 });

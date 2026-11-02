@@ -1,5 +1,5 @@
 import { createHash, verify } from 'node:crypto';
-import { mkdir, mkdtemp, rm, writeFile, symlink } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile, symlink, realpath } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { decodeRuntimeArchive } from './archive.mjs';
@@ -71,7 +71,9 @@ export async function installPublishedRelease(config, cache, fetcher = fetch, op
   if (!metadataFile || sha(metadataFile.bytes) !== asset.manifestSha256) throw Error('RELEASE_ASSET_INTEGRITY');
   const metadata = JSON.parse(metadataFile.bytes.toString('utf8'));
   if ((metadata.browserPreference ?? 'system') !== (options.browserPreference ?? 'system')) throw Error('RELEASE_BROWSER_VARIANT');
-  const temporary = await mkdtemp(join(tmpdir(), 'stateport-release-'));
+  // macOS aliases /var to /private/var. Resolve only the trusted OS temporary
+  // root before allocating our unique directory; payload/cache paths stay strict.
+  const temporary = await mkdtemp(join(await realpath(tmpdir()), 'stateport-release-'));
   try {
     for (const file of files.filter(file => file.kind !== 'symlink')) {
       const path = join(temporary, file.path); await mkdir(dirname(path), { recursive: true, mode: 0o700 });
