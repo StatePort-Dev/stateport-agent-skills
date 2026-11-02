@@ -47,6 +47,13 @@ test('refuses an edited installed payload instead of repairing or executing it o
   await assert.rejects(installCandidate({ source, cache, manifestSha256: digest }), /PAYLOAD_INTEGRITY|UNSAFE_PATH/);
   assert.equal(await readFile(join(installed.runtimeRoot, 'main.cjs'), 'utf8'), 'foreign edited cached code');
 }));
+test('requires the new archive declaration for 1.2 while retaining legacy manifests', () => fixture(async ({ source, cache, manifest, save }) => {
+  await installCandidate({ source, cache, manifestSha256: await save() });
+  manifest.schemaVersion = 'agent-runtime-candidate/1.2.0';
+  await assert.rejects(installCandidate({ source, cache, manifestSha256: await save() }), /MANIFEST_INVALID/);
+  manifest.archiveFormat = 'ustar+pax-path/1';
+  assert.equal((await installCandidate({ source, cache, manifestSha256: await save() })).productVersion, manifest.productVersion);
+}));
 test('refuses concurrent or uncertain interrupted ownership while retaining the working pointer', () => fixture(async ({ source, cache, manifest, save }) => {
   const first = await installCandidate({ source, cache, manifestSha256: await save() });
   manifest.productVersion = '1.0.0-rc.4'; const nextDigest = await save();

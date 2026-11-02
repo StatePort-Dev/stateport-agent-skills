@@ -66,7 +66,7 @@ export async function installPublishedRelease(config, cache, fetcher = fetch, op
   options.onDownload?.({ bytes: asset.bytes, version: document.version, browser: options.browserPreference === 'pinned' ? 'pinned_chromium' : 'system' });
   const bytes = await download(asset.url, asset.bytes, fetcher);
   if (bytes.length !== asset.bytes || sha(bytes) !== asset.sha256) throw Error('RELEASE_ASSET_INTEGRITY');
-  const files = decodeRuntimeArchive(bytes, { allowBundleLinks: true });
+  const files = decodeRuntimeArchive(bytes, { allowBundleLinks: true, allowPathHeaders: true });
   const metadataFile = files.find(file => file.path === 'candidate.json');
   if (!metadataFile || sha(metadataFile.bytes) !== asset.manifestSha256) throw Error('RELEASE_ASSET_INTEGRITY');
   const metadata = JSON.parse(metadataFile.bytes.toString('utf8'));

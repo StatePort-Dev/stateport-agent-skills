@@ -34,8 +34,10 @@ test('authenticates the complete downloaded closure before switching and require
   const key = generateKeyPairSync('ed25519');
   const main = Buffer.from('throw Error("MUST_NOT_EXECUTE_WHILE_INSTALLING");');
   const bundles = ['system', 'pinned'].map(browserPreference => {
-    const manifest = Buffer.from(JSON.stringify({ schemaVersion: 'agent-runtime-candidate/1.0.0', productVersion: '1.0.0-rc.3', platform: process.platform, arch: process.arch, entry: 'main.cjs', nodeCandidate: '24.x', browserPreference, files: [{ path: 'main.cjs', bytes: main.length, sha256: hash(main) }] }));
-    const archive = encodeRuntimeArchive([{ path: 'main.cjs', bytes: main }, { path: 'candidate.json', bytes: manifest }]);
+    const files = [{ path: 'main.cjs', bytes: main }];
+    if (browserPreference === 'pinned') files.push({ path: 'bundled-browser/browser/chromium-1243/' + 'framework/'.repeat(27) + 'Native Helper (Renderer)', bytes: Buffer.from('synthetic long native path') });
+    const manifest = Buffer.from(JSON.stringify({ schemaVersion: 'agent-runtime-candidate/1.2.0', archiveFormat: 'ustar+pax-path/1', productVersion: '1.0.0-rc.3', platform: process.platform, arch: process.arch, entry: 'main.cjs', nodeCandidate: '24.x', browserPreference, files: files.map(file => ({ path: file.path, bytes: file.bytes.length, sha256: hash(file.bytes) })) }));
+    const archive = encodeRuntimeArchive([...files, { path: 'candidate.json', bytes: manifest }], { allowPathHeaders: true });
     return { archive, asset: { url: base + browserPreference + '.tar.gz', bytes: archive.length, sha256: hash(archive), manifestSha256: hash(manifest) } };
   });
   const document = Buffer.from(JSON.stringify({ schemaVersion: 'agent-runtime-release/1', version: '1.0.0-rc.3', assets: [['linux', 'x64'], ['win32', 'x64'], ['darwin', 'arm64']].map(([platform, arch]) => ({ platform, arch, ...bundles[0].asset, browserFallback: bundles[1].asset })) }));

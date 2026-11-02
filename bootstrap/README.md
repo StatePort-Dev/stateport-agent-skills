@@ -35,6 +35,12 @@ user data. Edited or foreign resources produce a conflict, never an overwrite.
 Interrupted installs retain the prior pointer; an uncertain install lock requires
 explicit recovery rather than deletion of a potentially active install.
 
+Payload schema 1.2 adds explicitly declared, bounded per-file PAX path records
+for long native browser framework names. Legacy 1.0/1.1 payloads remain readable;
+older readers reject 1.2. Global overrides, linkpath/size/ownership/xattr records,
+traversal and foreign links remain forbidden. Release identity and the full
+inventory are verified before runtime execution.
+
 The implemented resolver verifies a signed, independently pinned manifest and
 download inventory. `release.json` intentionally leaves public resolution off.
 Before public delivery: qualify this release chain, controlled npm

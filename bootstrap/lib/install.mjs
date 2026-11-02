@@ -36,17 +36,18 @@ async function bytes(path, maximumBytes) {
   } finally { await handle.close(); }
 }
 function manifest(value) {
-  if (!value || !['agent-runtime-candidate/1.0.0','agent-runtime-candidate/1.1.0'].includes(value.schemaVersion) || value.entry !== 'main.cjs' || value.nodeCandidate !== '24.x' || typeof value.productVersion !== 'string' || !/^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/.test(value.productVersion)) throw Error('MANIFEST_INVALID');
+  if (!value || !['agent-runtime-candidate/1.0.0','agent-runtime-candidate/1.1.0','agent-runtime-candidate/1.2.0'].includes(value.schemaVersion) || value.entry !== 'main.cjs' || value.nodeCandidate !== '24.x' || typeof value.productVersion !== 'string' || !/^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/.test(value.productVersion)) throw Error('MANIFEST_INVALID');
+  if (value.schemaVersion === 'agent-runtime-candidate/1.2.0' && value.archiveFormat !== 'ustar+pax-path/1') throw Error('MANIFEST_INVALID');
   if (value.platform !== process.platform || value.arch !== process.arch) throw Error('PLATFORM_MISMATCH');
   if (!Array.isArray(value.files) || value.files.length < 1 || value.files.length > 4096) throw Error('MANIFEST_INVALID');
   const names = new Set(); let total = 0;
   for (const file of value.files) {
-    if (!validArchivePath(file.path) || file.path === 'candidate.json') throw Error('MANIFEST_PATH');
+    if (!validArchivePath(file.path, value.schemaVersion === 'agent-runtime-candidate/1.2.0' ? 1024 : 255) || file.path === 'candidate.json') throw Error('MANIFEST_PATH');
     if (file.executable !== undefined && typeof file.executable !== 'boolean') throw Error('MANIFEST_INVALID');
     const lower = file.path.toLowerCase();
     if (names.has(lower)) throw Error('MANIFEST_PATH'); names.add(lower);
     if (file.kind === 'symlink') {
-      if (value.schemaVersion !== 'agent-runtime-candidate/1.1.0' || process.platform === 'win32') throw Error('BUNDLE_LINK_UNSUPPORTED');
+      if (value.schemaVersion === 'agent-runtime-candidate/1.0.0' || process.platform === 'win32') throw Error('BUNDLE_LINK_UNSUPPORTED');
       continue;
     }
     if (file.kind !== undefined) throw Error('MANIFEST_INVALID');
