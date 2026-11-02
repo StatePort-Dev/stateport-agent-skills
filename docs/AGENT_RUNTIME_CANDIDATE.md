@@ -19,11 +19,15 @@ right, its registry entry is missing, or a hash arrived with its download.
 A verified installer can return an exact local Node command/argument vector for
 CLI continuation. That descriptor is distinct from Card/page text and from tool
 permissions. Use the original task and the coding host's normal local approvals.
-No hot MCP reload is assumed. `task-start` accepts project + original scope on
-stdin; `task-tools` returns the exact allowed MCP schemas; `task-call` sends an
-idempotent named operation over that task capability; `task-close` revokes it.
-The worker is finite, not a global service or another agent. Do not put task
-capabilities in Cards, repository files, logs or shares.
+No hot MCP reload is assumed. The current launcher uses `task-session`, a
+finite foreground execution session retained by the coding host. Its first JSON
+line supplies project + original scope; later lines request tools, an idempotent
+named operation, or close. Keep stdin open between calls. EOF/host cancellation
+close the owned worker; an explicit close waits for worker exit. This reuses the
+same runtime/authority and keeps its capability token private. It is not a global
+service, another solver, or a reason to bypass host approvals. Legacy detached
+commands remain for controlled launchers; a host that reaps detached children
+requires foreground support, not an invented driver or silent service.
 
 [CLI continuation](../skills/stateport-debugging/references/cli-continuation.md)
 is canonical. Capture remains optional for tasks without a useful browser case.

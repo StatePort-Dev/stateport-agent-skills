@@ -33,10 +33,10 @@ async function main() {
   if (Number(process.versions.node.split('.')[0]) !== 24) throw Error('NODE_24_LTS_CANDIDATE_REQUIRED');
   if (!((process.platform === 'linux' || process.platform === 'win32') && process.arch === 'x64') && !(process.platform === 'darwin' && process.arch === 'arm64')) throw Error('PLATFORM_UNSUPPORTED');
   const args = process.argv.slice(2);
-  const commands = new Set(['install', 'update', 'rollback', 'uninstall', 'browser-install', 'doctor', 'open', 'access', 'mcp', 'task-start', 'task-call', 'task-tools', 'task-close']);
+  const commands = new Set(['install', 'update', 'rollback', 'uninstall', 'browser-install', 'doctor', 'open', 'access', 'mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close']);
   const command = commands.has(args[0]) ? args.shift() : 'install';
   const cache = cacheRoot();
-  if (['doctor', 'open', 'access', 'mcp', 'task-start', 'task-call', 'task-tools', 'task-close'].includes(command)) {
+  if (['doctor', 'open', 'access', 'mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close'].includes(command)) {
     const runtime = await readCurrent(cache); if (!runtime) throw Error('RUNTIME_NOT_INSTALLED');
     await run(runtime, [command, ...args]); return;
   }
@@ -82,7 +82,11 @@ async function main() {
   const doctor = await run(runtime, ['doctor'], true);
   const setup = await run(runtime, agent ? ['setup', '--agent', agent] : ['setup'], true);
   write({ status: 'candidate_installed', version: runtime.productVersion, unchanged: runtime.unchanged, doctor, setup,
-    cache: offline ? 'verified_offline' : 'verified', hostDiscovered: 'unverified', currentTask: { command: process.execPath, args: [runtime.entry, 'task-start'], input: 'project + original user task scope as JSON on stdin; task-tools lists the exact supported schemas' }, published: false });
+    cache: offline ? 'verified_offline' : 'verified', hostDiscovered: 'unverified', currentTask: {
+      command: process.execPath, args: [runtime.entry, 'task-session'], protocol: 'agent-task-session/1',
+      input: 'Keep this host execution session and stdin open. First JSON line: project + original user task scope, optional deadlineMs. Then JSON lines: operation tools; operation call with requestId/name/arguments; operation close.',
+      permissions: 'Use normal host approval for this exact runtime command when required. Installation does not grant browser, project or task permissions.',
+    }, published: false });
 }
 void main().catch(error => {
   const code = error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : 'INSTALL_FAILED';
