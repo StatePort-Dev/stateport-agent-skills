@@ -84,7 +84,7 @@ async function main() {
   write({ status: 'candidate_installed', version: runtime.productVersion, unchanged: runtime.unchanged, doctor, setup,
     cache: offline ? 'verified_offline' : 'verified', hostDiscovered: 'unverified', currentTask: {
       command: process.execPath, args: [runtime.entry, 'task-session'], protocol: 'agent-task-session/1',
-      input: 'Keep this host execution session and stdin open. First JSON line: project + original user task scope, optional deadlineMs. Then JSON lines: operation tools; operation call with requestId/name/arguments; operation close.',
+      input: 'Keep this host execution session and stdin open. First JSON line has project, scope, optional deadlineMs. Example for an originally authorized fix task: {"project":"/absolute/original/project","scope":{"userRequestedTask":true,"intent":"fix_verify","sourceOrigins":["http://127.0.0.1:3000"],"frontendOrigins":["http://127.0.0.1:3001"],"stateCardIds":[]},"deadlineMs":600000}. Replace project/origins/Card IDs from the original user task; installation grants no scope. Then JSON lines: operation tools; operation call with requestId/name/arguments; operation close.',
       permissions: 'Use normal host approval for this exact runtime command when required. Installation does not grant browser, project or task permissions.',
     }, published: false });
 }
