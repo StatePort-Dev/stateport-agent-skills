@@ -6,6 +6,11 @@ license: MIT
 
 # StatePort Capture
 
+If this original task has a trusted exact Node CLI continuation descriptor and
+no hot-discovered MCP, read [CLI continuation](references/cli-continuation.md).
+Otherwise use the normal connected-runtime path; missing tools do not authorize
+installation or broader permissions.
+
 Choose one procedure from the user's task:
 
 - **Capture plus investigation/fix/verification:** reuse one get_workflow_capability result (legacy fallback: get_capture_capability). Follow workflowPolicy when advertised; explicit Capture requests remain available with existing permissions even when automatic Capture is off. When `executableWorkflow.available` is true and its descriptor supports the needed prerequisites, read [the executable path](references/executable-fix-verify.md) and invoke its descriptor through the host command tool under its normal execution approval. No separate adapter consent is needed. Use [Fix & Verify](references/fix-verify.md) if the helper is unavailable, execution is denied, the descriptor directs the needed protected input to managed Capture, or the user specifically requires individual MCP tool calls. Use already supplied credential context before starting that Capture; follow the existing protected input operations, without a preliminary anonymous attempt. Retain that choice when Debugging is also invoked.

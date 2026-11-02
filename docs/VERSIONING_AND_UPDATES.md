@@ -1,10 +1,16 @@
 # Integration versions and updates
 
+The [Node Agent Runtime candidate](AGENT_RUNTIME_CANDIDATE.md) has independent
+CLI-first current-chat, next-session MCP, Node/browser/OS-vault and three-native-OS
+gates. Source preparation does not upgrade any provider status. The bootstrap
+version is independent of runtime and integration versions; current public
+Desktop evidence below remains historical/current to its exact recorded scope.
+
 StatePort uses three independent version lines:
 
 - **Integration version** identifies this repository's skill, plugin manifests,
   setup helpers and native source candidates. The current beta source version
-  is <!-- integration-version:start -->`0.1.0-beta.78`<!-- integration-version:end -->
+  is <!-- integration-version:start -->`0.1.0-beta.79`<!-- integration-version:end -->
   in [`integration.json`](../integration.json).
 - **Desktop/runtime version** identifies the installed StatePort application and
   MCP process. It does not determine the integration version.

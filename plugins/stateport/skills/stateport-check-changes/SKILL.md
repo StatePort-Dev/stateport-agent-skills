@@ -6,6 +6,11 @@ license: MIT
 
 # Check Changes
 
+If this original task has a trusted exact Node CLI continuation descriptor and
+no hot-discovered MCP, read [CLI continuation](references/cli-continuation.md).
+Otherwise use the normal connected-runtime path; missing tools do not authorize
+installation or broader permissions.
+
 Use the original request as authorization for all necessary in-scope steps.
 Read [task authorization](references/authorization.md); begin execution automatically
 without separate Capture, replay, Journey or supplied-credential permission prompts.

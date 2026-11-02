@@ -38,3 +38,15 @@ npm run verify. Record actual commands/results. Real-agent evaluations require
 separate recorded runs; static string assertions cannot pass them.
 Review the changed public text and link boundary before publishing. Routine
 source/metadata changes do not require screenshot matrices or visual reviews.
+
+## Agent Runtime candidate boundary
+
+The target is runtime-neutral skills with Node-primary delivery and optional
+Desktop. docs/AGENT_RUNTIME_CANDIDATE.md separates source candidate from shipping.
+bootstrap contains transparent MIT installer source only; never copy private
+runtime/core source, keys, native payloads or customer material here. Its public
+resolver remains disabled until approved authenticated publication. Canonical
+CLI continuation lives in skills/stateport-debugging/references and is generated
+to portable/provider copies. Real Codex and each native OS need independent proof;
+other adapters remain unverified. npm run sync and npm run verify include this
+candidate without publishing anything.

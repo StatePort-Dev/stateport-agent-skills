@@ -48,3 +48,17 @@ test('accepts installed Linux DEB bundled node and only its sibling MCP entrypoi
     { ...launch, args: ['/opt/State Port/resources/mcp-runtime/../mcp-main.cjs'] },
   ]) assert.throws(() => parseDesktopConfig(JSON.stringify({ mcpServers: { stateport: wrong } }), 'linux'));
 });
+
+
+test('accepts exact existing-Node console launch vectors for the candidate without GUI flags', async () => {
+  const { parseDesktopConfig } = await import(pathToFileURL(script).href);
+  for (const [platform, command, args] of [
+    ['linux', '/usr/bin/node', ['/home/synthetic/StatePort/versions/exact/main.cjs','mcp']],
+    ['darwin', '/opt/homebrew/bin/node', ['/Users/synthetic/StatePort/versions/exact/main.cjs','mcp']],
+    ['win32', 'C:\\Program Files\\nodejs\\node.exe', ['C:\\Users\\synthetic\\StatePort\\versions\\exact\\main.cjs','mcp']],
+  ]) {
+    const launch = {command,args};
+    assert.deepEqual(parseDesktopConfig(JSON.stringify({mcpServers:{stateport:launch}}),platform),launch);
+    assert.throws(()=>parseDesktopConfig(JSON.stringify({mcpServers:{stateport:{command,args:['relative/main.cjs','mcp']}}}),platform));
+  }
+});

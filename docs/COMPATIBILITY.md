@@ -1,5 +1,11 @@
 # Compatibility and evidence
 
+The [Node Agent Runtime candidate](AGENT_RUNTIME_CANDIDATE.md) has independent
+CLI-first current-chat, next-session MCP, Node/browser/OS-vault and three-native-OS
+gates. Source preparation does not upgrade any provider status. The bootstrap
+version is independent of runtime and integration versions; current public
+Desktop evidence below remains historical/current to its exact recorded scope.
+
 The canonical inventory is [providers/registry.json](../providers/registry.json).
 Its `update` object independently records `method`, documented `automatic`
 behavior and StatePort-specific `evidenceStatus`. The method taxonomy is

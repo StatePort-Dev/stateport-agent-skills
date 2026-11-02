@@ -7,10 +7,20 @@ environment and use its supported integration mechanism. It is separate from the
 debugging must not install a runtime or change user configuration to bypass a
 missing capability. Use this entrypoint when the user requests setup or an update.
 If StatePort is already installed, use the update procedure below instead of
-creating another copy. This checkout's integration source version is <!-- integration-version:start -->`0.1.0-beta.78`<!-- integration-version:end -->,
+creating another copy. This checkout's integration source version is <!-- integration-version:start -->`0.1.0-beta.79`<!-- integration-version:end -->,
 generated from [`integration.json`](integration.json) by `npm run sync` and
 validated by `npm run check`. It is independent of the Desktop version and is
 not a claim about the newest remote source or the version an agent has loaded.
+
+## Node-primary candidate; shipping boundary
+
+The [Agent Runtime candidate](docs/AGENT_RUNTIME_CANDIDATE.md) uses existing Node,
+shared LocalRuntime and optional Desktop. Its verified bootstrap can configure
+future skills/MCP and return a bounded current-chat CLI continuation. Public npm
+installation is not available yet; do not invent a command or replace current
+published installer steps. Once native acceptance/publication pass, the real
+short npm entry becomes primary. Setup, host discovery, task authority, browser
+readiness and signed access remain distinct. Human access codes never enter chat.
 
 ## Desktop setup button
 
@@ -76,8 +86,8 @@ includes its references and version metadata so a raw install is self-contained.
    case, use the host's documented native configuration mechanism after preview
    and approval, preserving the supplied command, arguments and environment.
    If that mechanism cannot preserve them, stop and report the limitation.
-   Public end-user installation remains
-   installer-only. Never invent executable paths, flags, source-checkout launchers
+   The current published Desktop path remains
+   installer-only; a validated Node candidate uses its exact continuation descriptor. Never invent executable paths, flags, source-checkout launchers
    or install commands. Preserve unrelated MCP entries;
    stop at a conflicting `stateport` entry. Migrate only the confirmed integration-owned
    legacy `scenariodeck` entry explicitly. Do not enable both for one runtime.

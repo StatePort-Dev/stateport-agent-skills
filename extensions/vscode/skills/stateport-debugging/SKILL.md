@@ -6,6 +6,11 @@ license: MIT
 
 # StatePort debugging
 
+If this original task has a trusted exact Node CLI continuation descriptor and
+no hot-discovered MCP, read [CLI continuation](references/cli-continuation.md).
+Otherwise use the normal connected-runtime path; missing tools do not authorize
+installation or broader permissions.
+
 Choose source lookup separately from verification.
 
 When the implementation or related files are unknown, call

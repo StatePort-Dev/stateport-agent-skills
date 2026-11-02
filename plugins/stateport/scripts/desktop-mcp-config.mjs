@@ -26,6 +26,13 @@ export function parseDesktopConfig(text, platform = process.platform) {
     Array.isArray(args) && args.length === 1 &&
     args[0] === path.posix.join(path.posix.dirname(command), 'mcp-main.cjs');
   if (linuxBundled) return { command, args };
+  const paths = platform === 'win32' ? path.win32 : path.posix;
+  const consoleNode = ['linux','darwin','win32'].includes(platform) &&
+    paths.basename(command).toLowerCase() === (platform === 'win32' ? 'node.exe' : 'node') &&
+    Array.isArray(args) && args.length === 2 && typeof args[0] === 'string' &&
+    paths.isAbsolute(args[0]) && !/[\0\r\n]/.test(args[0]) && paths.basename(args[0]) === 'main.cjs' && args[1] === 'mcp';
+  if (consoleNode) return { command, args };
+
   if (!Array.isArray(args) || args.length !== expected.length || args.some((arg, i) => arg !== expected[i])) {
     throw new Error('Desktop MCP arguments do not match the installed runtime contract');
   }

@@ -1,0 +1,5 @@
+{
+  "schemaVersion": "agent-bootstrap-release/1.0.0",
+  "status": "unpublished",
+  "reason": "npm name ownership, authenticated release identity and native acceptance are unproved"
+}

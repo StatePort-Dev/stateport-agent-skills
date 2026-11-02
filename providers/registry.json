@@ -65,6 +65,19 @@
         ],
         "guide": "AGENT_INSTALL.md#desktop-setup-button",
         "scope": "Installed local candidate setup, fresh skill/MCP discovery and repeat only; limited to listed OS and host versions."
+      },
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
       }
     },
     {
@@ -77,7 +90,20 @@
         "automatic": "unverified",
         "evidenceStatus": "unverified"
       },
-      "evidence": []
+      "evidence": [],
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
+      }
     },
     {
       "id": "codex-ide",
@@ -89,7 +115,20 @@
         "automatic": "no",
         "evidenceStatus": "unverified"
       },
-      "evidence": []
+      "evidence": [],
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
+      }
     },
     {
       "id": "claude-code",
@@ -118,6 +157,19 @@
         ],
         "guide": "AGENT_INSTALL.md#desktop-setup-button",
         "scope": "Installed local candidate setup, fresh skill/MCP discovery and repeat only; limited to listed OS and host versions."
+      },
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
       }
     },
     {
@@ -130,7 +182,20 @@
         "automatic": "conditional",
         "evidenceStatus": "unverified"
       },
-      "evidence": []
+      "evidence": [],
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
+      }
     },
     {
       "id": "copilot-cli",
@@ -142,7 +207,20 @@
         "automatic": "conditional",
         "evidenceStatus": "unverified"
       },
-      "evidence": []
+      "evidence": [],
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
+      }
     },
     {
       "id": "vscode-extension",
@@ -154,7 +232,20 @@
         "automatic": "no",
         "evidenceStatus": "unverified"
       },
-      "evidence": []
+      "evidence": [],
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
+      }
     },
     {
       "id": "cursor-vsix",
@@ -166,7 +257,20 @@
         "automatic": "unverified",
         "evidenceStatus": "unverified"
       },
-      "evidence": []
+      "evidence": [],
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
+      }
     },
     {
       "id": "cursor-agent",
@@ -195,6 +299,19 @@
         ],
         "guide": "AGENT_INSTALL.md#desktop-setup-button",
         "scope": "Installed local candidate setup, fresh skill/MCP discovery and repeat only; limited to listed OS and host versions."
+      },
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
       }
     },
     {
@@ -207,7 +324,20 @@
         "automatic": "no",
         "evidenceStatus": "unverified"
       },
-      "evidence": []
+      "evidence": [],
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
+      }
     },
     {
       "id": "jetbrains-webstorm",
@@ -219,7 +349,20 @@
         "automatic": "no",
         "evidenceStatus": "unverified"
       },
-      "evidence": []
+      "evidence": [],
+      "agentRuntime": {
+        "status": "unverified",
+        "sameChatCli": "unverified",
+        "nextSessionMcp": "unverified",
+        "nodeRange": "24.x candidate",
+        "requiredPlatforms": [
+          "win32-x64",
+          "darwin-arm64",
+          "linux-x64"
+        ],
+        "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
+        "evidence": []
+      }
     }
   ]
 }

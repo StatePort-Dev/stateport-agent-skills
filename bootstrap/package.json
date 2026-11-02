@@ -1,0 +1,25 @@
+{
+  "name": "stateport",
+  "version": "0.0.0-candidate.243",
+  "private": true,
+  "description": "StatePort transparent agent runtime bootstrap candidate",
+  "type": "module",
+  "bin": {
+    "stateport": "./bin/stateport.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "release.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "build": "node --check bin/stateport.mjs",
+    "check": "node --test tests/*.test.mjs"
+  },
+  "license": "MIT"
+}

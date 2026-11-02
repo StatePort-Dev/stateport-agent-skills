@@ -6,6 +6,11 @@ license: MIT
 
 # StatePort Card transfer
 
+If this original task has a trusted exact Node CLI continuation descriptor and
+no hot-discovered MCP, read [CLI continuation](references/cli-continuation.md).
+Otherwise use the normal connected-runtime path; missing tools do not authorize
+installation or broader permissions.
+
 Complete the requested import, export or sharing task using public MCP tools.
 Read [the transfer procedure](references/transfer.md),
 [workflow guidance](references/workflow.md) and

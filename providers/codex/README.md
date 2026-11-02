@@ -1,5 +1,10 @@
 # Codex integration
 
+For a validated Node-only candidate, use the
+[shared candidate contract](../../docs/AGENT_RUNTIME_CANDIDATE.md). Same-chat CLI
+continuity and future-session MCP are separate; this provider has no new native
+workflow acceptance. Published Desktop instructions below remain available.
+
 Codex CLI can install the shared StatePort plugin from this repository and
 connect separately to the local MCP server supplied by StatePort Desktop.
 Source installation and bounded Codex CLI Capture/replay checks have passed on

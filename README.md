@@ -3,12 +3,12 @@
 StatePort saves a browser reproduction as a **State Card** so a coding agent
 can inspect the same state before and after a code change. This repository
 contains seven task-focused skills and the adapters that connect supported
-agents to the local StatePort Desktop MCP server.
+agents to the local StatePort MCP adapter.
 
-StatePort Desktop owns Cards, Capture, replay, permissions and credentials.
+StatePort LocalRuntime owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Beta source.** The integration version is <!-- integration-version:start -->`0.1.0-beta.78`<!-- integration-version:end -->. Source
+> **Beta source.** The integration version is <!-- integration-version:start -->`0.1.0-beta.79`<!-- integration-version:end -->. Source
 > installation and bounded Codex CLI workflows have been checked, but there is
 > no general supported end-user release claim. Tagged prereleases distribute source;
 > New Bug Workflows real-host acceptance
@@ -30,7 +30,15 @@ dependency-free localhost app with a deliberate bug, a failing regression test,
 a technical walkthrough and an optional StatePort capture/fix task. It uses
 only synthetic data and runs without a StatePort account or installation.
 
-## Connect an agent
+## Agent-first target and source candidate
+
+The Node Agent Runtime is the target primary entry; Desktop is the optional
+visual client. This source includes an unpublished transparent bootstrap and
+[CLI-first continuation contract](docs/AGENT_RUNTIME_CANDIDATE.md). Node/native
+acceptance and publication are unproved; do not treat the target npm command as
+an available install. Current published users follow the Desktop path below.
+
+## Connect an agent — current published Desktop path
 
 1. Resolve the current Desktop release in the selected channel using the
    [installation entrypoint](AGENT_INSTALL.md#resolve-the-desktop-release), install
