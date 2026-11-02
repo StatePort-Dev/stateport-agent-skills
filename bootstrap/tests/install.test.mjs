@@ -40,6 +40,23 @@ test('refuses hash mismatch, changed source, wrong platform and edited cached pa
   manifest.platform = 'unsupported';
   await assert.rejects(installCandidate({ source, cache, manifestSha256: await save() }), /PLATFORM/);
 }));
+test('refuses an edited installed payload instead of repairing or executing it on repeat', () => fixture(async ({ source, cache, save }) => {
+  const digest = await save(), installed = await installCandidate({ source, cache, manifestSha256: digest });
+  await writeFile(join(installed.runtimeRoot, 'main.cjs'), 'foreign edited cached code');
+  await assert.rejects(readCurrent(cache), /PAYLOAD_INTEGRITY|UNSAFE_PATH/);
+  await assert.rejects(installCandidate({ source, cache, manifestSha256: digest }), /PAYLOAD_INTEGRITY|UNSAFE_PATH/);
+  assert.equal(await readFile(join(installed.runtimeRoot, 'main.cjs'), 'utf8'), 'foreign edited cached code');
+}));
+test('refuses concurrent or uncertain interrupted ownership while retaining the working pointer', () => fixture(async ({ source, cache, manifest, save }) => {
+  const first = await installCandidate({ source, cache, manifestSha256: await save() });
+  manifest.productVersion = '1.0.0-rc.4'; const nextDigest = await save();
+  await mkdir(join(cache, '.install.lock'));
+  await assert.rejects(installCandidate({ source, cache, manifestSha256: nextDigest }), /INSTALL_BUSY_OR_RECOVERY_REQUIRED/);
+  assert.equal((await readCurrent(cache)).digest, first.digest);
+  // Only the fixture owner releases its synthetic lock, simulating human recovery.
+  await rm(join(cache, '.install.lock'), { recursive: true });
+  assert.equal((await installCandidate({ source, cache, manifestSha256: nextDigest })).digest, nextDigest);
+}));
 for (const path of ['../outside', '/absolute', 'C:\\absolute', 'nested/../outside', 'a\\b', 'a//b', 'node_modules/../../outside']) test(`rejects traversal path ${path}`, () => fixture(async ({ source, cache, manifest, save }) => {
   manifest.files[0].path = path;
   await assert.rejects(installCandidate({ source, cache, manifestSha256: await save() }), /MANIFEST_PATH/);
