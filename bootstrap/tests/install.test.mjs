@@ -50,6 +50,10 @@ test('rejects source and cache symlinks/junctions before copying or switching', 
   await symlink(outside, cache, process.platform === 'win32' ? 'junction' : 'dir');
   await assert.rejects(installCandidate({ source, cache, manifestSha256: digest }), /UNSAFE_PATH/);
   await rm(cache);
-  await rm(join(source, 'main.cjs')); await symlink(join(root, 'outside', 'file'), join(source, 'main.cjs'), 'file');
+  if (process.platform === 'win32') {
+    await rm(source, { recursive: true }); await symlink(outside, source, 'junction');
+  } else {
+    await rm(join(source, 'main.cjs')); await symlink(join(root, 'outside', 'file'), join(source, 'main.cjs'), 'file');
+  }
   await assert.rejects(installCandidate({ source, cache, manifestSha256: digest }), /UNSAFE_PATH/);
 }));
