@@ -3,7 +3,7 @@ import { posix } from 'node:path';
 
 const MAX_BYTES = 512 * 1024 * 1024;
 export function validArchivePath(path) {
-  return typeof path === 'string' && path.length <= 255 && /^[A-Za-z0-9_.@ -]+(?:\/[A-Za-z0-9_.@ -]+)*$/.test(path)
+  return typeof path === 'string' && path.length <= 255 && /^[A-Za-z0-9_.@ ()+-]+(?:\/[A-Za-z0-9_.@ ()+-]+)*$/.test(path)
     && path.split('/').every(part => part !== '.' && part !== '..' && !/[. ]$/.test(part) && !/^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part));
 }
 function field(header, offset, length) { return header.subarray(offset, offset + length).toString('utf8').replace(/\0.*$/s, ''); }
@@ -74,7 +74,14 @@ export function encodeRuntimeArchive(files) {
     if (!Buffer.isBuffer(data) || files.length > 4096) throw Error('ARCHIVE_SIZE');
     const header = Buffer.alloc(512);
     let name = file.path, prefix = '';
-    if (Buffer.byteLength(name) > 100) { const split = name.lastIndexOf('/'); prefix = name.slice(0, split); name = name.slice(split + 1); }
+    if (Buffer.byteLength(name) > 100) {
+      // USTAR's name may itself contain slashes; the final slash is not always
+      // a valid boundary for deeply nested macOS framework helpers.
+      let split = name.lastIndexOf('/');
+      while (split >= 0 && (Buffer.byteLength(name.slice(0, split)) > 155 || Buffer.byteLength(name.slice(split + 1)) > 100)) split = name.lastIndexOf('/', split - 1);
+      if (split < 0) throw Error('ARCHIVE_PATH');
+      prefix = name.slice(0, split); name = name.slice(split + 1);
+    }
     if (Buffer.byteLength(name) > 100 || Buffer.byteLength(prefix) > 155) throw Error('ARCHIVE_PATH');
     header.write(name, 0); header.write(prefix, 345);
     const number = (value, offset, length) => { const text = value.toString(8).padStart(length - 1, '0'); if (text.length >= length) throw Error('ARCHIVE_SIZE'); header.write(text + '\0', offset); };

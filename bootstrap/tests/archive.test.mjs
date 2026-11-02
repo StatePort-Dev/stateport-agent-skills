@@ -10,6 +10,13 @@ test('round-trips regular runtime bytes including a binary addon and rejects alt
   assert.throws(() => decodeRuntimeArchive(Buffer.from('not gzip')));
   const bad = Buffer.from(archive); bad[Math.floor(bad.length / 2)] ^= 255; assert.throws(() => decodeRuntimeArchive(bad));
 });
+test('round-trips nested framework helper names using a valid USTAR prefix boundary', () => {
+  const path = 'bundled-browser/browser/chromium-1243/chrome-mac-arm64/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Versions/153.0.8010.12/Helpers/Chromium Helper (Renderer).app/Contents/MacOS/Chromium Helper (Renderer)';
+  assert(path.length <= 255);
+  const files = [{ path, bytes: Buffer.from('synthetic framework helper') }];
+  assert.deepEqual(decodeRuntimeArchive(encodeRuntimeArchive(files)), files);
+  assert.throws(() => encodeRuntimeArchive([{ path: 'a'.repeat(101), bytes: Buffer.alloc(0) }]), /ARCHIVE_PATH/);
+});
 test('rejects traversal, duplicate paths and every link/extended-header type', () => {
   for (const path of ['../escape', '/escape', 'C:\\escape', 'dir/../escape', 'dir\\escape', 'CON', 'dir./file']) assert.throws(() => encodeRuntimeArchive([{ path, bytes: Buffer.from('x') }]));
   assert.throws(() => encodeRuntimeArchive([{ path: 'main.cjs', bytes: Buffer.alloc(0) }, { path: 'MAIN.cjs', bytes: Buffer.alloc(0) }]));
