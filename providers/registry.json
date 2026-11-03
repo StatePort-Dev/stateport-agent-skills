@@ -98,6 +98,12 @@
               "date": "2026-11-03",
               "report": "docs/compatibility/node-auto-update-2026-11-03.md",
               "scope": "Bounded native Linux default Auto/full synthetic fix cycle; Windows Free Capture/backend/cold Inspect partial. No real model or three-platform/publication qualification."
+            },
+            {
+              "date": "2026-11-03",
+              "hostVersion": "0.164.0-alpha.11.1",
+              "report": "docs/compatibility/node-auto-model-linux-2026-11-03.md",
+              "scope": "Actual native Linux Codex/default Auto full same-Card cycle and new-host B reuse. Windows SDK/backend full fix/cold action and native negatives; Windows model/Mac/clean builds/publication unverified."
             }
           ]
         }
