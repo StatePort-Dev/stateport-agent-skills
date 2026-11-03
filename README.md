@@ -30,13 +30,29 @@ dependency-free localhost app with a deliberate bug, a failing regression test,
 a technical walkthrough and an optional StatePort capture/fix task. It uses
 only synthetic data and runs without a StatePort account or installation.
 
-## Agent-first target and source candidate
+## Node Runtime release candidate — public GitHub download
 
-The Node Agent Runtime is the target primary entry; Desktop is the optional
-visual client. This source includes an unpublished transparent bootstrap and
-[CLI-first continuation contract](docs/AGENT_RUNTIME_CANDIDATE.md). Node/native
-acceptance and publication are unproved; do not treat the target npm command as
-an available install. Current published users follow the Desktop path below.
+A Node.js 24.x release candidate is available from the official
+[Agent Runtime release](https://github.com/StatePort-Dev/stateport-releases/releases/tag/v1.0.0-rc.4-agent.1).
+The short npm registry command `npx stateport` is **not available yet**. The
+pinned GitHub archive can be installed now:
+
+```sh
+npx --yes https://github.com/StatePort-Dev/stateport-releases/releases/download/v1.0.0-rc.4-agent.1/stateport-1.0.0-rc.4.tgz
+```
+
+This requires existing Node.js 24.x and a supported system browser. The small
+transparent bootstrap verifies the signed platform runtime, then configures
+owned agent skills/MCP. Desktop is optional for this RC. Explicit pinned-browser
+fallback is a separate download. Installation does not start a trial or grant
+browser/task permissions.
+
+Fresh archive installation, reviewed Free Capture and new-process cold inspection
+were checked on Ubuntu 24.04 x64. Native Windows/macOS/Linux vault/Capture/
+concurrency/recovery controls have separate bounded evidence; complete native
+model/human/trust qualification remains unverified. See the release notes and
+[Node contract](docs/AGENT_RUNTIME_CANDIDATE.md). This is not a claim of full
+all-platform product acceptance. The published Desktop path remains below.
 
 ## Connect an agent — current published Desktop path
 
