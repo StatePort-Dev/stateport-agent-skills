@@ -1,8 +1,8 @@
 {
   "name": "stateport",
-  "version": "0.0.0-candidate.243",
-  "private": true,
-  "description": "StatePort transparent agent runtime bootstrap candidate",
+  "version": "1.0.0-rc.4",
+  "private": false,
+  "description": "StatePort agent runtime bootstrap",
   "type": "module",
   "bin": {
     "stateport": "./bin/stateport.mjs"
@@ -22,5 +22,15 @@
     "build": "node --check bin/stateport.mjs",
     "check": "node --test tests/*.test.mjs"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StatePort-Dev/stateport-agent-skills.git",
+    "directory": "bootstrap"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "registry": "https://registry.npmjs.org/"
+  }
 }

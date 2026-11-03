@@ -1,0 +1,77 @@
+name: Publish StatePort agent bootstrap
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Reviewed full public source commit
+        required: true
+        type: string
+      version:
+        description: Exact bootstrap version
+        required: true
+        type: string
+      sha256:
+        description: Reviewed npm tarball SHA-256
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: stateport-npm-publication
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.repository == 'StatePort-Dev/stateport-agent-skills' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      EXPECTED_SOURCE: ${{ inputs.source }}
+      EXPECTED_VERSION: ${{ inputs.version }}
+      EXPECTED_SHA256: ${{ inputs.sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.source }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.19.0'
+      - run: npm install --global npm@11.17.0
+      - name: Validate exact reviewed public source and package identity
+        run: |
+          node --input-type=module <<'JS'
+          import{readFileSync}from'node:fs';import{execFileSync}from'node:child_process';
+          const e=process.env,p=JSON.parse(readFileSync('bootstrap/package.json'));
+          if(!/^[a-f0-9]{40}$/.test(e.EXPECTED_SOURCE)||execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.EXPECTED_SOURCE||!/^[a-f0-9]{64}$/.test(e.EXPECTED_SHA256)||!/^\d+\.\d+\.\d+(?:-(?:rc|beta)\.\d+)?$/.test(e.EXPECTED_VERSION)||p.version!==e.EXPECTED_VERSION||p.name!=='stateport'||p.private!==false||p.repository?.url!=='git+https://github.com/StatePort-Dev/stateport-agent-skills.git'||p.repository?.directory!=='bootstrap')throw Error('PUBLISH_IDENTITY');
+          JS
+      - run: npm run verify
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      EXPECTED_SOURCE: ${{ inputs.source }}
+      EXPECTED_VERSION: ${{ inputs.version }}
+      EXPECTED_SHA256: ${{ inputs.sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.source }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.19.0'
+      - run: npm install --global npm@11.17.0
+      - name: Pack only the transparent bootstrap and verify reviewed bytes
+        run: |
+          npm pack ./bootstrap --ignore-scripts --pack-destination "$RUNNER_TEMP"
+          node --input-type=module <<'JS'
+          import{readFileSync}from'node:fs';import{join}from'node:path';import{createHash}from'node:crypto';import{execFileSync}from'node:child_process';
+          const e=process.env;if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.EXPECTED_SOURCE||!/^\d+\.\d+\.\d+(?:-(?:rc|beta)\.\d+)?$/.test(e.EXPECTED_VERSION))throw Error('PUBLISH_SOURCE');
+          const bytes=readFileSync(join(e.RUNNER_TEMP,`stateport-${e.EXPECTED_VERSION}.tgz`));if(createHash('sha256').update(bytes).digest('hex')!==e.EXPECTED_SHA256)throw Error('PUBLISH_PACKAGE_CHANGED');
+          JS
+      - name: Publish exact package with public-source provenance
+        run: npm publish "$RUNNER_TEMP/stateport-$EXPECTED_VERSION.tgz" --access public --tag latest --provenance --ignore-scripts

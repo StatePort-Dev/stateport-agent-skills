@@ -1,7 +1,9 @@
 {
   "schemaVersion": "agent-update-trust/1",
-  "status": "unpublished",
+  "status": "published",
   "publisher": "StatePort-Dev",
   "channel": "rc",
-  "reason": "No approved production update key/channel or public runtime release. Local fixture keys never grant production authority."
+  "url": "https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/rc.json",
+  "keyId": "stateport-agent-release-2026-11-03",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA8uC2jzpeW53A/MGquI0i7vjAHRpk6MKslN2asEIQQjs=\n-----END PUBLIC KEY-----\n"
 }

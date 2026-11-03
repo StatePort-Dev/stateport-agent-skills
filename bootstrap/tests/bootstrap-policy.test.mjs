@@ -19,7 +19,8 @@ test('CLI update status is read-only; Auto requires consent and Notify remains t
   await assert.rejects(run(['updates', 'auto']));
   assert.equal((await run(['updates', 'auto', '--consent'])).mode, 'auto');
   assert.equal((await run(['updates', 'notify'])).mode, 'notify');
-  assert.equal((await run(['updates', 'check'])).status, 'not_configured');
+  // This published bootstrap has no runtime in the isolated cache.
+  assert.equal((await run(['updates', 'check'])).status, 'not_installed');
 }));
 test('new bootstrap never selects an unqualified legacy rollback as an automatic safe previous generation', () => updateFixture(async f => {
   const data = join(f.root, 'data');
