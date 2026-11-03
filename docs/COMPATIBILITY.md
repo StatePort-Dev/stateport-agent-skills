@@ -49,3 +49,11 @@ records ZIP build and binary verification, without a live IDE command run.
 The [seven-skill candidate record](compatibility/skills-beta2-source-2026-09-24.md)
 adds source checks, actual Linux Codex discovery/Capture and incomplete routing
 evidence. Full A/B/C and macOS acceptance remain unverified.
+
+## Node update candidate
+
+The [update-policy source candidate](VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate)
+has bounded native Linux compiled-runtime/MCP A→B and same-Card cold reuse with
+synthetic signing keys. This does not establish a published update path, native
+Windows/macOS behavior or real model update acceptance. Provider automatic-update
+statuses remain unverified; historical evidence retains its exact versions.

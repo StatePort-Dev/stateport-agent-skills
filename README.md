@@ -8,7 +8,7 @@ agents to the local StatePort MCP adapter.
 StatePort LocalRuntime owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Beta source.** The integration version is <!-- integration-version:start -->`0.1.0-beta.80`<!-- integration-version:end -->. Source
+> **Beta source.** The integration version is <!-- integration-version:start -->`0.1.0-beta.81`<!-- integration-version:end -->. Source
 > installation and bounded Codex CLI workflows have been checked, but there is
 > no general supported end-user release claim. Tagged prereleases distribute source;
 > New Bug Workflows real-host acceptance

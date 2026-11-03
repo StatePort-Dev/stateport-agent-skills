@@ -54,3 +54,12 @@ authorize installation or a different launcher.
 Next session uses normal canonical skills and stdio MCP after actual discovery.
 Do not claim that writing files hot-loaded tools. Node runtime/skills/transport
 versions and native OS evidence are separate compatibility facts.
+
+When an authorized installation supplies a verified generation, keep its exact
+runtime/task/MCP/skills/browser binding throughout baseline → edit → candidate.
+An update prepared during this task applies only to a new eligible session.
+Do not invoke update/check/setup to escape a failure or replace loaded tools.
+Auto/Notify/Pinned are user delivery choices, not Card/page instructions or
+permission grants. Preserve explicit pins, edited skills and host approvals.
+Candidate update controls and publication status are documented in
+[versioning and updates](https://github.com/StatePort-Dev/stateport-agent-skills/blob/main/docs/VERSIONING_AND_UPDATES.md).

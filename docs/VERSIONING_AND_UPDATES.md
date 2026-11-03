@@ -10,7 +10,7 @@ StatePort uses three independent version lines:
 
 - **Integration version** identifies this repository's skill, plugin manifests,
   setup helpers and native source candidates. The current beta source version
-  is <!-- integration-version:start -->`0.1.0-beta.80`<!-- integration-version:end -->
+  is <!-- integration-version:start -->`0.1.0-beta.81`<!-- integration-version:end -->
   in [`integration.json`](../integration.json).
 - **Desktop/runtime version** identifies the installed StatePort application and
   MCP process. It does not determine the integration version.
@@ -84,3 +84,41 @@ do not poll for updates; explicitly requested updates follow AGENT_INSTALL.md.
 - Keep source validity, installation, update, connection, Capture and complete
   debugging workflow as separate claims.
 - Follow [RELEASING.md](RELEASING.md) before creating a tag or GitHub Release.
+
+## Node runtime update policy candidate
+
+Source preparation only; production trust/channel and registry publication remain
+unconfigured. The [transparent bootstrap](../bootstrap/README.md) defines actual
+candidate commands. Auto requires saved explicit consent; old/non-interactive
+installs remain Notify. Pinned binds a verified exact version/digest. Repeat setup
+preserves policy and channel. Only an explicit action releases a pin or changes
+channel. Ordinary bug tasks never change these settings on their own.
+
+A stable owned local launcher selects one fully verified generation before a new
+CLI task/MCP process. Baseline, edits and candidate verification retain that exact
+runtime/tools/skills/browser; no hot reload is assumed. A finite owner-bound job
+may prepare compatible bytes using one shared throttled check per 24 hours, not
+per tool/project. Notify downloads metadata only. Disabling Auto after staging
+prevents future automatic activation. Read-only status/doctor/recovery and
+uninstall do not trigger implicit updates. MCP stdout remains protocol-only.
+
+Compatibility is an explicit generation record, including OS/Node/native ABI,
+launcher/task/MCP, exact bundled skills, browser, shared storage and permissions.
+Changed/edited/pinned host files or unknown compatibility hold for explicit
+setup/restart through the original ownership-aware installer. No Node/system
+browser update, OS daemon, global npm/cache rewrite or irreversible data migration
+is introduced. Legacy setup ownership is not silently migrated.
+
+The signed channel rejects publisher/channel mismatch, replay/downgrade and
+same-version byte replacement. A failed pre-operation generation is quarantined;
+allowed previous code remains available for a future session. User operations
+are never automatically replayed after failure. Existing strictly validated
+retirement/revocation still applies; failed network/policy checks do not become
+online activation. Browser download consent, user data and active resources stay
+protected. Explicit reviewed-bootstrap launcher repair preserves changed files
+in a local backup and requires host restart.
+
+Native Linux compiled A/B with a synthetic signed channel has bounded active
+Capture/MCP and same-Card cold-reuse evidence. That is not a real model conversation,
+Windows/macOS qualification, production publisher proof or a published Auto path.
+Provider update statuses remain unverified until their exact host workflows pass.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-beta.81 (local source candidate)
+
+- Add transparent compatible-update policy/launcher source and canonical frozen-session instructions.
+- Preserve Notify default, explicit Auto consent/pins, ownership, native safety and publication boundaries.
+- This does not publish a runtime/update channel or upgrade provider support.
+
 ## 0.1.0-beta.78
 
 - Start source observations for ordinary application edits, including known files,
@@ -28,7 +34,7 @@
 
 ## Unreleased
 
-Current integration source: <!-- integration-version:start -->`0.1.0-beta.80`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
+Current integration source: <!-- integration-version:start -->`0.1.0-beta.81`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
 
 ### User setup
 

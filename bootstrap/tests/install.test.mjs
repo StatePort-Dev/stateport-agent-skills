@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, readFile, writeFile, rm, symlink, realpath } from 'node
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { installCandidate, rollback, uninstallPointer, readCurrent } from '../lib/install.mjs';
+import { installCandidate, rollback, uninstallPointer, readCurrent, stageCandidate, activateCandidate, readInstalled } from '../lib/install.mjs';
 
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 async function fixture(run) {
@@ -18,6 +18,19 @@ async function fixture(run) {
     await run({ root, source, cache, manifest, save });
   } finally { await rm(root, { recursive: true, force: true }); }
 }
+test('stages B without selecting it, then activates only an intact exact generation and retains A', () => fixture(async ({ source, cache, manifest, save }) => {
+  const first = await installCandidate({ source, cache, manifestSha256: await save() });
+  manifest.productVersion = '1.0.0-rc.4';
+  const second = await stageCandidate({ source, cache, manifestSha256: await save() });
+  assert.equal((await readCurrent(cache)).digest, first.digest);
+  assert.equal((await readInstalled(cache, second.digest)).productVersion, '1.0.0-rc.4');
+  await activateCandidate(cache, second.digest);
+  assert.equal((await readCurrent(cache)).digest, second.digest);
+  assert.equal((await rollback(cache)).digest, first.digest);
+  await writeFile(join(second.runtimeRoot, 'main.cjs'), 'edited staged runtime');
+  await assert.rejects(activateCandidate(cache, second.digest), /PAYLOAD_INTEGRITY|UNSAFE_PATH/);
+  assert.equal((await readCurrent(cache)).digest, first.digest);
+}));
 test('installs exactly verified files, repeats without rewriting, rolls back and retains runtime/user data', () => fixture(async ({ source, cache, root, manifest, save }) => {
   const first = await installCandidate({ source, cache, manifestSha256: await save() });
   assert.equal(first.unchanged, false);

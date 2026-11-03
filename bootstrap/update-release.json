@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "agent-update-trust/1",
+  "status": "unpublished",
+  "publisher": "StatePort-Dev",
+  "channel": "rc",
+  "reason": "No approved production update key/channel or public runtime release. Local fixture keys never grant production authority."
+}

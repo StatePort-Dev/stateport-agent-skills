@@ -11,6 +11,7 @@
     "bin",
     "lib",
     "release.json",
+    "update-release.json",
     "README.md",
     "LICENSE"
   ],

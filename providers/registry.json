@@ -87,7 +87,13 @@
             "report": "docs/compatibility/node-codex-linux-2026-11-02.md",
             "scope": "Bounded same-chat foreground Capture/fix/same-Card comparison, new-conversation MCP/cold action. Other platforms and public publication unverified."
           }
-        ]
+        ],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     },
     {
@@ -112,7 +118,13 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": []
+        "evidence": [],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     },
     {
@@ -137,7 +149,13 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": []
+        "evidence": [],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     },
     {
@@ -179,7 +197,13 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": []
+        "evidence": [],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     },
     {
@@ -204,7 +228,13 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": []
+        "evidence": [],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     },
     {
@@ -229,7 +259,13 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": []
+        "evidence": [],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     },
     {
@@ -254,7 +290,13 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": []
+        "evidence": [],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     },
     {
@@ -279,7 +321,13 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": []
+        "evidence": [],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     },
     {
@@ -321,7 +369,13 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": []
+        "evidence": [],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     },
     {
@@ -346,7 +400,13 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": []
+        "evidence": [],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     },
     {
@@ -371,7 +431,13 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": []
+        "evidence": [],
+        "automaticDelivery": {
+          "status": "unverified",
+          "mode": "source_candidate",
+          "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+        }
       }
     }
   ]

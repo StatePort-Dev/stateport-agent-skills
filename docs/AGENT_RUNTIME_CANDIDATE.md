@@ -66,3 +66,8 @@ Update/rollback/uninstall preserve Cards, credentials and signed identity.
 Changed owned skills/config or foreign entries require conflict resolution.
 Public site/quickstart conversion follows actual npm publication and fresh
 installation proof; no deployment or marketplace release is implied here.
+
+The [update policy source candidate](VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate)
+adds explicit Auto/Notify/Pinned controls over the same verified delivery chain.
+Its real three-platform A→B/model/trust acceptance and public rollout are separate
+from the retained earlier runtime evidence. No provider status is upgraded.

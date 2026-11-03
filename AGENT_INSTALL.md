@@ -7,7 +7,7 @@ environment and use its supported integration mechanism. It is separate from the
 debugging must not install a runtime or change user configuration to bypass a
 missing capability. Use this entrypoint when the user requests setup or an update.
 If StatePort is already installed, use the update procedure below instead of
-creating another copy. This checkout's integration source version is <!-- integration-version:start -->`0.1.0-beta.80`<!-- integration-version:end -->,
+creating another copy. This checkout's integration source version is <!-- integration-version:start -->`0.1.0-beta.81`<!-- integration-version:end -->,
 generated from [`integration.json`](integration.json) by `npm run sync` and
 validated by `npm run check`. It is independent of the Desktop version and is
 not a claim about the newest remote source or the version an agent has loaded.
@@ -21,6 +21,11 @@ installation is not available yet; do not invent a command or replace current
 published installer steps. Once native acceptance/publication pass, the real
 short npm entry becomes primary. Setup, host discovery, task authority, browser
 readiness and signed access remain distinct. Human access codes never enter chat.
+
+The unpublished [update-policy candidate](docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate)
+uses a stable owned launcher and explicit Auto consent, with Notify as the
+non-interactive default. It never changes a running task or user-edited skills.
+This source does not make automatic updates or the target npm command shipping.
 
 ## Desktop setup button
 
