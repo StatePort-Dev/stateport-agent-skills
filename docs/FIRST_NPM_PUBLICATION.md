@@ -7,9 +7,12 @@ registry mutation. Verify the source commit, archive SHA-256 and Sigstore subjec
 from its artifact before publication.
 
 An authenticated maintainer can publish that exact archive using npm's documented
-`--provenance-file` option and complete the normal 2FA ceremony. Use a CLI version
-whose provenance-file option takes precedence over automatic generation; the
-package metadata requests provenance. Do not disable provenance to finish a release.
+`--provenance-file` option and complete the normal 2FA ceremony. The archived bootstrap requests automatic provenance in its publication metadata.
+The exact publisher must reconcile that setting with an explicit provenance file;
+current CLI option exclusivity must be checked before executing a publication.
+The workflow prepares verified evidence only, not an already validated first-publish
+transport. Do not omit provenance or assume a CLI upgrade resolves the metadata
+interaction. No registry write or delayed retry is scheduled by this workflow.
 After the real version exists, configure the exact `publish-agent.yml` trusted
 publisher for subsequent CI releases. Do not send login credentials to CI.
 
