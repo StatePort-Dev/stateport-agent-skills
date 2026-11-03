@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { withInstallTransaction, readCurrent, readInstalled } from './install.mjs';
+import { withInstallTransaction, readCurrent, readInstalled, readPrevious } from './install.mjs';
 import { readJson, readUpdatePolicy, checkDue, compatibleGeneration, hex } from './update-policy.mjs';
 import { download, verifyChannelEnvelope, installReleaseDocument, compareVersions } from './release.mjs';
 
@@ -13,7 +13,7 @@ async function stateFor(cache) {
     || (state.hold !== null && (typeof state.hold !== 'string' || !/^UPDATE_[A-Z_]{1,64}$/.test(state.hold)))) throw Error('UPDATE_STATE_INVALID');
   for (const [channel, water] of Object.entries(state.water)) {
     if (!['stable', 'beta', 'rc'].includes(channel) || !water || !Number.isSafeInteger(water.sequence) || water.sequence < 1
-      || !hex(water.releaseDigest) || typeof water.version !== 'string') throw Error('UPDATE_STATE_INVALID');
+      || !hex(water.releaseDigest) || typeof water.version !== 'string' || (water.notifiedDigest !== undefined && !hex(water.notifiedDigest))) throw Error('UPDATE_STATE_INVALID');
   }
   return state;
 }
@@ -49,7 +49,7 @@ export async function readiness(runtime, { integration = false, signal } = {}) {
     child.on('close', code => {
       try {
         const reply = JSON.parse(text);
-        finish(code === 0 && reply.status === 'ready' && reply.execution === 'allowed'
+        finish(code === 0 && reply.status === 'ready' && reply.version === runtime.productVersion && reply.execution === 'allowed'
           && compatibleGeneration(runtime.generation, reply.generation) === null
           && (!integration || reply.integration === 'unchanged'));
       } catch { finish(false); }
@@ -58,9 +58,10 @@ export async function readiness(runtime, { integration = false, signal } = {}) {
 }
 export async function updateStatus(cache, running) {
   const current = await readCurrent(cache), policy = await readUpdatePolicy(cache), state = await stateFor(cache);
+  const previous = await readPrevious(cache).catch(() => undefined);
   const summary = runtime => runtime ? { version: runtime.productVersion, digest: runtime.digest } : null;
   const advertised = value => value && typeof value.version === 'string' && hex(value.digest) ? { version: value.version, digest: value.digest } : null;
-  return { schemaVersion: 'agent-update-status/1', running: summary(running), selected: summary(current), mode: policy.mode, channel: policy.channel,
+  return { schemaVersion: 'agent-update-status/1', running: summary(running), selected: summary(current), previous: summary(previous), mode: policy.mode, channel: policy.channel,
     pin: policy.pin, checkedAt: state.checkedAt === null ? null : new Date(state.checkedAt).toISOString(), available: advertised(state.available),
     pending: advertised(state.pending), hold: policy.mode === 'pinned' ? 'UPDATE_PINNED' : state.hold,
     applies: state.pending ? 'next_eligible_session' : null };
@@ -80,6 +81,7 @@ export async function checkForUpdates(cache, trust, options = {}) {
       state.checkedAt = now; state.hold = null;
       // Persist attempt before any network: failure/crash does not create a storm.
       await transaction.write('update-state.json', state);
+      let notice;
       try {
         const signal = options.signal ? AbortSignal.any([options.signal, AbortSignal.timeout(130_000)]) : AbortSignal.timeout(130_000);
         const envelope = JSON.parse((await download(config.url, 2 * 1024 * 1024, options.fetcher ?? fetch, { signal, timeoutMs: 5_000 })).toString('utf8'));
@@ -88,8 +90,14 @@ export async function checkForUpdates(cache, trust, options = {}) {
         // A channel never replaces an installed version with different bytes.
         const order = compareVersions(document.version, current.productVersion);
         if (order < 0 || (order === 0 && asset.manifestSha256 !== current.digest)) throw Error('UPDATE_INCOMPATIBLE');
-        state.water[policy.channel] = { sequence: document.sequence, version: document.version, releaseDigest: verified.digest };
+        state.water[policy.channel] = { ...state.water[policy.channel], sequence: document.sequence, version: document.version, releaseDigest: verified.digest };
         state.available = { version: document.version, digest: asset.manifestSha256 };
+        if (policy.mode === 'notify' && order > 0 && state.water[policy.channel].notifiedDigest !== asset.manifestSha256) {
+          notice = { version: document.version, digest: asset.manifestSha256 };
+          // Optional inert high-water metadata; older readers ignore it. No
+          // new execution/trust authority is derived from notification state.
+          state.water[policy.channel].notifiedDigest = asset.manifestSha256;
+        }
         if (order === 0) { state.available = null; state.pending = null; }
         else if (quarantined(state, asset.manifestSha256)) state.hold = 'UPDATE_QUARANTINED';
         else if (compatibleGeneration(current.generation, asset.generation)) state.hold = 'UPDATE_INCOMPATIBLE';
@@ -110,7 +118,7 @@ export async function checkForUpdates(cache, trust, options = {}) {
         }
       } catch (error) { state.hold = reason(error); }
       await transaction.write('update-state.json', state);
-      return { status: state.pending ? 'pending_next_session' : state.hold ? 'held' : 'checked' };
+      return { status: state.pending ? 'pending_next_session' : state.hold ? 'held' : 'checked', ...(notice ? { notice } : {}) };
     });
   } catch { return { status: 'unavailable' }; }
 }
@@ -154,7 +162,13 @@ export async function selectSessionRuntime(cache, trust, options = {}) {
         return current;
       }
     });
-  } catch { return before; } // unknown lock/cache/policy cannot block installed recovery
+  } catch {
+    // An explicit exact pin cannot silently execute different bytes, even if
+    // its preflight or the shared lock is unavailable. Read-only recovery stays.
+    const policy = await readUpdatePolicy(cache).catch(() => undefined);
+    if (policy?.mode === 'pinned' && policy.pin.digest !== before.digest) throw Error('UPDATE_PIN_UNAVAILABLE');
+    return before; // other unknown lock/cache/policy never gates installed recovery
+  }
 }
 export async function retryQuarantine(cache, digest) {
   if (!hex(digest)) throw Error('INVALID_ARGUMENTS');

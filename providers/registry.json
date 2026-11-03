@@ -92,7 +92,14 @@
           "status": "unverified",
           "mode": "source_candidate",
           "guide": "docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate",
-          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate."
+          "scope": "Explicit consent; immutable next-session generation. Native three-platform/model/publication qualification separate.",
+          "evidence": [
+            {
+              "date": "2026-11-03",
+              "report": "docs/compatibility/node-auto-update-2026-11-03.md",
+              "scope": "Bounded native Linux default Auto/full synthetic fix cycle; Windows Free Capture/backend/cold Inspect partial. No real model or three-platform/publication qualification."
+            }
+          ]
         }
       }
     },

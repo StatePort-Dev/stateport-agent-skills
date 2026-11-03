@@ -122,3 +122,6 @@ Native Linux compiled A/B with a synthetic signed channel has bounded active
 Capture/MCP and same-Card cold-reuse evidence. That is not a real model conversation,
 Windows/macOS qualification, production publisher proof or a published Auto path.
 Provider update statuses remain unverified until their exact host workflows pass.
+
+An unavailable exact Node candidate pin does not silently execute different
+installed bytes. Use read-only status/recovery and an explicit pin change.

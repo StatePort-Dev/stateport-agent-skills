@@ -21,6 +21,10 @@ test('Notify checks metadata only; Auto stages B while A binding holds and selec
   assert.equal(f.requests.length, 4, 'repeat pending check fetches only metadata, not the verified payload again');
   const next = await selectSessionRuntime(f.cache, f.trust, options);
   assert.equal(next.productVersion, '1.0.0-rc.4');
+  const diagnostic = await updateStatus(f.cache, f.installed);
+  assert.equal(diagnostic.running.digest, f.installed.digest);
+  assert.equal(diagnostic.selected.digest, next.digest);
+  assert.equal(diagnostic.previous.digest, f.installed.digest);
   assert.equal(f.installed.productVersion, '1.0.0-rc.3');
   assert.equal(await readFile(f.installed.entry, 'utf8'), f.a.main.toString());
 }));
@@ -112,4 +116,22 @@ test('edited/pinned host integration defers activation while retaining the verif
   assert.equal((await updateStatus(f.cache)).hold, 'UPDATE_INTEGRATION_HELD');
   assert.equal((await updateStatus(f.cache)).pending.version, '1.0.0-rc.4');
   assert.equal((await selectSessionRuntime(f.cache, f.trust, { ...options, ownership: async () => true })).productVersion, '1.0.0-rc.4');
+}));
+test('Notify emits one bounded version notice, never a banner in every call or repeated check', () => updateFixture(async f => {
+  const first = await checkForUpdates(f.cache, f.trust, { fetcher: f.fetcher });
+  assert.deepEqual(first.notice, { version: '1.0.0-rc.4', digest: f.b.asset.manifestSha256 });
+  const repeated = await checkForUpdates(f.cache, f.trust, { fetcher: f.fetcher, force: true });
+  assert.equal(repeated.notice, undefined);
+  assert.equal(f.requests.length, 2);
+}));
+
+test('an unavailable exact pin never silently launches a different installed generation', () => updateFixture(async f => {
+  const { stageCandidate } = await import('../lib/install.mjs');
+  await writeFile(join(f.source, 'main.cjs'), f.b.main); await writeFile(join(f.source, 'candidate.json'), f.b.manifest);
+  const pinned = await stageCandidate({ source: f.source, cache: f.cache, manifestSha256: f.b.asset.manifestSha256 });
+  await setUpdatePolicy(f.cache, { mode: 'pinned', pin: { version: pinned.productVersion, digest: pinned.digest } });
+  await assert.rejects(selectSessionRuntime(f.cache, f.trust, { readiness: async () => false }), /UPDATE_PIN_UNAVAILABLE/);
+  await writeFile(join(f.cache, '.install.lock'), 'unknown owner');
+  await assert.rejects(selectSessionRuntime(f.cache, f.trust), /UPDATE_PIN_UNAVAILABLE/);
+  assert.equal((await readCurrent(f.cache)).digest, f.installed.digest);
 }));

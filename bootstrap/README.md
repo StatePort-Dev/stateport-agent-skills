@@ -15,8 +15,8 @@ node <bootstrap>/bin/stateport.mjs install --candidate-dir <payload-directory> -
 This writes the per-user runtime cache and detected agent's owned skills/MCP
 configuration. Use a disposable account for acceptance. Optional `--agent codex`,
 `--agent claude` or `--agent cursor` selects one existing installer adapter; it is
-not proof of that host's discovery. The JSON reply supplies an exact current-task
-launcher. `doctor`, `access`, `open <card-id>`, `update --offline`, `rollback` and
+not proof of that host's discovery. The JSON reply supplies the installed owned task
+launcher. Its ready frame binds the exact generation selected at session start. `doctor`, `access`, `open <card-id>`, `update --offline`, `rollback` and
 `uninstall` are suffixes for this same bootstrap entry. Never use the unpublished
 registry command as a local evaluation shortcut.
 
@@ -81,7 +81,13 @@ instructions/config remain owned by their existing installer; resolve through
 that installer and explicit setup/restart. This candidate uses a delivery-local
 ownership receipt outside versions; it never silently migrates legacy receipts.
 
-Readiness is bounded and non-mutating, with no fetch, Card read, vault write,
+Read-only MCP initialize/discovery does not start the job. Its trusted use signal
+follows admission of the original execution task. Status distinguishes running,
+selected, retained previous and pending; retained previous is not a safety grant.
+Unknown legacy rollback is held; use its original reviewed bootstrap for explicit
+legacy recovery.
+
+Readiness binds the actual compiled runtime version to its manifest and is bounded and non-mutating, with no fetch, Card read, vault write,
 Capture or trial. Already validated retired/revoked builds cannot become an
 automatic fallback; unavailable network/policy does not block installed work.
 Pre-operation failures quarantine the exact digest and retain/restore allowed A

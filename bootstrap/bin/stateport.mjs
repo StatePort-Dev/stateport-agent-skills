@@ -3,7 +3,7 @@ import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
-import { installCandidate, readCurrent, rollback, withInstallTransaction } from '../lib/install.mjs';
+import { installCandidate, readCurrent, withInstallTransaction } from '../lib/install.mjs';
 import { installPublishedRelease } from '../lib/release.mjs';
 import { readUpdatePolicy, setUpdatePolicy } from '../lib/update-policy.mjs';
 import { updateStatus, checkForUpdates, selectSessionRuntime, rollbackGeneration } from '../lib/updates.mjs';
@@ -71,9 +71,9 @@ async function main() {
   }
   if (command === 'rollback') {
     if (args.length) throw Error('INVALID_ARGUMENTS');
-    const current = await readCurrent(cache), policy = await readUpdatePolicy(cache);
+    const policy = await readUpdatePolicy(cache);
     if (policy.mode === 'pinned') throw Error('PIN_RELEASE_REQUIRED');
-    const runtime = current?.generation ? await rollbackGeneration(cache) : await rollback(cache);
+    const runtime = await rollbackGeneration(cache);
     write({ status: 'rolled_back', runtime: runtime.productVersion, setup: await run(runtime, ['setup'], true), hostDiscovered: 'unverified' }); return;
   }
   let source, manifestSha256, agent, offline = false, confirmDownload, consentUpdates = false;
@@ -120,9 +120,9 @@ async function main() {
   const setup = await run(runtime, agent ? ['setup', '--agent', agent] : ['setup'], true);
   write({ status: 'candidate_installed', version: runtime.productVersion, unchanged: runtime.unchanged, doctor, setup,
     cache: offline ? 'verified_offline' : 'verified', hostDiscovered: 'unverified', updates: { mode: (await readUpdatePolicy(cache)).mode, delivery: 'candidate', launcher }, currentTask: {
-      command: process.execPath, args: [runtime.entry, 'task-session'], protocol: 'agent-task-session/1',
+      command: process.execPath, args: [launcher ?? runtime.entry, 'task-session'], selection: 'verified_at_new_session_start', protocol: 'agent-task-session/1',
       version: runtime.productVersion, digest: runtime.digest, generation: runtime.generation,
-      input: 'Keep this host execution session and stdin open. First JSON line has project, scope, optional deadlineMs. Example for an originally authorized fix task: {"project":"/absolute/original/project","scope":{"userRequestedTask":true,"intent":"fix_verify","sourceOrigins":["http://127.0.0.1:3000"],"frontendOrigins":["http://127.0.0.1:3001"],"stateCardIds":[]},"deadlineMs":600000}. Replace project/origins/Card IDs from the original user task; installation grants no scope. Then JSON lines: operation tools; operation call with requestId/name/arguments; operation close.',
+      input: 'The installed version below is an offer; the ready frame binds the selected runtime at new-session start. Keep this host execution session and stdin open. First JSON line has project, scope, optional deadlineMs. Example for an originally authorized fix task: {"project":"/absolute/original/project","scope":{"userRequestedTask":true,"intent":"fix_verify","sourceOrigins":["http://127.0.0.1:3000"],"frontendOrigins":["http://127.0.0.1:3001"],"stateCardIds":[]},"deadlineMs":600000}. Replace project/origins/Card IDs from the original user task; installation grants no scope. Then JSON lines: operation tools; operation call with requestId/name/arguments; operation close.',
       permissions: 'Use normal host approval for this exact runtime command when required. Installation does not grant browser, project or task permissions.',
     }, published: false });
 }

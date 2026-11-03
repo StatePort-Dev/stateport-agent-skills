@@ -45,8 +45,10 @@ function validateAssets(document) {
 }
 export async function download(url, maximumBytes, fetcher, options = {}) {
   url = trustedUrl(url);
+  const timeout = AbortSignal.timeout(options.timeoutMs ?? 120_000);
+  const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
   for (let hop = 0; hop <= 5; hop++) {
-    const response = await fetcher(url, { redirect: 'manual', credentials: 'omit', referrerPolicy: 'no-referrer', signal: options.signal ? AbortSignal.any([options.signal, AbortSignal.timeout(options.timeoutMs ?? 120_000)]) : AbortSignal.timeout(options.timeoutMs ?? 120_000) });
+    const response = await fetcher(url, { redirect: 'manual', credentials: 'omit', referrerPolicy: 'no-referrer', signal });
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = response.headers.get('location'); await response.body?.cancel();
       if (!location) throw Error('RELEASE_HTTP'); url = trustedUrl(new URL(location, url).href); continue;
@@ -101,7 +103,7 @@ export async function installReleaseDocument(document, cache, fetcher = fetch, o
 }
 
 function semverParts(value) {
-  if (typeof value !== 'string' || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?$/.test(value)) throw Error('RELEASE_VERSION');
+  if (typeof value !== 'string' || value.length > 128 || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?$/.test(value)) throw Error('RELEASE_VERSION');
   const [base, ...suffix] = value.split('-');
   const parts = base.split('.').map(Number);
   if (parts.some(part => !Number.isSafeInteger(part))) throw Error('RELEASE_VERSION');

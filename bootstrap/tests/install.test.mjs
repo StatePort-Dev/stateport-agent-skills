@@ -67,6 +67,11 @@ test('requires the new archive declaration for 1.2 while retaining legacy manife
   manifest.archiveFormat = 'ustar+pax-path/1';
   assert.equal((await installCandidate({ source, cache, manifestSha256: await save() })).productVersion, manifest.productVersion);
 }));
+test('bounds candidate version labels before any selection or execution', () => fixture(async ({ source, cache, manifest, save }) => {
+  manifest.productVersion = '1.0.0-' + 'a'.repeat(512);
+  await assert.rejects(installCandidate({ source, cache, manifestSha256: await save() }), /MANIFEST_INVALID/);
+  assert.equal(await readCurrent(cache), undefined);
+}));
 test('refuses concurrent or uncertain interrupted ownership while retaining the working pointer', () => fixture(async ({ source, cache, manifest, save }) => {
   const first = await installCandidate({ source, cache, manifestSha256: await save() });
   manifest.productVersion = '1.0.0-rc.4'; const nextDigest = await save();

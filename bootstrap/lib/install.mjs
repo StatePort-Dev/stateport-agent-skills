@@ -36,7 +36,7 @@ export async function bytes(path, maximumBytes) {
   } finally { await handle.close(); }
 }
 function manifest(value) {
-  if (!value || !['agent-runtime-candidate/1.0.0','agent-runtime-candidate/1.1.0','agent-runtime-candidate/1.2.0'].includes(value.schemaVersion) || value.entry !== 'main.cjs' || value.nodeCandidate !== '24.x' || typeof value.productVersion !== 'string' || !/^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/.test(value.productVersion)) throw Error('MANIFEST_INVALID');
+  if (!value || !['agent-runtime-candidate/1.0.0','agent-runtime-candidate/1.1.0','agent-runtime-candidate/1.2.0'].includes(value.schemaVersion) || value.entry !== 'main.cjs' || value.nodeCandidate !== '24.x' || typeof value.productVersion !== 'string' || value.productVersion.length > 128 || !/^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/.test(value.productVersion)) throw Error('MANIFEST_INVALID');
   if (value.schemaVersion === 'agent-runtime-candidate/1.2.0' && value.archiveFormat !== 'ustar+pax-path/1') throw Error('MANIFEST_INVALID');
   if (value.platform !== process.platform || value.arch !== process.arch) throw Error('PLATFORM_MISMATCH');
   if (!Array.isArray(value.files) || value.files.length < 1 || value.files.length > 4096) throw Error('MANIFEST_INVALID');
@@ -149,6 +149,10 @@ export async function readInstalled(cache, manifestSha256) {
 export async function readCurrent(cache) {
   const current = await pointer(cache); if (!current) return undefined;
   return readInstalled(cache, current.value.current);
+}
+export async function readPrevious(cache) {
+  const current = await pointer(cache);
+  return current?.value.previous ? readInstalled(cache, current.value.previous) : undefined;
 }
 async function stageVerified({ source, cache, manifestSha256 }) {
   source = resolve(source);

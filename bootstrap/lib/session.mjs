@@ -14,21 +14,31 @@ export async function launchSession({ cache, runtime, trust, args }) {
   const selected = newSession ? await selectSessionRuntime(cache, trust) : runtime;
   const child = fork(selected.entry, args, { stdio: ['inherit', 'inherit', 'inherit', 'ipc'], windowsHide: true });
   let ready = !newSession;
-  child.on('message', message => { if (message?.protocol === 'agent-launch-ready/1') ready = true; });
   let job;
   const stopJob = () => {
     if (!job || job.exitCode !== null) return;
     job.send?.({ operation: 'abort' }, () => {});
     const timer = setTimeout(() => { if (job.exitCode === null) job.kill(); }, 1000); timer.unref();
   };
-  if (newSession && trust.status === 'published') {
+  const startJob = () => {
+    if (!newSession || trust.status !== 'published' || job) return;
     // Trusted runtime-owned implementation, finite IPC owner and hard ceiling.
     job = fork(fileURLToPath(new URL('update-job.mjs', import.meta.url)), [], { stdio: ['ignore', 'ignore', 'ignore', 'ipc'], windowsHide: true });
     job.on('error', () => {});
+    job.on('message', message => {
+      if (message?.protocol === 'agent-update-notice/1' && typeof message.version === 'string'
+        && /^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/.test(message.version) && /^[a-f0-9]{64}$/.test(message.digest)) {
+        process.stderr.write(`StatePort ${message.version} available. Check updates status.\n`);
+      }
+    });
     job.send({ operation: 'check', cache, trust });
     const maximum = setTimeout(stopJob, 131_000); maximum.unref();
     job.once('exit', () => clearTimeout(maximum));
-  }
+  };
+  child.on('message', message => {
+    if (message?.protocol === 'agent-launch-ready/1') ready = true;
+    if (message?.protocol === 'agent-update-use/1') startJob();
+  });
   const signals = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGBREAK'];
   const handlers = signals.map(signal => {
     const handler = () => { stopJob(); try { child.kill(signal); } catch { child.kill(); } };
