@@ -84,7 +84,7 @@ export async function checkForUpdates(cache, trust, options = {}) {
       let notice;
       try {
         const signal = options.signal ? AbortSignal.any([options.signal, AbortSignal.timeout(130_000)]) : AbortSignal.timeout(130_000);
-        const envelope = JSON.parse((await download(config.url, 2 * 1024 * 1024, options.fetcher ?? fetch, { signal, timeoutMs: 5_000 })).toString('utf8'));
+        const envelope = JSON.parse((await download(config.url, 2 * 1024 * 1024, options.fetcher ?? fetch, { signal, timeoutMs: 5_000, metadataChannel: policy.channel })).toString('utf8'));
         const verified = verifyChannelEnvelope(envelope, config, state.water[policy.channel]);
         const document = verified.document, asset = assetFor(document, current.browserPreference);
         // A channel never replaces an installed version with different bytes.

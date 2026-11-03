@@ -22,7 +22,8 @@ test('CLI update status is read-only; Auto requires consent and Notify remains t
   assert.equal((await run(['updates', 'check'])).status, 'not_configured');
 }));
 test('new bootstrap never selects an unqualified legacy rollback as an automatic safe previous generation', () => updateFixture(async f => {
-  const data = join(f.root, 'data'), cache = join(data, 'StatePort/agent-runtime');
+  const data = join(f.root, 'data');
+  const cache = process.platform === 'darwin' ? join(f.root, 'Library/Caches/StatePort/agent-runtime') : join(data, 'StatePort/agent-runtime');
   const raw = JSON.parse(await readFile(join(f.source, 'candidate.json'), 'utf8')); delete raw.generation;
   for (const version of ['1.0.0-rc.3', '1.0.0-rc.4']) {
     raw.productVersion = version; const bytes = JSON.stringify(raw);

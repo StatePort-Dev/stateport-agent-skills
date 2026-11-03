@@ -135,3 +135,17 @@ test('an unavailable exact pin never silently launches a different installed gen
   await assert.rejects(selectSessionRuntime(f.cache, f.trust), /UPDATE_PIN_UNAVAILABLE/);
   assert.equal((await readCurrent(f.cache)).digest, f.installed.digest);
 }));
+
+test('authenticates the stable channel endpoint and keeps payload downloads on immutable release URLs', () => updateFixture(async f => {
+  f.trust.url = 'https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/rc.json';
+  await setUpdatePolicy(f.cache, { mode: 'auto', consent: true });
+  assert.equal((await checkForUpdates(f.cache, f.trust, { fetcher: f.fetcher, readiness: async () => true, force: true })).status, 'pending_next_session');
+  assert.equal(f.requests[0].url, f.trust.url);
+  assert.equal(f.requests[1].url, f.b.asset.url);
+  const envelope = f.getEnvelope(); envelope.signature = 'a'.repeat(88);
+  const result = await checkForUpdates(f.cache, f.trust, { fetcher: f.fetcher, force: true });
+  assert.equal(result.status, 'pending_next_session', 'previous authenticated pending payload remains available');
+  assert.equal((await updateStatus(f.cache)).hold, 'UPDATE_CHECK_FAILED');
+  assert.equal(f.requests.length, 3, 'invalid signature never downloads another runtime');
+  assert.equal((await readCurrent(f.cache)).digest, f.installed.digest);
+}));

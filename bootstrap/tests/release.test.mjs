@@ -69,3 +69,16 @@ test('authenticates the complete downloaded closure before switching and require
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('mutable signed channel metadata has a narrow existing-repository endpoint; runtime assets cannot use it', async () => {
+  const { download } = await import('../lib/release.mjs');
+  const url = 'https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/rc.json';
+  const fetcher = async () => new Response('{}');
+  assert.equal((await download(url, 100, fetcher, { metadataChannel: 'rc' })).toString(), '{}');
+  await assert.rejects(download(url, 100, fetcher), /RELEASE_URL/);
+  for (const bad of [url.replace('/rc.json', '/beta.json'), url.replace('/main/', '/other/'), url.replace('stateport-releases', 'other'), url + '?x=1', url + '#x', url.replace('https:', 'http:'), url.replace('raw.', 'user@raw.')]) {
+    await assert.rejects(download(bad, 100, fetcher, { metadataChannel: 'rc' }), /RELEASE_URL/);
+  }
+  await assert.rejects(download(url, 100, async () => new Response(null, { status: 302, headers: { location: url.replace('/rc.json', '/beta.json') } }), { metadataChannel: 'rc' }), /RELEASE_URL/);
+  await assert.rejects(download(url, 100, async () => new Response(null, { status: 302, headers: { location: 'https://example.com/channel.json' } }), { metadataChannel: 'rc' }), /RELEASE_URL/);
+});

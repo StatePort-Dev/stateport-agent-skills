@@ -13,6 +13,16 @@ export function trustedUrl(value) {
   if (url.hostname === 'github.com' && !url.pathname.startsWith('/StatePort-Dev/stateport-releases/releases/download/')) throw Error('RELEASE_URL');
   return url.href;
 }
+function trustedMetadataUrl(value, channel) {
+  if (!['stable', 'beta', 'rc'].includes(channel)) throw Error('RELEASE_URL');
+  const url = new URL(value);
+  if (url.hostname !== 'raw.githubusercontent.com') return trustedUrl(value);
+  // Only the signed channel document may be mutable. Runtime archives still
+  // use immutable release assets and never inherit this metadata exception.
+  if (url.protocol !== 'https:' || url.username || url.password || url.port || url.search || url.hash
+    || url.pathname !== `/StatePort-Dev/stateport-releases/main/channels/${channel}.json`) throw Error('RELEASE_URL');
+  return url.href;
+}
 function signedDocument(envelope, config, pinned = true) {
   if (config.status !== 'published') throw Error('RELEASE_UNPUBLISHED');
   if (!config.publicKey || envelope?.keyId !== config.keyId) throw Error('RELEASE_KEY');
@@ -44,14 +54,15 @@ function validateAssets(document) {
   return document;
 }
 export async function download(url, maximumBytes, fetcher, options = {}) {
-  url = trustedUrl(url);
+  const validateUrl = options.metadataChannel === undefined ? trustedUrl : value => trustedMetadataUrl(value, options.metadataChannel);
+  url = validateUrl(url);
   const timeout = AbortSignal.timeout(options.timeoutMs ?? 120_000);
   const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
   for (let hop = 0; hop <= 5; hop++) {
     const response = await fetcher(url, { redirect: 'manual', credentials: 'omit', referrerPolicy: 'no-referrer', signal });
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = response.headers.get('location'); await response.body?.cancel();
-      if (!location) throw Error('RELEASE_HTTP'); url = trustedUrl(new URL(location, url).href); continue;
+      if (!location) throw Error('RELEASE_HTTP'); url = validateUrl(new URL(location, url).href); continue;
     }
     if (!response.ok || !response.body) throw Error('RELEASE_HTTP');
     const chunks = []; let size = 0;

@@ -110,3 +110,11 @@ Before public delivery: qualify this release chain, controlled npm
 name/trusted publisher, archive/download and interruption recovery,
 product distribution terms, all three native hosts and complete agent workflows
 remain required. Candidate file tests do not prove any of those gates.
+
+Prepared update metadata uses only the selected signed JSON at
+`https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/rc.json`
+(or the explicitly selected `beta.json`/`stable.json`). Wrong repository, branch,
+channel, query, fragment and credential-bearing raw URLs are rejected, including
+redirects. Runtime archives cannot use this metadata exception. The independent
+Ed25519 signature and replay/downgrade checks remain required. This source
+candidate does not enable or publish that endpoint.
