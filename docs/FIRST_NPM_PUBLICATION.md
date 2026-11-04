@@ -1,28 +1,37 @@
 # First npm publication with provenance
 
-A fresh package has no existing trusted-publisher binding. Prepare the exact
-bootstrap archive and keyless provenance in the manual `Prepare first-publish
-provenance` GitHub workflow. It uses the pinned npm builder and performs no npm
-registry mutation. Verify the source commit, archive SHA-256 and Sigstore subject
-from its artifact before publication.
+Prepare the exact transparent bootstrap archive and keyless provenance in the
+manual `Prepare first-publish provenance` workflow. It checks the public source
+commit, package version and archive SHA-256, verifies its Sigstore bundle and
+performs no npm registry write. Download and verify the exact tarball and bundle
+before publication.
 
-An authenticated maintainer can publish that exact archive using npm's documented
-`--provenance-file` option and complete the normal 2FA ceremony. The archived bootstrap requests automatic provenance in its publication metadata.
-The exact publisher must reconcile that setting with an explicit provenance file;
-current CLI option exclusivity must be checked before executing a publication.
-The workflow prepares verified evidence only, not an already validated first-publish
-transport. Do not omit provenance or assume a CLI upgrade resolves the metadata
-interaction. No registry write or delayed retry is scheduled by this workflow.
-After the real version exists, configure the exact `publish-agent.yml` trusted
-publisher for subsequent CI releases. Do not send login credentials to CI.
+The bootstrap's `publishConfig` specifies public access and the npm registry.
+It does not choose a provenance mode. Select exactly one at publication time:
 
-Avoid bootstrapping the registry by staging the real target version: it blocks
-direct publication of that version until approved or rejected. For a new package,
-staging creates a public placeholder. Rejecting its only staged version can remove
-the entire placeholder package and trigger npm's 24-hour republishing restriction.
-Do not reject the last stage to make room for an automated first publish.
+- First publication by an authenticated maintainer: npm 12.2.1 with the verified
+  `--provenance-file=/absolute/path/to/stateport-VERSION.tgz.sigstore`.
+- Subsequent reviewed trusted-publisher CI: the existing `publish-agent.yml`
+  uses OIDC and explicit `--provenance`.
 
-References: [npm provenance](https://docs.npmjs.com/generating-provenance-statements/),
-[provenance-file](https://docs.npmjs.com/cli/v12/commands/npm-publish/),
+Do not combine `--provenance` (including a false flag) with `--provenance-file`,
+move the file option into an environment variable to evade validation, omit
+provenance, or change a tarball after its attestation. Use the normal npm login
+and 2FA flow; never send login credentials to CI or chat. The first exact
+archive/Sigstore transport must pass the real CLI loopback test before a registry
+write. A mock registry pass is separate from actual npm publication.
+
+Publish the real target archive directly with `--access public --tag latest --ignore-scripts`, after any recorded registry cooldown. Confirm the registry
+integrity, attached provenance, exact latest tag and a fresh named installation.
+Configure or verify the exact trusted publisher after the real package exists.
+
+Do not stage the target version to bootstrap the registry. Staging a new package
+creates a placeholder; rejecting its sole staged version can delete that
+placeholder and trigger npm's 24-hour republishing restriction. Do not reject the
+last stage to make room for an automated first publish. This workflow schedules
+no delayed registry write.
+
+References: [npm publish](https://docs.npmjs.com/cli/v12/commands/npm-publish/),
+[provenance](https://docs.npmjs.com/generating-provenance-statements/),
 [staged publishing](https://docs.npmjs.com/staged-publishing/),
 [unpublish policy](https://docs.npmjs.com/policies/unpublish/).
