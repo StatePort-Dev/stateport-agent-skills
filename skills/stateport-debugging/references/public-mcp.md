@@ -9,6 +9,7 @@ schema. Source coverage is not host workflow verification.
 | Task | Public operations | Guidance |
 | --- | --- | --- |
 | Discover useful assistance | `get_workflow_capability` | Independent source broker, live verification and Capture; reuse one discovery result |
+| Start trial, purchase or recover access from chat | `open_developer_access` when advertised | [Human-only access](developer-access.md); explicit user acceptance, no email/codes/payment in chat |
 | Explain material source choices | `begin_source_review`, `prepare_source_observations` | [Source observations](source-observations.md); only when advertised, no Card or browser run |
 | Choose and inspect a Card | `list_states`, `inspect_state` | Use the exact supplied Card; list only when selection is needed |
 | Read existing evidence | `get_state_history`, `read_console_evidence` | Exact-Card terminal history and redacted baseline console events |

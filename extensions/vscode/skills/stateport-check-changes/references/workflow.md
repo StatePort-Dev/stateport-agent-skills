@@ -44,6 +44,8 @@ The [operation map](public-mcp.md) is guidance, not a substitute for discovery.
 An unavailable Capture feature does not disable inspection, replay or transfer.
 Stop only the affected operation on an actual denial and give the smallest
 useful recovery action. Continue independent parts of the user's task.
+For first-use trial offers and expired Developer access, follow
+[access from chat](developer-access.md); free work never waits for a trial.
 
 Use the runtime's managed Page for Capture. An unrelated browser does not
 contribute evidence to that recording. Check the execution target before

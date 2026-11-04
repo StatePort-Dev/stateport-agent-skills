@@ -36,6 +36,11 @@ exposing local MCP through tunnels. On
 failure/cancellation use supported cleanup; never delete another owner's session
 or the source Card. Unsupported remote topology remains a reported gap.
 
+Trial and purchase are separate human choices: an ordinary case request never
+starts them automatically. Follow [Developer access from chat](developer-access.md)
+for one optional first-use offer or a required-operation recovery; retain the
+original case authority and keep email/codes/payment details out of chat.
+
 # Fix & Verify
 
 Use public schemas and begin_agent_task `responseMode: text` (structured only if

@@ -71,3 +71,14 @@ The [update policy source candidate](VERSIONING_AND_UPDATES.md#node-runtime-upda
 adds explicit Auto/Notify/Pinned controls over the same verified delivery chain.
 Its real three-platform A→B/model/trust acceptance and public rollout are separate
 from the retained earlier runtime evidence. No provider status is upgraded.
+
+
+### Chat access source candidate
+
+Compatible Node recovery1.2 advertises a first-use trial or expired-access purchase
+action and optional `open_developer_access` host action. It opens the human-only
+window from chat; the existing official plans checkout, verified-email trial and
+signed activation remain authoritative. No automatic trial/purchase, secrets in
+chat or repeated Capture/setup. Retained localCommand is a fallback for older
+hosts. This source addition is not part of the already published GitHub RC4 and
+does not promote native/provider compatibility; discover the actual runtime.
