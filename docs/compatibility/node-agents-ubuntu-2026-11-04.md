@@ -85,3 +85,27 @@ performance or token-savings claim follows from these tests.
 Provider aggregate statuses, automatic-delivery qualification and historical
 Desktop setup evidence are unchanged. Readiness, setup, skill loading, actual
 MCP operations, same-chat continuation and complete fix/verify are separate gates.
+
+## Matching-HOME Cursor follow-up
+
+A later setup-only check corrected the original manual-enable/alias interpretation.
+The initial installer used a separate QA HOME while the running IDE read its
+normal HOME. The project workaround therefore needed native enable and a distinct
+name. These are not intrinsic requirements of the normal user-scope installer.
+
+With installer and IDE using the same isolated HOME, actual Cursor IDE 3.27.22
+showed the canonical user `stateport` automatically Connected, **64 tools enabled**:
+zero manual MCP JSON edits, aliases or Enable clicks. Its exact Node process was
+confirmed. This used a new local source candidate (main.cjs SHA
+`b4a3f04a411bc5271702d001f389a6d382c1ebc83c4b39634703a8cd7bb11ed5`),
+not a replacement published GitHub RC. The candidate additionally reports the
+exact `configuration.scope/path/serverName` in setup output and preserves foreign
+or user-disabled entries; it does not alter native approval policy.
+
+This is IDE setup/discovery proof with zero model turns, not a new Capture/fix
+qualification or same-chat bridge result. Original workflow attempts above remain
+historical to their tested scope. The final application scope had verified 4 GiB,
+zero-swap and one-CPU limits: peak 1.39 GiB, elapsed 39.910 seconds, no OOM, closed.
+Earlier launcher-only limits missed an adopted application scope; its observed
+peak was 6.31 GiB and the owned remainder was closed. These are harness/resource
+facts, not StatePort-only memory measurements or a performance benchmark.

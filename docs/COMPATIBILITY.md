@@ -68,3 +68,7 @@ licensed same-case fix/verify and human Open remain unqualified. Claude Code
 was not run. This is neither broad support nor a result for other operating
 systems. Registry evidence is scoped under `agentRuntime`; aggregate status and
 legacy `desktopSetup` records remain unchanged.
+
+The [Cursor matching-HOME follow-up](compatibility/node-agents-ubuntu-2026-11-04.md#matching-home-cursor-follow-up)
+adds actual IDE automatic user MCP discovery without manual aliases/enable.
+It corrects the original QA scope mismatch, not the open licensed/model gates.

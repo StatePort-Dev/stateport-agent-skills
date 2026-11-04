@@ -7,6 +7,12 @@ continuity and future-session MCP are separate. The
 records exact Node-only results and open gates. Published Desktop instructions
 below retain their separate historical scope.
 
+The [matching-HOME follow-up](../../docs/compatibility/node-agents-ubuntu-2026-11-04.md#matching-home-cursor-follow-up)
+confirmed automatic user `stateport` connection in Cursor IDE 3.27.22 without
+manual MCP edits, an alias or Enable. Earlier project fallback steps resulted
+from different installer/IDE HOME directories. Full model Fix & Verify and
+current-chat foreground continuity remain unqualified.
+
 The portable StatePort Agent Plugin is a source candidate for Cursor. Local
 plugin loading and a complete StatePort workflow remain unverified. The package
 contains five generated canonical skills and no bundled runtime or automatic MCP

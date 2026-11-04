@@ -36,6 +36,13 @@ installation delivers runtime + skills + MCP; a prompt was used to test
 agent-driven installation, not to introduce a permanent extra setup step.
 Same-chat bridge, new-session discovery and signed access remain separate.
 
+For Cursor, the [matching-HOME follow-up](docs/compatibility/node-agents-ubuntu-2026-11-04.md#matching-home-cursor-follow-up)
+confirmed automatic canonical user MCP discovery without a project alias or Enable
+click. Run CLI setup in the same user environment as the IDE; a config written
+under another HOME is not visible to it. New candidate setup output identifies
+that exact path. Native approval policy and foreign/disabled entries remain
+protected. This source change has not replaced the published RC.
+
 ## Desktop setup button
 
 If your installed Desktop offers **Install skills and connect**, use that button
