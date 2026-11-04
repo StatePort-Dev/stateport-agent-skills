@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.0-beta.82 (Node RC source)
+
+- Offer the eligible trial, expired-access purchase or existing-access recovery from the current chat.
+- Discover the optional human-only access action; keep email, codes and payments outside agent output.
+- Preserve the original Card and operation through access completion; Free Capture remains available after expiry.
+- Retain scoped Ubuntu host evidence without promoting unqualified provider/native support.
+
 ## 0.1.0-beta.81 (local source candidate)
 
 - Add transparent compatible-update policy/launcher source and canonical frozen-session instructions.
@@ -34,7 +41,7 @@
 
 ## Unreleased
 
-Current integration source: <!-- integration-version:start -->`0.1.0-beta.81`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
+Current integration source: <!-- integration-version:start -->`0.1.0-beta.82`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
 
 ### User setup
 
