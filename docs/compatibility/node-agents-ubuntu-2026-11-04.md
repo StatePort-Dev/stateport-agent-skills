@@ -109,3 +109,11 @@ zero-swap and one-CPU limits: peak 1.39 GiB, elapsed 39.910 seconds, no OOM, clo
 Earlier launcher-only limits missed an adopted application scope; its observed
 peak was 6.31 GiB and the owned remainder was closed. These are harness/resource
 facts, not StatePort-only memory measurements or a performance benchmark.
+
+
+Licensed Ubuntu follow-up: [exact surface results](node-agents-ubuntu-2026-11-04-licensed.md). Copilot CLI and
+VS Code completed actual same-case fix/verify and cold browser reuse; manual setup
+and same-chat boundaries remain. Cursor licensed model verification hit included
+quota; Claude Code model access remains unqualified. Aggregate provider and legacy
+Desktop statuses are unchanged. This is scoped signed-GitHub-RC evidence, not an
+npm registry installation or all-platform support claim.

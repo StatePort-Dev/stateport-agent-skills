@@ -72,3 +72,11 @@ legacy `desktopSetup` records remain unchanged.
 The [Cursor matching-HOME follow-up](compatibility/node-agents-ubuntu-2026-11-04.md#matching-home-cursor-follow-up)
 adds actual IDE automatic user MCP discovery without manual aliases/enable.
 It corrects the original QA scope mismatch, not the open licensed/model gates.
+
+
+Licensed Ubuntu follow-up: [exact surface results](compatibility/node-agents-ubuntu-2026-11-04-licensed.md). Copilot CLI and
+VS Code completed actual same-case fix/verify and cold browser reuse; manual setup
+and same-chat boundaries remain. Cursor licensed model verification hit included
+quota; Claude Code model access remains unqualified. Aggregate provider and legacy
+Desktop statuses are unchanged. This is scoped signed-GitHub-RC evidence, not an
+npm registry installation or all-platform support claim.

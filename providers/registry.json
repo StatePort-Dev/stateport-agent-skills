@@ -219,6 +219,15 @@
             "platform": "linux-x64 (Ubuntu 24.04.5)",
             "report": "docs/compatibility/node-agents-ubuntu-2026-11-04.md",
             "scope": "Model-free explicit setup/repeat/conflict/remove only; model auth absent. No actual model workflow."
+          },
+          {
+            "hostVersion": "2.1.317",
+            "runtimeVersion": "1.0.0-rc.4 signed GitHub RC; npm registry unpublished",
+            "skillVersion": "0.1.0-beta.81",
+            "date": "2026-11-04",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/node-agents-ubuntu-2026-11-04-licensed.md",
+            "scope": "Normal login reports subscription prerequisite; model-free setup only. No model workflow, API fallback or paid upgrade."
           }
         ],
         "automaticDelivery": {
@@ -260,6 +269,15 @@
             "platform": "linux-x64 (Ubuntu 24.04.5)",
             "report": "docs/compatibility/node-agents-ubuntu-2026-11-04.md",
             "scope": "Native Local Agent UI, isolated trust/config preflight only; sign-in required, no actual model or MCP operation."
+          },
+          {
+            "hostVersion": "VS Code 1.144.0 / built-in Copilot Chat 0.72.0",
+            "runtimeVersion": "1.0.0-rc.4 signed GitHub RC; npm registry unpublished",
+            "skillVersion": "0.1.0-beta.81",
+            "date": "2026-11-04",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/node-agents-ubuntu-2026-11-04-licensed.md",
+            "scope": "Actual Local Agent normal GitHub login, Capture/Review/Save, same-case changed-build verification and new-process browser reuse. Manual project MCP; clean same-chat install unqualified. Later native no-brand/reverted-source/fake-case and missing-Developer-access controls preserve fresh failure/typed gates; host deadline cleanup is separate from native UI Cancel."
           }
         ],
         "automaticDelivery": {
@@ -301,6 +319,15 @@
             "platform": "linux-x64 (Ubuntu 24.04.5)",
             "report": "docs/compatibility/node-agents-ubuntu-2026-11-04.md",
             "scope": "Manual Node MCP and exact skills; actual Free Capture/Review/Save and cold Inspect only. Automatic adapter and same-chat bridge unqualified; signed-access fix/verify blocked."
+          },
+          {
+            "hostVersion": "1.0.105",
+            "runtimeVersion": "1.0.0-rc.4 signed GitHub RC; npm registry unpublished",
+            "skillVersion": "0.1.0-beta.81",
+            "date": "2026-11-04",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/node-agents-ubuntu-2026-11-04-licensed.md",
+            "scope": "Exact standalone CLI model same-case FAIL/edit/changed-build PASS and cold browser reuse; cancellation/unavailable/reverted-source controls. Manual MCP; native stdin continuation probe limited."
           }
         ],
         "automaticDelivery": {
@@ -430,6 +457,15 @@
             "platform": "linux-x64 (Ubuntu 24.04.5)",
             "report": "docs/compatibility/node-agents-ubuntu-2026-11-04.md",
             "scope": "Matching-HOME setup-only follow-up: actual IDE automatically Connected canonical user stateport, 64 tools, zero manual alias/enable/JSON edits. Zero model turns; full workflow/bridge remains unqualified."
+          },
+          {
+            "hostVersion": "3.27.22",
+            "runtimeVersion": "1.0.0-rc.4 signed GitHub RC; npm registry unpublished",
+            "skillVersion": "0.1.0-beta.81",
+            "date": "2026-11-04",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/node-agents-ubuntu-2026-11-04-licensed.md",
+            "scope": "Actual licensed saved-case Open; initial HARNESS resource-guardian expiration then corrected model run exhausted included quota. Full model fix/verify unqualified; no source edit."
           }
         ],
         "automaticDelivery": {

@@ -59,3 +59,11 @@ Local copies are user-managed: replace the complete reviewed plugin directory
 or update its selected checkout, then restart the host. Current status and
 version-bound reports are collected in the
 [compatibility inventory](../../docs/COMPATIBILITY.md).
+
+
+Licensed Ubuntu follow-up: [exact surface results](../../docs/compatibility/node-agents-ubuntu-2026-11-04-licensed.md). Copilot CLI and
+VS Code completed actual same-case fix/verify and cold browser reuse; manual setup
+and same-chat boundaries remain. Cursor licensed model verification hit included
+quota; Claude Code model access remains unqualified. Aggregate provider and legacy
+Desktop statuses are unchanged. This is scoped signed-GitHub-RC evidence, not an
+npm registry installation or all-platform support claim.

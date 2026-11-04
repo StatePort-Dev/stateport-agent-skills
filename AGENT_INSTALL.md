@@ -287,3 +287,11 @@ the previous reviewed integration, keep MCP configuration, and report the exact
 failed step. Do not report the new version loaded solely because its catalog
 was refreshed. [Versioning and updates](docs/VERSIONING_AND_UPDATES.md) records
 source/release distinctions and host-specific verification status.
+
+
+Licensed Ubuntu follow-up: [exact surface results](docs/compatibility/node-agents-ubuntu-2026-11-04-licensed.md). Copilot CLI and
+VS Code completed actual same-case fix/verify and cold browser reuse; manual setup
+and same-chat boundaries remain. Cursor licensed model verification hit included
+quota; Claude Code model access remains unqualified. Aggregate provider and legacy
+Desktop statuses are unchanged. This is scoped signed-GitHub-RC evidence, not an
+npm registry installation or all-platform support claim.
