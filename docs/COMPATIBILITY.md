@@ -57,3 +57,14 @@ has bounded native Linux compiled-runtime/MCP A→B and same-Card cold reuse wit
 synthetic signing keys. This does not establish a published update path, native
 Windows/macOS behavior or real model update acceptance. Provider automatic-update
 statuses remain unverified; historical evidence retains its exact versions.
+
+## Bounded Ubuntu Node workflows — 4 November
+
+The [exact Ubuntu agent record](compatibility/node-agents-ubuntu-2026-11-04.md)
+contains actual Copilot CLI 1.0.105 and Cursor IDE 3.27.22 Free Capture/Review/Save
+and cold Inspect after manual configuration. Same-chat foreground continuation,
+licensed same-case fix/verify and human Open remain unqualified. Claude Code
+2.1.317 and VS Code 1.144.0 / Copilot Chat 0.72.0 are account-blocked. Cursor CLI
+was not run. This is neither broad support nor a result for other operating
+systems. Registry evidence is scoped under `agentRuntime`; aggregate status and
+legacy `desktopSetup` records remain unchanged.

@@ -2,8 +2,10 @@
 
 For a validated Node-only candidate, use the
 [shared candidate contract](../../docs/AGENT_RUNTIME_CANDIDATE.md). Same-chat CLI
-continuity and future-session MCP are separate; this provider has no new native
-workflow acceptance. Published Desktop instructions below remain available.
+continuity and future-session MCP are separate. The
+[4 November Ubuntu record](../../docs/compatibility/node-agents-ubuntu-2026-11-04.md)
+records exact Node-only results and open gates. Published Desktop instructions
+below retain their separate historical scope.
 
 The portable StatePort Agent Plugin is a source candidate for Cursor. Local
 plugin loading and a complete StatePort workflow remain unverified. The package

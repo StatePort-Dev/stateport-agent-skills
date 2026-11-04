@@ -210,7 +210,17 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": [],
+        "evidence": [
+          {
+            "hostVersion": "2.1.317",
+            "runtimeVersion": "1.0.0-rc.4 signed GitHub RC; npm registry unpublished",
+            "skillVersion": "0.1.0-beta.81",
+            "date": "2026-11-04",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/node-agents-ubuntu-2026-11-04.md",
+            "scope": "Model-free explicit setup/repeat/conflict/remove only; model auth absent. No actual model workflow."
+          }
+        ],
         "automaticDelivery": {
           "status": "unverified",
           "mode": "source_candidate",
@@ -241,7 +251,17 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": [],
+        "evidence": [
+          {
+            "hostVersion": "1.144.0 / built-in Copilot Chat 0.72.0",
+            "runtimeVersion": "1.0.0-rc.4 signed GitHub RC; npm registry unpublished",
+            "skillVersion": "0.1.0-beta.81",
+            "date": "2026-11-04",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/node-agents-ubuntu-2026-11-04.md",
+            "scope": "Native Local Agent UI, isolated trust/config preflight only; sign-in required, no actual model or MCP operation."
+          }
+        ],
         "automaticDelivery": {
           "status": "unverified",
           "mode": "source_candidate",
@@ -272,7 +292,17 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": [],
+        "evidence": [
+          {
+            "hostVersion": "1.0.105",
+            "runtimeVersion": "1.0.0-rc.4 signed GitHub RC; npm registry unpublished",
+            "skillVersion": "0.1.0-beta.81",
+            "date": "2026-11-04",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/node-agents-ubuntu-2026-11-04.md",
+            "scope": "Manual Node MCP and exact skills; actual Free Capture/Review/Save and cold Inspect only. Automatic adapter and same-chat bridge unqualified; signed-access fix/verify blocked."
+          }
+        ],
         "automaticDelivery": {
           "status": "unverified",
           "mode": "source_candidate",
@@ -382,7 +412,17 @@
           "linux-x64"
         ],
         "guide": "docs/AGENT_RUNTIME_CANDIDATE.md",
-        "evidence": [],
+        "evidence": [
+          {
+            "hostVersion": "3.27.22",
+            "runtimeVersion": "1.0.0-rc.4 signed GitHub RC; npm registry unpublished",
+            "skillVersion": "0.1.0-beta.81",
+            "date": "2026-11-04",
+            "platform": "linux-x64 (Ubuntu 24.04.5)",
+            "report": "docs/compatibility/node-agents-ubuntu-2026-11-04.md",
+            "scope": "Actual IDE Agent, manual unique project Node MCP; Free Capture/Review/Save and cold Inspect only. Same-chat bridge and full licensed fix/verify unqualified."
+          }
+        ],
         "automaticDelivery": {
           "status": "unverified",
           "mode": "source_candidate",

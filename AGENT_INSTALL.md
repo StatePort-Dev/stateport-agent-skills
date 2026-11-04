@@ -27,6 +27,15 @@ uses a stable owned launcher and explicit Auto consent, with Notify as the
 non-interactive default. It never changes a running task or user-edited skills.
 This source does not make automatic updates or the target npm command shipping.
 
+## Exact Ubuntu Node host limits
+
+[4 November qualification](docs/compatibility/node-agents-ubuntu-2026-11-04.md)
+records manual-setup Free Capture/Inspect in Copilot CLI and Cursor IDE, not full
+Fix & Verify. Claude and Copilot VS Code model runs need normal sign-in. CLI
+installation delivers runtime + skills + MCP; a prompt was used to test
+agent-driven installation, not to introduce a permanent extra setup step.
+Same-chat bridge, new-session discovery and signed access remain separate.
+
 ## Desktop setup button
 
 If your installed Desktop offers **Install skills and connect**, use that button
