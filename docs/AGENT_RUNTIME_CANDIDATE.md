@@ -51,7 +51,7 @@ patch is not a user prerequisite. Other LTS ranges remain unqualified.
 
 | Target | Package/native vault | System browser and pinned fallback | Same-chat Codex, cold human Open, next session |
 | --- | --- | --- | --- |
-| Windows 11 x64 | Native CI vault/recovery/Free Capture controls; actual VM bounded RC5 checks | System Edge reviewed Capture/cold reads; pinned archive audited | Full native model/human/trust acceptance pending |
+| Windows 11 x64 | Native CI vault/recovery/Free Capture controls; actual VM named npm/setup/repeat/cold checks | System Edge reviewed Capture/cold reads; pinned archive audited | Full native model/human/trust acceptance pending |
 | macOS Apple Silicon arm64 | Native CI Keychain/recovery/Free Capture controls | System Chrome CI Capture/cold reads; pinned archive audited | Owner-host/model/human/native trust acceptance pending |
 | Ubuntu 24.04 x64 | Native CI and actual host bounded controls; fresh named npm/repeat/cold Card checks | System Chrome reviewed Capture; pinned archive audited | Full RC5 model/human/trust acceptance pending |
 
@@ -62,7 +62,9 @@ only adapter contract preparation; no Claude/Cursor/IDE workflow claim follows.
 
 Update/rollback/uninstall preserve Cards, credentials and signed identity.
 Changed owned skills/config or foreign entries require conflict resolution.
-npm installation and fresh Ubuntu proof are recorded for RC5. Public website
+Named npm installation, reviewed Capture/Save, repeat and new-process cold Inspect
+are recorded for RC5 on Ubuntu and Windows. Windows QA normalizes temporary
+8.3 aliases and retains native OS browser variables; product data stays isolated. Public website
 primary-entry conversion retains its separate acceptance gates; no site deployment
 or marketplace release follows from this package publication.
 

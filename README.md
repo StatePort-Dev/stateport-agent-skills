@@ -47,7 +47,9 @@ Chromium fallback is a separate download, with size and digest shown before cons
 Setup does not start a trial or grant browser/task authority.
 
 Fresh named installation, repeat setup, mandatory Review/Save and cold Card
-inspection passed on Ubuntu 24.04 x64. Exact registry integrity, Sigstore
+inspection passed on Ubuntu 24.04 x64 and Windows 11 x64 (system Chrome/Edge).
+The Windows QA used a canonical product data path and native OS environment.
+These were model-free MCP checks. Exact registry integrity, Sigstore
 provenance and `npm audit signatures` were verified. Native Windows/macOS/Linux
 vault/Capture/concurrency/recovery controls are separate bounded evidence;
 complete native model/human/trust qualification remains unverified. See the
