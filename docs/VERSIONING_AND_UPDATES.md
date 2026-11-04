@@ -1,6 +1,6 @@
 # Integration versions and updates
 
-The [Node Agent Runtime candidate](AGENT_RUNTIME_CANDIDATE.md) has independent
+The [Node Agent Runtime RC](AGENT_RUNTIME_CANDIDATE.md) has independent
 CLI-first current-chat, next-session MCP, Node/browser/OS-vault and three-native-OS
 gates. Source preparation does not upgrade any provider status. The bootstrap
 version is independent of runtime and integration versions; current public
@@ -87,9 +87,8 @@ do not poll for updates; explicitly requested updates follow AGENT_INSTALL.md.
 
 ## Node runtime update policy candidate
 
-Source preparation only; production trust/channel and registry publication remain
-unconfigured. The [transparent bootstrap](../bootstrap/README.md) defines actual
-candidate commands. Auto requires saved explicit consent; old/non-interactive
+RC5 is published on npm with a signed rc channel. The
+[transparent bootstrap](../bootstrap/README.md) defines actual commands. Auto requires saved explicit consent; old/non-interactive
 installs remain Notify. Pinned binds a verified exact version/digest. Repeat setup
 preserves policy and channel. Only an explicit action releases a pin or changes
 channel. Ordinary bug tasks never change these settings on their own.
@@ -120,7 +119,8 @@ in a local backup and requires host restart.
 
 Native Linux compiled A/B with a synthetic signed channel has bounded active
 Capture/MCP and same-Card cold-reuse evidence. That is not a real model conversation,
-Windows/macOS qualification, production publisher proof or a published Auto path.
+full Windows/macOS model/trust qualification or universal automatic compatibility.
+RC4-to-RC5 changes the MCP/skills generation and requires explicit reviewed setup.
 Provider update statuses remain unverified until their exact host workflows pass.
 
 An unavailable exact Node candidate pin does not silently execute different

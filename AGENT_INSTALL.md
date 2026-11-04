@@ -12,20 +12,28 @@ generated from [`integration.json`](integration.json) by `npm run sync` and
 validated by `npm run check`. It is independent of the Desktop version and is
 not a claim about the newest remote source or the version an agent has loaded.
 
-## Node-primary candidate; shipping boundary
+## Node Runtime RC installation
 
-The [Agent Runtime candidate](docs/AGENT_RUNTIME_CANDIDATE.md) uses existing Node,
-shared LocalRuntime and optional Desktop. Its verified bootstrap can configure
-future skills/MCP and return a bounded current-chat CLI continuation. Public npm
-installation is not available yet; do not invent a command or replace current
-published installer steps. Once native acceptance/publication pass, the real
-short npm entry becomes primary. Setup, host discovery, task authority, browser
-readiness and signed access remain distinct. Human access codes never enter chat.
+The [published Node Runtime RC](docs/AGENT_RUNTIME_CANDIDATE.md) uses an existing
+Node.js 24.x/npm installation, the shared local engine and optional Desktop:
 
-The unpublished [update-policy candidate](docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate)
+```sh
+npx stateport
+```
+
+PowerShell: `npx.cmd stateport`. The small transparent bootstrap verifies the
+signed platform runtime and configures owned canonical skills/MCP for the selected
+coding agent. Use its returned finite current-chat continuation when appropriate;
+restart the coding host for next-session MCP discovery. Setup, host discovery,
+task authority, browser readiness and signed access remain distinct. Installation
+does not start a trial. Human access codes never enter chat.
+
+The [update policy](docs/VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate)
 uses a stable owned launcher and explicit Auto consent, with Notify as the
 non-interactive default. It never changes a running task or user-edited skills.
-This source does not make automatic updates or the target npm command shipping.
+Changed contracts or skills require explicit reviewed setup; publication alone
+is not proof of automatic compatibility. Native/model/trust limits remain in the
+Node contract. The Desktop installation sections below are the optional visual path.
 
 ## Exact Ubuntu Node host limits
 

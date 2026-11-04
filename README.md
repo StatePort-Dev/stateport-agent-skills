@@ -30,29 +30,30 @@ dependency-free localhost app with a deliberate bug, a failing regression test,
 a technical walkthrough and an optional StatePort capture/fix task. It uses
 only synthetic data and runs without a StatePort account or installation.
 
-## Node Runtime release candidate — public GitHub download
+## Node Runtime release candidate — npm
 
-A Node.js 24.x release candidate is available from the official
-[Agent Runtime release](https://github.com/StatePort-Dev/stateport-releases/releases/tag/v1.0.0-rc.4-agent.1).
-The short npm registry command `npx stateport` is **not available yet**. The
-pinned GitHub archive can be installed now:
+The published [npm package](https://www.npmjs.com/package/stateport) installs
+StatePort Agent Runtime RC5 with skills beta.82:
 
 ```sh
-npx --yes https://github.com/StatePort-Dev/stateport-releases/releases/download/v1.0.0-rc.4-agent.1/stateport-1.0.0-rc.4.tgz
+npx stateport
 ```
 
-This requires existing Node.js 24.x and a supported system browser. The small
-transparent bootstrap verifies the signed platform runtime, then configures
-owned agent skills/MCP. Desktop is optional for this RC. Explicit pinned-browser
-fallback is a separate download. Installation does not start a trial or grant
-browser/task permissions.
+PowerShell: `npx.cmd stateport`. An existing Node.js 24.x/npm installation is
+required. The transparent bootstrap is about 20 KB and verifies the signed
+platform runtime, about 7 MB with a system browser. It configures owned skills
+and MCP for the selected coding agent. Desktop is optional. Explicit pinned
+Chromium fallback is a separate download, with size and digest shown before consent.
+Setup does not start a trial or grant browser/task authority.
 
-Fresh archive installation, reviewed Free Capture and new-process cold inspection
-were checked on Ubuntu 24.04 x64. Native Windows/macOS/Linux vault/Capture/
-concurrency/recovery controls have separate bounded evidence; complete native
-model/human/trust qualification remains unverified. See the release notes and
-[Node contract](docs/AGENT_RUNTIME_CANDIDATE.md). This is not a claim of full
-all-platform product acceptance. The published Desktop path remains below.
+Fresh named installation, repeat setup, mandatory Review/Save and cold Card
+inspection passed on Ubuntu 24.04 x64. Exact registry integrity, Sigstore
+provenance and `npm audit signatures` were verified. Native Windows/macOS/Linux
+vault/Capture/concurrency/recovery controls are separate bounded evidence;
+complete native model/human/trust qualification remains unverified. See the
+[release notes](https://github.com/StatePort-Dev/stateport-releases/releases/tag/v1.0.0-rc.5-agent.1)
+and [Node contract](docs/AGENT_RUNTIME_CANDIDATE.md). Provider statuses are not
+promoted by package availability. The optional Desktop path remains below.
 
 ## Connect an agent — current published Desktop path
 

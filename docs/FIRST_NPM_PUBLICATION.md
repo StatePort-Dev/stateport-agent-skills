@@ -21,6 +21,11 @@ and 2FA flow; never send login credentials to CI or chat. The first exact
 archive/Sigstore transport must pass the real CLI loopback test before a registry
 write. A mock registry pass is separate from actual npm publication.
 
+Run the maintainer CLI from the reviewed, clean **public source checkout**.
+Legacy registry gitHead and local-file resolution metadata can reflect the caller's
+working directory; they do not replace the verified provenance source. Never use
+a private application checkout as the publisher's working directory.
+
 Publish the real target archive directly with `--access public --tag latest --ignore-scripts`, after any recorded registry cooldown. Confirm the registry
 integrity, attached provenance, exact latest tag and a fresh named installation.
 Configure or verify the exact trusted publisher after the real package exists.

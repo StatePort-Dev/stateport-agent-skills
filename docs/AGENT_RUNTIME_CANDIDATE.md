@@ -1,18 +1,16 @@
-# Agent Runtime source candidate
+# Agent Runtime release candidate
 
-The target primary entry is StatePort Agent Runtime under an existing Node/npm
-installation; Desktop is an optional visual client of the same local engine,
-Cards, protected storage and signed access. Current published installation still
-uses reviewed Desktop installers. The unscoped npm command `npx stateport`
-(PowerShell may use `npx.cmd stateport`) is a target, **not a published quickstart**.
-Name ownership, trusted publisher, native acceptance and publication are unproved.
+[StatePort RC5 is published on npm](https://www.npmjs.com/package/stateport).
+Run `npx stateport` (PowerShell: `npx.cmd stateport`) with existing Node.js 24.x/npm.
+Desktop remains an optional visual client of the same engine, Cards, protected
+storage and signed access. This is a release candidate; package availability does
+not establish full native/model/trust acceptance or upgrade provider statuses.
 
-The [transparent bootstrap source](../bootstrap/README.md) is an unpublished MIT
-candidate. It contains no private engine source, own Node or Electron. A trusted
-local candidate requires an independently supplied payload manifest digest.
-Default public resolution refuses to run until an approved signed release is
-configured. Never install or execute a package solely because its name looks
-right, its registry entry is missing, or a hash arrived with its download.
+The [transparent MIT bootstrap](../bootstrap/README.md) verifies an independently
+pinned Ed25519 release and the full native archive inventory. It contains no private
+engine source, own Node or Electron. The system-browser runtime excludes Chromium;
+the pinned fallback requires a separate explicit download confirmation. Registry
+integrity and cryptographic public-source provenance were verified independently.
 
 ## Current task versus next session
 
@@ -53,9 +51,9 @@ patch is not a user prerequisite. Other LTS ranges remain unqualified.
 
 | Target | Package/native vault | System browser and pinned fallback | Same-chat Codex, cold human Open, next session |
 | --- | --- | --- | --- |
-| Windows 11 x64 | Unverified | Edge then Chrome; unverified | Pending native manual acceptance |
-| macOS Apple Silicon arm64 | Unverified | Chrome; Keychain/native trust unverified | Pending native manual acceptance |
-| Ubuntu 24.04 x64 | Bounded synthetic Node/free-Capture and vault probes only | System Chrome and explicit pinned Chromium launch/free-Capture probes only | Full licensed real-host acceptance pending |
+| Windows 11 x64 | Native CI vault/recovery/Free Capture controls; actual VM bounded RC5 checks | System Edge reviewed Capture/cold reads; pinned archive audited | Full native model/human/trust acceptance pending |
+| macOS Apple Silicon arm64 | Native CI Keychain/recovery/Free Capture controls | System Chrome CI Capture/cold reads; pinned archive audited | Owner-host/model/human/native trust acceptance pending |
+| Ubuntu 24.04 x64 | Native CI and actual host bounded controls; fresh named npm/repeat/cold Card checks | System Chrome reviewed Capture; pinned archive audited | Full RC5 model/human/trust acceptance pending |
 
 No WSL, cross-build, hosted package or two-platform result substitutes for all
 three native workflows. Preserve sandbox, OS security policy, browser-owned
@@ -64,8 +62,9 @@ only adapter contract preparation; no Claude/Cursor/IDE workflow claim follows.
 
 Update/rollback/uninstall preserve Cards, credentials and signed identity.
 Changed owned skills/config or foreign entries require conflict resolution.
-Public site/quickstart conversion follows actual npm publication and fresh
-installation proof; no deployment or marketplace release is implied here.
+npm installation and fresh Ubuntu proof are recorded for RC5. Public website
+primary-entry conversion retains its separate acceptance gates; no site deployment
+or marketplace release follows from this package publication.
 
 The [update policy source candidate](VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate)
 adds explicit Auto/Notify/Pinned controls over the same verified delivery chain.
@@ -80,5 +79,5 @@ action and optional `open_developer_access` host action. It opens the human-only
 window from chat; the existing official plans checkout, verified-email trial and
 signed activation remain authoritative. No automatic trial/purchase, secrets in
 chat or repeated Capture/setup. Retained localCommand is a fallback for older
-hosts. This source addition is not part of the already published GitHub RC4 and
-does not promote native/provider compatibility; discover the actual runtime.
+hosts. RC5 includes this action; the earlier immutable RC4 does not. This does
+not promote native/provider compatibility; discover the actual runtime.
