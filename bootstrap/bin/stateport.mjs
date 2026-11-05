@@ -10,10 +10,12 @@ import { updateStatus, checkForUpdates, selectSessionRuntime, rollbackGeneration
 import { updateControl } from '../lib/controls.mjs';
 import { ensureLauncher } from '../lib/launcher.mjs';
 import { createCliOutput, installNeedsAttention } from '../lib/cli-output.mjs';
+import { diagnoseSetupConflict } from '../lib/setup-diagnostics.mjs';
 
 const rawArgs = process.argv.slice(2);
+const metadata = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
 const protocolCommands = new Set(['mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close']);
-const output = createCliOutput({ json: rawArgs.includes('--json') || protocolCommands.has(rawArgs.find(arg => arg !== '--json')) });
+const output = createCliOutput({ json: rawArgs.includes('--json') || protocolCommands.has(rawArgs.find(arg => arg !== '--json')), installerVersion: metadata.version });
 const write = (value, kind) => output.emit(value, kind);
 
 function cacheRoot() {
@@ -43,7 +45,6 @@ async function main() {
   if (rawArgs.filter(arg => arg === '--json').length > 1) throw Error('INVALID_ARGUMENTS');
   if (args.length === 1 && ['--help', '-h'].includes(args[0])) { output.help(); return; }
   if (args.length === 1 && ['--version', '-v'].includes(args[0])) {
-    const metadata = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
     if (rawArgs.includes('--json')) write({ version: metadata.version }); else process.stdout.write(metadata.version + '\n');
     return;
   }
@@ -64,7 +65,16 @@ async function main() {
   if (command === 'updates') { write(await updateControl(cache, trust, args), 'updates'); return; }
   if (['doctor', 'open', 'access', 'mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close'].includes(command)) {
     const runtime = await readCurrent(cache); if (!runtime) throw Error('RUNTIME_NOT_INSTALLED');
-    if (command === 'doctor') { write(await run(runtime, ['doctor', ...args], true), 'doctor'); return; }
+    if (command === 'doctor') {
+      let selected;
+      if (args.length) {
+        if (args.length !== 2 || args[0] !== '--agent' || !['cursor', 'codex', 'claude'].includes(args[1])) throw Error('INVALID_ARGUMENTS');
+        selected = args[1];
+      }
+      const report = { ...await run(runtime, ['doctor'], true), installerVersion: metadata.version };
+      if (selected) report.setupDiagnostics = await diagnoseSetupConflict({ home: homedir(), cache, agent: selected });
+      write(report, 'doctor'); return;
+    }
     if (runtime.generation) {
       // Stable loader performs safe next-session resolution. Read-only and
       // existing task-call/close commands never trigger update checks.
@@ -135,8 +145,9 @@ async function main() {
   const launcher = runtime.generation ? await ensureLauncher(cache, trust) : undefined;
   const doctor = await run(runtime, ['doctor'], true);
   const setup = await run(runtime, agent ? ['setup', '--agent', agent] : ['setup'], true);
+  if (setup.result?.reason === 'CONFLICT' && ['cursor','codex','claude'].includes(setup.agent)) setup.diagnostics = await diagnoseSetupConflict({ home: homedir(), cache, agent: setup.agent });
   const release = JSON.parse(await readFile(new URL('../release.json', import.meta.url), 'utf8'));
-  const result = { status: 'candidate_installed', version: runtime.productVersion, unchanged: runtime.unchanged, doctor, setup,
+  const result = { status: 'candidate_installed', installerVersion: metadata.version, version: runtime.productVersion, unchanged: runtime.unchanged, doctor, setup,
     cache: offline ? 'verified_offline' : 'verified', hostDiscovered: 'unverified', updates: { mode: (await readUpdatePolicy(cache)).mode, delivery: 'candidate', launcher }, currentTask: {
       command: process.execPath, args: [launcher ?? runtime.entry, 'task-session'], selection: 'verified_at_new_session_start', protocol: 'agent-task-session/1',
       version: runtime.productVersion, digest: runtime.digest, generation: runtime.generation,

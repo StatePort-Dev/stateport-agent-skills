@@ -2,8 +2,10 @@
 
 StatePort saves a browser reproduction as a **State Card** so a coding agent
 can inspect the same state before and after a code change. This repository
-contains seven task-focused skills and the adapters that connect supported
-agents to the local StatePort MCP adapter.
+contains the transparent npm installer in [`bootstrap/`](bootstrap/), seven
+task-focused skills, and the adapters that connect supported agents to StatePort.
+The product website is [stateport.dev](https://stateport.dev); the organisation
+is [StatePort-Dev](https://github.com/StatePort-Dev).
 
 StatePort LocalRuntime owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
@@ -40,13 +42,14 @@ npx stateport
 ```
 
 PowerShell: `npx.cmd stateport`. An existing Node.js 24.x/npm installation is
-required. The transparent bootstrap is about 20 KB and verifies the signed
+required. The transparent bootstrap is about 30 KB and verifies the signed
 platform runtime, about 7 MB with a system browser. It configures owned skills
 and MCP for the selected coding agent. Desktop is optional. Explicit pinned
 Chromium fallback is a separate download, with size and digest shown before consent.
 Setup does not start a trial or grant browser/task authority.
-Bootstrap rc.6 ends with a short installed/missing checklist, recovery for setup
-conflicts, and steps for continuing in your agent. Scripts and authorized
+Bootstrap rc.7 distinguishes installer/runtime versions, explains warning severity
+and reports remaining conflict paths read-only. Every installation ends with
+**How to Start**, after an installed/missing checklist and concrete conflict recovery. Scripts and authorized
 same-chat installers use `npx stateport --json` for the exact launcher descriptor;
 MCP/task-session output remains protocol-only.
 

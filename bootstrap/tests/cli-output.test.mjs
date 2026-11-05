@@ -32,7 +32,7 @@ const success = { status: 'installed', agent: 'cursor', result: { status: 'insta
 test('ordinary install shows a component checklist and a concrete next agent request, without protocol JSON', () => scenario(success, async ({ invoke, install }) => {
   const r = await invoke(install);
   assert.equal(r.code, 0, r.stderr);
-  for (const text of ['StatePort', 'Runtime', 'Google Chrome', 'Skills', 'Cursor', 'Next', 'new chat', 'Use StatePort']) assert(r.stdout.includes(text), text);
+  for (const text of ['StatePort', 'Installer', 'Runtime', 'Google Chrome', 'Skills', 'Cursor', 'How to Start', 'new chat', 'Use StatePort']) assert(r.stdout.includes(text), text);
   assert(!/candidate_installed|currentTask|agent-task-session|nativeAcceptance|published|"status"|\x1b/.test(r.stdout), r.stdout);
   assert.equal(r.stderr, '');
 }));
@@ -50,7 +50,7 @@ test('Cursor conflict is partial setup, preserves existing installation and give
   assert.match(r.stdout, /Skills.*not (?:updated|configured)/i);
   assert.match(r.stdout, /Cursor.*not configured/i);
   assert.match(r.stdout, /existing.*preserved/i);
-  assert.match(r.stdout, /original installer/i);
+  assert.match(r.stdout, /BLOCKING/);
   assert.match(r.stdout, /\.cursor\/mcp\.json/);
   assert(!/ready to use|installation complete/i.test(r.stdout));
 }));
@@ -102,6 +102,10 @@ test('terminal output blocks control-sequence injection and respects NO_COLOR', 
   assert(rendered(value, { tty: true, env: { TERM: 'xterm' } }).includes('\x1b['));
 });
 
+test('MCP probe warning explains impact and does not claim a ready connection', () => scenario({ ...success, result: { ...success.result, mcp: 'unavailable' } }, async ({ invoke, install }) => {
+  const r=await invoke(install);assert.equal(r.code,1);assert.match(r.stdout,/WARNING/);assert.match(r.stdout,/connection.*not (?:confirmed|verified)/i);assert.match(r.stdout,/How to Start/);
+}));
+
 test('optional large browser consent stays explicit and its command survives narrow terminals', () => {
   const digest = 'a'.repeat(64), command = `npx stateport browser-install --confirm-download ${digest}`;
   const text = rendered({ status: 'browser_download_required', bytes: 190107363, sha256: digest }, { columns: 48 });
@@ -111,7 +115,7 @@ test('optional large browser consent stays explicit and its command survives nar
 
 test('prerequisite, download, signature and lock failures offer one safe next action', () => {
   for (const [code, expected] of [['NODE_24_LTS_CANDIDATE_REQUIRED', 'Node.js 24'], ['PLATFORM_UNSUPPORTED', 'not supported'], ['RELEASE_HTTP', 'connection'], ['RELEASE_SIGNATURE', 'could not be verified'], ['INSTALL_BUSY_OR_RECOVERY_REQUIRED', 'Keep the lock']]) {
-    const text = rendered({ status: 'blocked', code }); assert(text.includes(expected), code); assert.match(text, /Next/); assert(!text.includes('"status"'));
+    const text = rendered({ status: 'blocked', code }); assert(text.includes(expected), code); assert.match(text, /How to Start/); assert(!text.includes('"status"'));
   }
 });
 
@@ -122,4 +126,9 @@ test('uninstall, repair, rollback and held updates never imply unproved setup su
   assert.match(rollback, /setup needs attention/); assert.match(rollback, /Cursor MCP.*not configured/);
   const held = rendered({ status: 'update_checked', selected: { version: '1.0.0-rc.5' }, outcome: { status: 'held' } });
   assert.match(held, /not applied/); assert(!held.includes('Restart'));
+});
+
+test('orphaned Desktop skills give exact paths and conditional How to Start rather than repeating a failed uninstall',()=>{
+  const text=rendered({status:'candidate_installed',version:'1.0.0-rc.5',installerVersion:'1.0.0-rc.7',doctor:{browser:{status:'found',channel:'chrome'}},setup:{...success,status:'failed',result:{reason:'CONFLICT'},diagnostics:{configState:'absent',issues:[{code:'DESKTOP_SKILLS_REMAIN',path:'.agents/skills',files:196,version:'0.1.0-beta.78',folders:['.agents/skills/stateport-debugging']}]}}});
+  assert.match(text,/Installer.*1\.0\.0-rc\.7/);assert.match(text,/Runtime.*1\.0\.0-rc\.5/);assert.match(text,/196/);assert.match(text,/MCP entry.*(?:removed|gone)/i);assert.match(text,/\.agents\/skills\/stateport-debugging/);assert.match(text,/BLOCKING.*Cursor/);assert(text.lastIndexOf('How to Start')>text.indexOf('BLOCKING'));assert(!text.includes('original installer'));
 });

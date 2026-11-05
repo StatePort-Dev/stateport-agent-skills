@@ -1,8 +1,8 @@
 {
   "name": "stateport",
-  "version": "1.0.0-rc.6",
+  "version": "1.0.0-rc.7",
   "private": false,
-  "description": "StatePort agent runtime bootstrap",
+  "description": "Save browser reproductions as State Cards. Reopen them and verify fixes with your coding agent.",
   "type": "module",
   "bin": {
     "stateport": "./bin/stateport.mjs"
@@ -31,5 +31,15 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "homepage": "https://stateport.dev",
+  "keywords": [
+    "stateport",
+    "debugging",
+    "browser",
+    "mcp",
+    "coding-agents",
+    "reproduction",
+    "state-cards"
+  ]
 }

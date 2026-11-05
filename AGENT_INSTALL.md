@@ -23,7 +23,10 @@ npx stateport
 
 PowerShell: `npx.cmd stateport`. The small transparent bootstrap verifies the
 signed platform runtime and configures owned canonical skills/MCP for the selected
-coding agent. Ordinary output is a short component checklist and next steps.
+coding agent. Ordinary output is a component checklist, severity and impact for each issue,
+and a final How to Start section. Installer and runtime versions are labelled
+separately. `npx stateport doctor --agent cursor` inspects remaining setup blockers
+read-only, including old skills after an MCP entry was removed.
 For scripts or an authorized current-chat agent installation, run
 `npx stateport --json` (PowerShell: `npx.cmd stateport --json`) and use the returned
 exact `currentTask` descriptor. Incomplete agent setup exits 1; inspect the final
