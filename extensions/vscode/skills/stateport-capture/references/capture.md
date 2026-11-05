@@ -126,3 +126,7 @@ the ordinary Card ID and revision to use in subsequent work.
 
 Discard does not delete saved Cards. Preserve the Card/revision and safe outcome
 in the [handoff](handoff.md), excluding credentials and captured payloads.
+
+For an advertised compatible runtime, integrate the one-time explanation using
+[first useful result](first-use.md) after a real useful result. This never adds
+work or a trial requirement to the original task.

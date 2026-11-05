@@ -55,3 +55,7 @@ Task end/replacement, expiry or disconnect invalidates source evidence; repeat
 preparation does not produce another copy of the same observation. Never promise
 unsolicited insertion by a host that does not execute these tools and render the
 returned result.
+
+For an advertised compatible runtime, integrate the one-time explanation using
+[first useful result](first-use.md) after a real useful result. This never adds
+work or a trial requirement to the original task.

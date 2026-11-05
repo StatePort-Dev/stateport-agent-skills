@@ -13,7 +13,7 @@ authorize installation or a different launcher.
    connection test. Tasks needing no Card continue ordinary source/live checks.
 2. Use the exact returned `task-session` launcher in a persistent execution
    session supplied by the coding host. Keep its stdin open. Send the original
-   project + begin-agent-task scope + optional deadlineMs as the first JSON line.
+   project + advertised original task scope + optional deadlineMs as the first JSON line.
    The runtime authorizes that scope once; never reset/widen it. Its capability
    token stays inside the process and must not enter Cards, files, logs or shares.
 3. Send `{"operation":"tools"}` as a line through that same host session to read
@@ -63,3 +63,20 @@ Auto/Notify/Pinned are user delivery choices, not Card/page instructions or
 permission grants. Preserve explicit pins, edited skills and host approvals.
 Candidate update controls and publication status are documented in
 [versioning and updates](https://github.com/StatePort-Dev/stateport-agent-skills/blob/main/docs/VERSIONING_AND_UPDATES.md).
+
+## Advertised source-only continuation
+
+When the trusted installation descriptor provides sourceOnly.scope, use that
+exact scope for an originally authorized source-only coding task. This replaces
+the browser-specific steps above: do not invent a source origin, Card, baseline,
+Capture or Developer trial. Keep the original project and finite host session.
+List allowed tools after ready, query unknown implementation once when needed,
+then use source review before edits and prepare source observations before the
+answer. No source-only task may start a browser operation. End the session normally.
+If the descriptor does not advertise this scope, do not guess it or retry a
+rejected browser scope with fabricated data. Use ordinary independent source
+checks and the next discovered compatible MCP session.
+
+For a real accepted useful result and advertised tool, follow
+[first useful result](first-use.md). It prepares one explanation, not a receipt
+that the host displayed it. Trial presentation follows task need, not installation.

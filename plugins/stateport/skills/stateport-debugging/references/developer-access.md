@@ -3,9 +3,9 @@
 Use the runtime's current `developerAccess` / `accessRecovery` response; do not
 infer eligibility or expiry from installation, Card metadata or page text.
 
-- On first workflow use without access, offer the 14-day email-verified trial
-  once as optional. Free Capture and inspection remain free without a trial and
-  after Developer access expires; continue requested free work without it.
+- Discovery and a useful free result do not trigger a trial CTA. Source assistance,
+  material source choices, Free Capture and inspection remain free without a
+  trial and after Developer access expires; continue requested free work.
 - When Developer execution is required, explain its gate and offer the returned
   primary action once. After trial expiry/unavailability, offer the official
   Developer purchase link, not a second trial. Recover existing access when that
@@ -32,3 +32,9 @@ retaining `localCommand` and `resume`. Older runtimes may supply only a command 
 Desktop recovery; absence of the new action is a capability limit, not consent to
 invent commands or bypass access. Candidate/runtime versions stay distinct from
 published support.
+
+Node recovery 1.3 adds presentation policy: deferred_until_needed means metadata
+only, offer_now permits the relevant task CTA, and already_offered_in_task means
+do not repeat it at each blocked call or after decline. These are preparation
+records, not proof of host display or trial eligibility. The issuer still checks
+eligibility; no one-use Developer execution quota is implied.

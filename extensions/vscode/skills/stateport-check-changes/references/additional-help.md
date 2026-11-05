@@ -105,3 +105,7 @@ workflow; never enable a global automatic preference just to perform it.
 Runtime rechecks current preferences/authority during optional execution and at
 handoff. Disabling additional work cancels it; disabling observations suppresses
 the pending optional fragment. Do not rely on stale discovery after a user change.
+
+For an advertised compatible runtime, integrate the one-time explanation using
+[first useful result](first-use.md) after a real useful result. This never adds
+work or a trial requirement to the original task.

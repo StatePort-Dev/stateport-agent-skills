@@ -41,7 +41,7 @@
 
 ## Unreleased
 
-Current integration source: <!-- integration-version:start -->`0.1.0-beta.82`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
+Current integration source: <!-- integration-version:start -->`0.1.0-beta.83`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
 
 ### User setup
 
