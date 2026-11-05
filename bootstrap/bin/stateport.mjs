@@ -9,6 +9,12 @@ import { readUpdatePolicy, setUpdatePolicy } from '../lib/update-policy.mjs';
 import { updateStatus, checkForUpdates, selectSessionRuntime, rollbackGeneration } from '../lib/updates.mjs';
 import { updateControl } from '../lib/controls.mjs';
 import { ensureLauncher } from '../lib/launcher.mjs';
+import { createCliOutput, installNeedsAttention } from '../lib/cli-output.mjs';
+
+const rawArgs = process.argv.slice(2);
+const protocolCommands = new Set(['mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close']);
+const output = createCliOutput({ json: rawArgs.includes('--json') || protocolCommands.has(rawArgs.find(arg => arg !== '--json')) });
+const write = (value, kind) => output.emit(value, kind);
 
 function cacheRoot() {
   const configured = process.platform === 'win32' ? process.env.LOCALAPPDATA : process.platform === 'linux' ? process.env.XDG_DATA_HOME : undefined;
@@ -17,7 +23,6 @@ function cacheRoot() {
       : process.platform === 'darwin' ? join(homedir(), 'Library', 'Caches') : join(homedir(), '.local', 'share');
   return join(base, 'StatePort', 'agent-runtime');
 }
-const write = value => process.stdout.write(JSON.stringify(value) + '\n');
 async function run(runtime, args, capture = false) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [runtime.entry, ...args], { stdio: capture ? ['ignore', 'pipe', 'pipe'] : 'inherit', windowsHide: true });
@@ -34,11 +39,20 @@ async function run(runtime, args, capture = false) {
   });
 }
 async function main() {
+  const args = rawArgs.filter(arg => arg !== '--json');
+  if (rawArgs.filter(arg => arg === '--json').length > 1) throw Error('INVALID_ARGUMENTS');
+  if (args.length === 1 && ['--help', '-h'].includes(args[0])) { output.help(); return; }
+  if (args.length === 1 && ['--version', '-v'].includes(args[0])) {
+    const metadata = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+    if (rawArgs.includes('--json')) write({ version: metadata.version }); else process.stdout.write(metadata.version + '\n');
+    return;
+  }
   if (Number(process.versions.node.split('.')[0]) !== 24) throw Error('NODE_24_LTS_CANDIDATE_REQUIRED');
   if (!((process.platform === 'linux' || process.platform === 'win32') && process.arch === 'x64') && !(process.platform === 'darwin' && process.arch === 'arm64')) throw Error('PLATFORM_UNSUPPORTED');
-  const args = process.argv.slice(2);
   const commands = new Set(['install', 'update', 'updates', 'repair-launcher', 'rollback', 'uninstall', 'browser-install', 'doctor', 'open', 'access', 'mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close']);
+  if (args[0] && !args[0].startsWith('--') && !commands.has(args[0])) throw Error('INVALID_ARGUMENTS');
   const command = commands.has(args[0]) ? args.shift() : 'install';
+  if (args.length === 1 && ['--help', '-h'].includes(args[0])) { output.help(); return; }
   const cache = cacheRoot();
   const trust = JSON.parse(await readFile(new URL('../update-release.json', import.meta.url), 'utf8'));
   if (command === 'repair-launcher') {
@@ -47,9 +61,10 @@ async function main() {
     if (runtime?.generation?.launcher !== 1) throw Error('LAUNCHER_REPAIR_UNSUPPORTED');
     write({ status: 'launcher_repaired', launcher: await ensureLauncher(cache, trust, { repair: true }), userData: 'preserved', editedLoader: 'backed_up_if_changed' }); return;
   }
-  if (command === 'updates') { write(await updateControl(cache, trust, args)); return; }
+  if (command === 'updates') { write(await updateControl(cache, trust, args), 'updates'); return; }
   if (['doctor', 'open', 'access', 'mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close'].includes(command)) {
     const runtime = await readCurrent(cache); if (!runtime) throw Error('RUNTIME_NOT_INSTALLED');
+    if (command === 'doctor') { write(await run(runtime, ['doctor', ...args], true), 'doctor'); return; }
     if (runtime.generation) {
       // Stable loader performs safe next-session resolution. Read-only and
       // existing task-call/close commands never trigger update checks.
@@ -74,7 +89,8 @@ async function main() {
     const policy = await readUpdatePolicy(cache);
     if (policy.mode === 'pinned') throw Error('PIN_RELEASE_REQUIRED');
     const runtime = await rollbackGeneration(cache);
-    write({ status: 'rolled_back', runtime: runtime.productVersion, setup: await run(runtime, ['setup'], true), hostDiscovered: 'unverified' }); return;
+    const result = { status: 'rolled_back', runtime: runtime.productVersion, doctor: await run(runtime, ['doctor'], true), setup: await run(runtime, ['setup'], true), hostDiscovered: 'unverified' };
+    write(result); if (installNeedsAttention(result)) process.exitCode = 1; return;
   }
   let source, manifestSha256, agent, offline = false, confirmDownload, consentUpdates = false;
   while (args.length) {
@@ -100,6 +116,7 @@ async function main() {
   }
   if (offline) {
     runtime = await readCurrent(cache); if (!runtime) throw Error('OFFLINE_CACHE_UNAVAILABLE');
+    runtime = { ...runtime, unchanged: true };
   } else if (!source) {
     const release = JSON.parse(await readFile(new URL('../release.json', import.meta.url), 'utf8'));
     if (release.status === 'unpublished') throw Error('PUBLIC_RUNTIME_RELEASE_UNPUBLISHED');
@@ -118,13 +135,16 @@ async function main() {
   const launcher = runtime.generation ? await ensureLauncher(cache, trust) : undefined;
   const doctor = await run(runtime, ['doctor'], true);
   const setup = await run(runtime, agent ? ['setup', '--agent', agent] : ['setup'], true);
-  write({ status: 'candidate_installed', version: runtime.productVersion, unchanged: runtime.unchanged, doctor, setup,
+  const release = JSON.parse(await readFile(new URL('../release.json', import.meta.url), 'utf8'));
+  const result = { status: 'candidate_installed', version: runtime.productVersion, unchanged: runtime.unchanged, doctor, setup,
     cache: offline ? 'verified_offline' : 'verified', hostDiscovered: 'unverified', updates: { mode: (await readUpdatePolicy(cache)).mode, delivery: 'candidate', launcher }, currentTask: {
       command: process.execPath, args: [launcher ?? runtime.entry, 'task-session'], selection: 'verified_at_new_session_start', protocol: 'agent-task-session/1',
       version: runtime.productVersion, digest: runtime.digest, generation: runtime.generation,
       input: 'The installed version below is an offer; the ready frame binds the selected runtime at new-session start. Keep this host execution session and stdin open. First JSON line has project, scope, optional deadlineMs. Example for an originally authorized fix task: {"project":"/absolute/original/project","scope":{"userRequestedTask":true,"intent":"fix_verify","sourceOrigins":["http://127.0.0.1:3000"],"frontendOrigins":["http://127.0.0.1:3001"],"stateCardIds":[]},"deadlineMs":600000}. Replace project/origins/Card IDs from the original user task; installation grants no scope. Then JSON lines: operation tools; operation call with requestId/name/arguments; operation close.',
       permissions: 'Use normal host approval for this exact runtime command when required. Installation does not grant browser, project or task permissions.',
-    }, published: false });
+    }, published: !source && release.status === 'published' && release.version === runtime.productVersion };
+  write(result);
+  if (installNeedsAttention(result)) process.exitCode = 1;
 }
 void main().catch(error => {
   const code = error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : 'INSTALL_FAILED';

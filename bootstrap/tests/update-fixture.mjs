@@ -14,7 +14,7 @@ export async function updateFixture(run) {
     platform: process.platform, arch: process.arch, task: 'agent-task/1', taskSession: 'agent-task-session/1', mcp: 'a'.repeat(64),
     skills: 'b'.repeat(64), storageRead: 'c'.repeat(64), storageWrite: 'c'.repeat(64), browser: { preference: 'system', playwright: '1.63.0', payload: null }, permissions: ['owned-runtime'] };
   function bundle(version, contract = generation) {
-    const main = Buffer.from(`process.stdout.write(JSON.stringify({version:${JSON.stringify(version)},status:'ready',execution:'allowed',generation:${JSON.stringify(contract)}})+'\\n')`);
+    const main = Buffer.from(`process.stdout.write(JSON.stringify(process.argv[2]==='setup'?{status:'installed',agent:'codex',result:{status:'installed',version:'0.1.0-beta.82',mcp:'ready'}}:{version:${JSON.stringify(version)},status:'ready',execution:'allowed',generation:${JSON.stringify(contract)},browser:{status:'found',channel:'chrome'}})+'\\n')`);
     const manifest = Buffer.from(JSON.stringify({ schemaVersion: 'agent-runtime-candidate/1.2.0', archiveFormat: 'ustar+pax-path/1',
       productVersion: version, platform: process.platform, arch: process.arch, nodeCandidate: '24.x', entry: 'main.cjs', browserPreference: contract.browser.preference,
       generation: contract, files: [{ path: 'main.cjs', bytes: main.length, sha256: sha(main) }] }));

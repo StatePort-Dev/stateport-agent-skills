@@ -45,6 +45,10 @@ platform runtime, about 7 MB with a system browser. It configures owned skills
 and MCP for the selected coding agent. Desktop is optional. Explicit pinned
 Chromium fallback is a separate download, with size and digest shown before consent.
 Setup does not start a trial or grant browser/task authority.
+Bootstrap rc.6 ends with a short installed/missing checklist, recovery for setup
+conflicts, and steps for continuing in your agent. Scripts and authorized
+same-chat installers use `npx stateport --json` for the exact launcher descriptor;
+MCP/task-session output remains protocol-only.
 
 Fresh named installation, repeat setup, mandatory Review/Save and cold Card
 inspection passed on Ubuntu 24.04 x64 and Windows 11 x64 (system Chrome/Edge).

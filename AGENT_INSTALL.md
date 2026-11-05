@@ -23,7 +23,12 @@ npx stateport
 
 PowerShell: `npx.cmd stateport`. The small transparent bootstrap verifies the
 signed platform runtime and configures owned canonical skills/MCP for the selected
-coding agent. Use its returned finite current-chat continuation when appropriate;
+coding agent. Ordinary output is a short component checklist and next steps.
+For scripts or an authorized current-chat agent installation, run
+`npx stateport --json` (PowerShell: `npx.cmd stateport --json`) and use the returned
+exact `currentTask` descriptor. Incomplete agent setup exits 1; inspect the final
+JSON object to distinguish installed runtime from setup conflict. Use its returned
+finite current-chat continuation when appropriate;
 restart the coding host for next-session MCP discovery. Setup, host discovery,
 task authority, browser readiness and signed access remain distinct. Installation
 does not start a trial. Human access codes never enter chat.

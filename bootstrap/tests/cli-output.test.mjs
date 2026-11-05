@@ -1,0 +1,125 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { readFile, writeFile, access } from 'node:fs/promises';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { updateFixture, sha } from './update-fixture.mjs';
+import { createCliOutput } from '../lib/cli-output.mjs';
+
+const exec = promisify(execFile);
+const entry = fileURLToPath(new URL('../bin/stateport.mjs', import.meta.url));
+async function scenario(setup, run) {
+  return updateFixture(async f => {
+    const doctor = { version: '1.0.0-rc.3', host: { status: 'candidate' }, browser: { status: 'found', channel: 'chrome' } };
+    const body = `const replies=${JSON.stringify({ doctor, setup })};process.stdout.write(JSON.stringify(replies[process.argv[2]]??{})+'\\n');`;
+    await writeFile(join(f.source, 'main.cjs'), body);
+    const manifest = JSON.parse(await readFile(join(f.source, 'candidate.json'), 'utf8'));
+    manifest.files[0] = { path: 'main.cjs', bytes: Buffer.byteLength(body), sha256: sha(body) };
+    const bytes = JSON.stringify(manifest); await writeFile(join(f.source, 'candidate.json'), bytes);
+    const env = { ...process.env, HOME: f.root, USERPROFILE: f.root, XDG_DATA_HOME: join(f.root, 'data'), LOCALAPPDATA: join(f.root, 'data'), NO_COLOR: '1' };
+    delete env.NODE_TEST_CONTEXT; delete env.FORCE_COLOR;
+    const invoke = async args => {
+      try { return { ...(await exec(process.execPath, [entry, ...args], { env })), code: 0 }; }
+      catch (error) { if (typeof error.code !== 'number') throw error; return { stdout: error.stdout, stderr: error.stderr, code: error.code }; }
+    };
+    await run({ invoke, root: f.root, install: ['install', '--candidate-dir', f.source, '--manifest-sha256', sha(bytes)] });
+  });
+}
+const success = { status: 'installed', agent: 'cursor', result: { status: 'installed', version: '0.1.0-beta.82', mcp: 'ready', unchanged: false }, configuration: { scope: 'user', path: '/synthetic/home/.cursor/mcp.json', serverName: 'stateport' } };
+
+test('ordinary install shows a component checklist and a concrete next agent request, without protocol JSON', () => scenario(success, async ({ invoke, install }) => {
+  const r = await invoke(install);
+  assert.equal(r.code, 0, r.stderr);
+  for (const text of ['StatePort', 'Runtime', 'Google Chrome', 'Skills', 'Cursor', 'Next', 'new chat', 'Use StatePort']) assert(r.stdout.includes(text), text);
+  assert(!/candidate_installed|currentTask|agent-task-session|nativeAcceptance|published|"status"|\x1b/.test(r.stdout), r.stdout);
+  assert.equal(r.stderr, '');
+}));
+
+test('repeat and offline installation explain what is already installed', () => scenario(success, async ({ invoke, install }) => {
+  assert.equal((await invoke(install)).code, 0);
+  const repeat = await invoke(install); assert.equal(repeat.code, 0); assert.match(repeat.stdout, /already installed/i);
+  const offline = await invoke(['install', '--offline']); assert.equal(offline.code, 0); assert.match(offline.stdout, /offline/i); assert.match(offline.stdout, /already installed/i);
+}));
+
+test('Cursor conflict is partial setup, preserves existing installation and gives safe recovery', () => scenario({ ...success, status: 'failed', result: { status: 'failed', reason: 'CONFLICT' } }, async ({ invoke, install }) => {
+  const r = await invoke(install);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /Runtime.*1\.0\.0-rc\.3/);
+  assert.match(r.stdout, /Skills.*not (?:updated|configured)/i);
+  assert.match(r.stdout, /Cursor.*not configured/i);
+  assert.match(r.stdout, /existing.*preserved/i);
+  assert.match(r.stdout, /original installer/i);
+  assert.match(r.stdout, /\.cursor\/mcp\.json/);
+  assert(!/ready to use|installation complete/i.test(r.stdout));
+}));
+
+test('explicit JSON retains task-session contract and failure semantics', () => scenario({ ...success, status: 'failed', result: { status: 'failed', reason: 'CONFLICT' } }, async ({ invoke, install }) => {
+  const r = await invoke([...install, '--json']); assert.equal(r.code, 1);
+  const rows = r.stdout.trim().split('\n').map(line => JSON.parse(line));
+  const last = rows.at(-1); assert.equal(last.setup.result.reason, 'CONFLICT');
+  assert.equal(last.currentTask.protocol, 'agent-task-session/1'); assert.equal(last.published, false);
+  assert(!r.stdout.includes('\x1b')); assert.equal(r.stderr, '');
+}));
+
+test('no detected agent is an explicit incomplete checklist and offers supported agent commands', () => scenario({ status: 'guided_setup_required', detected: [] }, async ({ invoke, install }) => {
+  const r = await invoke(install); assert.equal(r.code, 1);
+  assert.match(r.stdout, /Skills.*not configured/i); assert.match(r.stdout, /agent.*not selected/i);
+  assert.match(r.stdout, /npx stateport install --agent codex/);
+  assert.match(r.stdout, /--agent claude/); assert.match(r.stdout, /--agent cursor/);
+}));
+
+test('help and version do not install anything, unknown commands fail with useful help', () => scenario(success, async ({ invoke, root }) => {
+  const help = await invoke(['--help']); assert.equal(help.code, 0); assert.match(help.stdout, /--json/);
+  const version = await invoke(['--version']); assert.equal(version.code, 0); assert.match(version.stdout, /^\d+\.\d+\.\d+/);
+  await assert.rejects(access(join(root, 'data')));
+  const typo = await invoke(['instlal']); assert.equal(typo.code, 1); assert.match(typo.stdout + typo.stderr, /help/);
+}));
+
+test('MCP failure remains machine-only without requiring --json', () => scenario(success, async ({ invoke }) => {
+  const r = await invoke(['mcp']); assert.equal(r.code, 1);
+  assert.equal(JSON.parse(r.stdout).code, 'RUNTIME_NOT_INSTALLED'); assert.equal(r.stderr, '');
+}));
+
+test('doctor and management status have readable defaults and explicit JSON', () => scenario(success, async ({ invoke, install }) => {
+  await invoke(install);
+  const doctor = await invoke(['doctor']); assert.equal(doctor.code, 0); assert.match(doctor.stdout, /Installation check/);
+  const data = JSON.parse((await invoke(['doctor', '--json'])).stdout); assert.equal(data.browser.channel, 'chrome');
+  const updates = await invoke(['updates', 'status']); assert.equal(updates.code, 0); assert.match(updates.stdout, /Notify/); assert(!updates.stdout.includes('{'));
+  assert.equal(JSON.parse((await invoke(['updates', 'status', '--json'])).stdout).mode, 'notify');
+}));
+
+function rendered(value, options = {}) {
+  let text = '';
+  const output = createCliOutput({ stream: { isTTY: options.tty ?? false, write: chunk => { text += chunk; } }, env: options.env ?? {}, columns: options.columns ?? 80 });
+  output.emit(value); return text;
+}
+test('terminal output blocks control-sequence injection and respects NO_COLOR', () => {
+  const value = { status: 'candidate_installed', version: '1.0.0-rc.5', doctor: { browser: { status: 'found', channel: 'chrome' } }, setup: { ...success, status: 'failed', result: { reason: 'CONFLICT' }, configuration: { path: '/safe/\x1b]52;c;SECRET\x07\nconfig.json' } } };
+  const plain = rendered(value); assert(!/[\x00-\x1f\x7f-\x9f]/.test(plain.replaceAll('\n', '')));
+  assert(!rendered(value, { tty: true, env: { NO_COLOR: '', TERM: 'xterm' } }).includes('\x1b'));
+  assert(rendered(value, { tty: true, env: { TERM: 'xterm' } }).includes('\x1b['));
+});
+
+test('optional large browser consent stays explicit and its command survives narrow terminals', () => {
+  const digest = 'a'.repeat(64), command = `npx stateport browser-install --confirm-download ${digest}`;
+  const text = rendered({ status: 'browser_download_required', bytes: 190107363, sha256: digest }, { columns: 48 });
+  assert.match(text, /181\.3 MB/); assert(text.includes(command + '\n'));
+  assert.match(text, /unchanged/); assert.match(text, /Optional Chromium/);
+});
+
+test('prerequisite, download, signature and lock failures offer one safe next action', () => {
+  for (const [code, expected] of [['NODE_24_LTS_CANDIDATE_REQUIRED', 'Node.js 24'], ['PLATFORM_UNSUPPORTED', 'not supported'], ['RELEASE_HTTP', 'connection'], ['RELEASE_SIGNATURE', 'could not be verified'], ['INSTALL_BUSY_OR_RECOVERY_REQUIRED', 'Keep the lock']]) {
+    const text = rendered({ status: 'blocked', code }); assert(text.includes(expected), code); assert.match(text, /Next/); assert(!text.includes('"status"'));
+  }
+});
+
+test('uninstall, repair, rollback and held updates never imply unproved setup success', () => {
+  assert.match(rendered({ status: 'uninstalled' }), /Cards and protected data preserved/);
+  assert.match(rendered({ status: 'launcher_repaired' }), /backed up/);
+  const rollback = rendered({ status: 'rolled_back', runtime: '1.0.0-rc.4', doctor: { browser: { status: 'found', channel: 'chrome' } }, setup: { ...success, status: 'failed', result: { reason: 'CONFLICT' } } });
+  assert.match(rollback, /setup needs attention/); assert.match(rollback, /Cursor MCP.*not configured/);
+  const held = rendered({ status: 'update_checked', selected: { version: '1.0.0-rc.5' }, outcome: { status: 'held' } });
+  assert.match(held, /not applied/); assert(!held.includes('Restart'));
+});

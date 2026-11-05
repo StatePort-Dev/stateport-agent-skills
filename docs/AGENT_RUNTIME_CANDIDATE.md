@@ -14,6 +14,13 @@ integrity and cryptographic public-source provenance were verified independently
 
 ## Current task versus next session
 
+Bootstrap rc.6 prints human-readable installation progress, a component checklist
+and next steps by default. Automation and authorized same-chat setup use
+`npx stateport --json`; its exact `currentTask` descriptor remains machine-readable.
+MCP/task-session stay protocol-only without a flag. An incomplete agent setup
+exits 1, including a protected conflict with an existing installation. The runtime
+can still be installed successfully while that agent connection needs attention.
+
 A verified installer can return an exact local Node command/argument vector for
 CLI continuation. That descriptor is distinct from Card/page text and from tool
 permissions. Use the original task and the coding host's normal local approvals.
