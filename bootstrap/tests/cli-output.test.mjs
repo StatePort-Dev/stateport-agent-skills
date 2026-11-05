@@ -13,7 +13,7 @@ const entry = fileURLToPath(new URL('../bin/stateport.mjs', import.meta.url));
 async function scenario(setup, run) {
   return updateFixture(async f => {
     const doctor = { version: '1.0.0-rc.3', host: { status: 'candidate' }, browser: { status: 'found', channel: 'chrome' } };
-    const body = `const replies=${JSON.stringify({ doctor, setup })};process.stdout.write(JSON.stringify(replies[process.argv[2]]??{})+'\\n');`;
+    const body = `const replies=${JSON.stringify({ doctor, setup })};process.stdout.write(JSON.stringify(process.argv[2]==='setup'&&replies.setup?.agent?{...replies.setup,agent:process.argv[4]}:replies[process.argv[2]]??{})+'\\n');`;
     await writeFile(join(f.source, 'main.cjs'), body);
     const manifest = JSON.parse(await readFile(join(f.source, 'candidate.json'), 'utf8'));
     manifest.files[0] = { path: 'main.cjs', bytes: Buffer.byteLength(body), sha256: sha(body) };
@@ -24,7 +24,7 @@ async function scenario(setup, run) {
       try { return { ...(await exec(process.execPath, [entry, ...args], { env })), code: 0 }; }
       catch (error) { if (typeof error.code !== 'number') throw error; return { stdout: error.stdout, stderr: error.stderr, code: error.code }; }
     };
-    await run({ invoke, root: f.root, install: ['install', '--candidate-dir', f.source, '--manifest-sha256', sha(bytes)] });
+    await run({ invoke, root: f.root, install: ['install', '--agent', 'cursor', '--candidate-dir', f.source, '--manifest-sha256', sha(bytes)] });
   });
 }
 const success = { status: 'installed', agent: 'cursor', result: { status: 'installed', version: '0.1.0-beta.82', mcp: 'ready', unchanged: false }, configuration: { scope: 'user', path: '/synthetic/home/.cursor/mcp.json', serverName: 'stateport' } };
@@ -40,7 +40,7 @@ test('ordinary install shows a component checklist and a concrete next agent req
 test('repeat and offline installation explain what is already installed', () => scenario(success, async ({ invoke, install }) => {
   assert.equal((await invoke(install)).code, 0);
   const repeat = await invoke(install); assert.equal(repeat.code, 0); assert.match(repeat.stdout, /already installed/i);
-  const offline = await invoke(['install', '--offline']); assert.equal(offline.code, 0); assert.match(offline.stdout, /offline/i); assert.match(offline.stdout, /already installed/i);
+  const offline = await invoke(['install', '--agent', 'cursor', '--offline']); assert.equal(offline.code, 0); assert.match(offline.stdout, /offline/i); assert.match(offline.stdout, /already installed/i);
 }));
 
 test('Cursor conflict is partial setup, preserves existing installation and gives safe recovery', () => scenario({ ...success, status: 'failed', result: { status: 'failed', reason: 'CONFLICT' } }, async ({ invoke, install }) => {
@@ -64,7 +64,7 @@ test('explicit JSON retains task-session contract and failure semantics', () => 
 }));
 
 test('no detected agent is an explicit incomplete checklist and offers supported agent commands', () => scenario({ status: 'guided_setup_required', detected: [] }, async ({ invoke, install }) => {
-  const r = await invoke(install); assert.equal(r.code, 1);
+  const r = await invoke(install.filter((_,i)=>i!==1&&i!==2)); assert.equal(r.code, 1);
   assert.match(r.stdout, /Skills.*not configured/i); assert.match(r.stdout, /agent.*not selected/i);
   assert.match(r.stdout, /npx stateport install --agent codex/);
   assert.match(r.stdout, /--agent claude/); assert.match(r.stdout, /--agent cursor/);
@@ -132,3 +132,28 @@ test('orphaned Desktop skills give exact paths and conditional How to Start rath
   const text=rendered({status:'candidate_installed',version:'1.0.0-rc.5',installerVersion:'1.0.0-rc.7',doctor:{browser:{status:'found',channel:'chrome'}},setup:{...success,status:'failed',result:{reason:'CONFLICT'},diagnostics:{configState:'absent',issues:[{code:'DESKTOP_SKILLS_REMAIN',path:'.agents/skills',files:196,version:'0.1.0-beta.78',folders:['.agents/skills/stateport-debugging']}]}}});
   assert.match(text,/Installer.*1\.0\.0-rc\.7/);assert.match(text,/Runtime.*1\.0\.0-rc\.5/);assert.match(text,/196/);assert.match(text,/MCP entry.*(?:removed|gone)/i);assert.match(text,/\.agents\/skills\/stateport-debugging/);assert.match(text,/BLOCKING.*Cursor/);assert(text.lastIndexOf('How to Start')>text.indexOf('BLOCKING'));assert(!text.includes('original installer'));
 });
+
+test('How to Start offers ordinary work, capability discovery and a reusable browser case',()=>{
+ const text=rendered({status:'candidate_installed',version:'1.0.0-rc.5',doctor:{browser:{status:'found',channel:'chrome'}},setup:success});
+ for(const phrase of ['Work on a task','Do this task:','Use StatePort when it helps','Explore StatePort','What can StatePort help me do','Save a browser case','State Card','check your changes'])assert(text.includes(phrase),phrase);
+ assert(!text.includes('<URL and steps>'));
+});
+test('multiple selected agents retain separate outcomes and actionable ready versus blocked guidance',()=>{
+ const results=[{...success,agent:'codex'},{...success,agent:'claude',status:'failed',result:{status:'failed',reason:'CONFLICT'}}];
+ const text=rendered({status:'candidate_installed',version:'1.0.0-rc.5',doctor:{browser:{status:'found',channel:'chrome'}},setup:{schemaVersion:'agent-setup-batch/1',status:'partial',results}});
+ assert.match(text,/Codex.*MCP launch checked/);assert.match(text,/Claude Code.*not configured/);assert.match(text,/BLOCKING.*Claude Code/);assert.match(text,/Ready now: Codex/);assert.match(text,/How to Start/);
+});
+
+test('real CLI without a non-TTY selection installs runtime only and returns the same-chat descriptor',()=>scenario(success,async({invoke,install})=>{
+ const args=install.filter((_,i)=>i!==1&&i!==2);
+ const r=await invoke([...args,'--json']);assert.equal(r.code,1);const result=JSON.parse(r.stdout.trim().split('\n').at(-1));
+ assert.equal(result.selection.status,'required');assert.equal(result.setup.reason,'AGENT_SELECTION_REQUIRED');assert.equal(result.currentTask.protocol,'agent-task-session/1');
+ assert(!r.stdout.includes('Selection ['));assert(!r.stdout.includes('“'));
+}));
+test('real CLI accepts a batch choice and explicit none without claiming a missing connection',()=>scenario(success,async({invoke,install})=>{
+ const args=install.filter((_,i)=>i!==1&&i!==2);
+ const batch=await invoke([...args,'--agents','codex,cursor','--json']);assert.equal(batch.code,0,batch.stdout);
+ const report=JSON.parse(batch.stdout.trim().split('\n').at(-1));assert.equal(report.setup.schemaVersion,'agent-setup-batch/1');assert.deepEqual(report.setup.results.map(r=>r.agent),['codex','cursor']);
+ const none=await invoke([...args,'--agents','none']);assert.equal(none.code,0);assert.match(none.stdout,/skipped by choice/);assert.match(none.stdout,/INFO/);assert(!none.stdout.includes('BLOCKING'));
+ const duplicate=await invoke([...args,'--agents','cursor,cursor']);assert.equal(duplicate.code,1);
+}));

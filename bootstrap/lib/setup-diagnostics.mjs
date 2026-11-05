@@ -53,7 +53,7 @@ function same(actual,expected) {
  * authority, file contents, launch arguments, credentials or another writer. */
 export async function diagnoseSetupConflict({home,cache,agent,platform=process.platform,env=process.env}) {
   if(!configs[agent])return {schemaVersion:'agent-setup-diagnostics/1',agent,configState:'unknown',issues:[]};
-  const issues=[],configPath=configs[agent];let configState='unknown';
+  const issues=[],ownedRoots=[],configPath=configs[agent];let configState='unknown';
   const add=(code,path,extra={})=>{if(issues.length<12)issues.push({code,path,severity:'blocking',scope:agent,...extra});};
   let current,legacy;
   const appData=platform==='darwin'?join(home,'Library/Application Support'):platform==='win32'?(env.APPDATA??join(home,'AppData/Roaming')):(env.XDG_CONFIG_HOME??join(home,'.config'));
@@ -62,12 +62,13 @@ export async function diagnoseSetupConflict({home,cache,agent,platform=process.p
   for(const root of (agent==='cursor'?roots:agent==='codex'?roots.slice(0,1).concat('.codex/skills'):['.claude/skills'])){
     try {
       const actual=await inventory(home,root);if(!actual.folders.length)continue;
-      if(current?.schemaVersion===1&&same(actual.hashes,current.roots?.[root]?.hashes))continue;
+      if(current?.schemaVersion===1&&same(actual.hashes,current.roots?.[root]?.hashes)){ownedRoots.push({root,folders:actual.folders});continue;}
       const previous=legacy?.schemaVersion===1?legacy.roots?.[root]:undefined;
       const owned=same(actual.hashes,previous?.hashes);
       add(owned?'DESKTOP_SKILLS_REMAIN':'UNOWNED_OR_EDITED_SKILLS',root,{folders:actual.folders,files:actual.files,...(owned&&/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(previous.version??'')?{version:previous.version}:{})});
     }catch(e){add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'SETUP_DATA_UNREADABLE',root);}
   }
+  if(agent==='cursor'&&ownedRoots.length>1)add('MULTIPLE_OWNED_SKILL_ROOTS',ownedRoots[0].root,{folders:ownedRoots.flatMap(item=>item.folders)});
   try {
     const raw=await bytes(home,join(home,configPath));
     if(!raw)configState='absent';

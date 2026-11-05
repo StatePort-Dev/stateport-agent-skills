@@ -47,7 +47,8 @@ platform runtime, about 7 MB with a system browser. It configures owned skills
 and MCP for the selected coding agent. Desktop is optional. Explicit pinned
 Chromium fallback is a separate download, with size and digest shown before consent.
 Setup does not start a trial or grant browser/task authority.
-Bootstrap rc.7 distinguishes installer/runtime versions, explains warning severity
+Bootstrap rc.8 offers a choice of agents, defaulting to every detected supported
+agent. Each selected connection has its own outcome. It distinguishes installer/runtime versions, explains warning severity
 and reports remaining conflict paths read-only. Every installation ends with
 **How to Start**, after an installed/missing checklist and concrete conflict recovery. Scripts and authorized
 same-chat installers use `npx stateport --json` for the exact launcher descriptor;

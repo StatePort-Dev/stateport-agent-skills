@@ -41,3 +41,9 @@ test('invalid config shape is a named blocker and plugin observations stay secre
   assert(result.issues.some(i=>i.code==='MCP_CONFIG_UNREADABLE'));
   assert(result.issues.some(i=>i.code==='PLUGIN_INSTALL_PRESENT'));assert(!JSON.stringify(result).includes('DO_NOT_EXPOSE_PLUGIN'));
 }));
+test('names a current owned multi-root Cursor conflict instead of pointing at an absent MCP entry',()=>fixture(async({home,cache})=>{
+ const {diagnoseSetupConflict}=await import('../lib/setup-diagnostics.mjs');const roots={};
+ for(const root of ['.agents/skills','.claude/skills']){await mkdir(join(home,root,'stateport-example'),{recursive:true});await writeFile(join(home,root,'stateport-example/SKILL.md'),'owned');roots[root]={hashes:{'stateport-example/SKILL.md':sha('owned')}};}
+ await mkdir(join(cache,'agent-setup'),{recursive:true});await writeFile(join(cache,'agent-setup/receipt.json'),JSON.stringify({schemaVersion:1,roots}));
+ const result=await diagnoseSetupConflict({home,cache,agent:'cursor',platform:'linux',env:{}});assert(result.issues.some(i=>i.code==='MULTIPLE_OWNED_SKILL_ROOTS'));assert(!result.issues.some(i=>i.code==='UNOWNED_OR_EDITED_SKILLS'));
+}));

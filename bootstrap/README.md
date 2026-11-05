@@ -24,13 +24,47 @@ what was installed, what still needs attention, and the next action for your age
 
 ## How to Start
 
-1. Run the install command and resolve any **BLOCKING** items it reports.
-2. Once your agent connection is configured, open **Cursor**, **Codex**, or
-   **Claude Code** and start a new chat. Restart the host if it needs to reload tools.
-3. Give your agent the page URL and reproduction steps. For example:
+1. Run the install command. Choose which agents to connect: **all detected
+   supported agents are checked by default**. Press Enter to confirm, enter
+   numbers to change the set, or choose `none` for runtime only.
+2. Resolve any **BLOCKING** items. Open a successfully configured agent and start
+   a new chat; restart the host if it needs to reload tools.
+3. Start with your current task, or explore another useful workflow:
 
-   > Use StatePort to reproduce this bug: http://localhost:3000 — enter a project
-   > name, accept the terms, and check why Continue stays disabled.
+**Work on a task**
+
+> Do this task: <your task>. Use StatePort when it helps.
+
+**Explore StatePort**
+
+> What can StatePort help me do in this project?
+
+**Save a browser case**
+
+> Save this browser bug as a State Card: <page URL and steps>.
+
+Keep the browser setup in a State Card; reopen it to check your changes. You can
+continue an ordinary task without inventing a bug or starting a Capture session.
+
+### Choose agents in a script
+
+```sh
+npx stateport install --agents codex,cursor
+npx stateport install --agents all
+npx stateport install --agents none
+```
+
+`all` means every detected supported agent; it does not install missing agents.
+`none` retains the runtime and existing connections. `--agent cursor` remains the
+single-agent form. Non-interactive/JSON use requires an explicit selection;
+otherwise agent files are preserved and the installer reports what to run next.
+The task-session descriptor remains available for authorised same-chat work.
+
+The report shows each selected agent separately. Other detected editors with no
+installer adapter are marked as needing manual connection. **Current runtime
+limitation:** Cursor can be configured alongside Codex or Claude Code, but not
+with both skill folders at once. The chooser warns about this combination;
+protected conflicts remain visible rather than overwriting existing settings.
 
 Your agent follows the normal permission flow. When Capture is needed, review
 what was recorded before saving the State Card. A successful setup is separate
@@ -88,10 +122,12 @@ skills folders before replacing them. Do not delete unrelated agent settings.
 For automation and an authorised same-chat setup:
 
 ```sh
-npx stateport --json
+npx stateport install --agents all --json
 ```
 
-Machine output includes the exact verified continuation descriptor. MCP/task
+Machine output includes the exact verified continuation descriptor. Single-agent
+`setup` retains its shape; multiple agents use `agent-setup-batch/1` with per-agent
+results. The additive selection record uses `agent-selection/1`. MCP/task
 protocol streams stay machine-only automatically. Incomplete setup exits 1.
 `--help` lists commands; `--version` shows the npm installer version.
 

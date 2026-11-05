@@ -14,8 +14,11 @@ integrity and cryptographic public-source provenance were verified independently
 
 ## Current task versus next session
 
-Bootstrap rc.7 prints human-readable installation progress, a component checklist
-and next steps by default. Automation and authorized same-chat setup use
+Bootstrap rc.8 prints human-readable installation progress, a component checklist
+and first-task/explore/browser-case messages by default. An interactive terminal
+asks which agents to configure, defaulting to all detected supported hosts.
+Non-TTY/JSON requires explicit `--agents all|none|codex,cursor` or `--agent cursor`;
+no agent is selected silently. Per-agent outcomes remain separate. Automation and authorized same-chat setup use
 `npx stateport --json`; its exact `currentTask` descriptor remains machine-readable.
 MCP/task-session stay protocol-only without a flag. An incomplete agent setup
 exits 1, including a protected conflict with an existing installation. The runtime

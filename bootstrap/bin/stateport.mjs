@@ -10,6 +10,8 @@ import { updateStatus, checkForUpdates, selectSessionRuntime, rollbackGeneration
 import { updateControl } from '../lib/controls.mjs';
 import { ensureLauncher } from '../lib/launcher.mjs';
 import { createCliOutput, installNeedsAttention } from '../lib/cli-output.mjs';
+import { discoverAgentTools } from '../lib/agent-discovery.mjs';
+import { chooseAgents, setupSelectedAgents } from '../lib/agent-selection.mjs';
 import { diagnoseSetupConflict } from '../lib/setup-diagnostics.mjs';
 
 const rawArgs = process.argv.slice(2);
@@ -38,6 +40,18 @@ async function run(runtime, args, capture = false) {
       if (!capture) { resolve(undefined); return; }
       try { resolve(JSON.parse(output)); } catch { reject(Error('RUNTIME_REPLY_INVALID')); }
     });
+  });
+}
+async function selectAgents(explicit) {
+  if (!rawArgs.includes('--json') && process.stdin.isTTY && process.stdout.isTTY) output.begin();
+  return chooseAgents({ discovery: await discoverAgentTools({ home: homedir(), platform: process.platform, env: process.env }), explicit, interactive: !rawArgs.includes('--json') && Boolean(process.stdin.isTTY && process.stdout.isTTY) });
+}
+async function configureAgents(runtime, cache, selection) {
+  return setupSelectedAgents(selection, async selected => {
+    const outcome = await run(runtime, ['setup', '--agent', selected], true);
+    if (outcome.agent !== selected || !['installed', 'failed'].includes(outcome.status)) throw Error('RUNTIME_REPLY_INVALID');
+    if (outcome.result?.reason === 'CONFLICT') outcome.diagnostics = await diagnoseSetupConflict({ home: homedir(), cache, agent: selected });
+    return outcome;
   });
 }
 async function main() {
@@ -95,11 +109,13 @@ async function main() {
     }); return;
   }
   if (command === 'rollback') {
-    if (args.length) throw Error('INVALID_ARGUMENTS');
+    if (args.length && !(args.length === 2 && ['--agent', '--agents'].includes(args[0]))) throw Error('INVALID_ARGUMENTS');
+    if (args.length && (!/^(?:all|none|(?:codex|claude|cursor)(?:,(?:codex|claude|cursor)){0,2})$/.test(args[1]) || new Set(args[1].split(',')).size !== args[1].split(',').length || (args[0] === '--agent' && !['codex', 'claude', 'cursor'].includes(args[1])))) throw Error('INVALID_ARGUMENTS');
     const policy = await readUpdatePolicy(cache);
     if (policy.mode === 'pinned') throw Error('PIN_RELEASE_REQUIRED');
     const runtime = await rollbackGeneration(cache);
-    const result = { status: 'rolled_back', runtime: runtime.productVersion, doctor: await run(runtime, ['doctor'], true), setup: await run(runtime, ['setup'], true), hostDiscovered: 'unverified' };
+    const selection = await selectAgents(args[1]);
+    const result = { status: 'rolled_back', runtime: runtime.productVersion, doctor: await run(runtime, ['doctor'], true), selection, setup: await configureAgents(runtime, cache, selection), hostDiscovered: 'unverified' };
     write(result); if (installNeedsAttention(result)) process.exitCode = 1; return;
   }
   let source, manifestSha256, agent, offline = false, confirmDownload, consentUpdates = false;
@@ -112,11 +128,12 @@ async function main() {
     if (option === '--candidate-dir' && !source) source = value;
     else if (option === '--manifest-sha256' && !manifestSha256) manifestSha256 = value;
     else if (option === '--agent' && !agent && ['codex', 'claude', 'cursor'].includes(value)) agent = value;
+    else if (option === '--agents' && !agent && /^(?:all|none|(?:codex|claude|cursor)(?:,(?:codex|claude|cursor)){0,2})$/.test(value)) agent = value;
     else if (option === '--confirm-download' && !confirmDownload && /^[a-f0-9]{64}$/.test(value)) confirmDownload = value;
     else throw Error('INVALID_ARGUMENTS');
   }
   if ((source && !manifestSha256) || (!source && manifestSha256) || (source && offline)) throw Error('INVALID_ARGUMENTS');
-  let runtime;
+  let runtime, selection;
   const policy = await readUpdatePolicy(cache);
   if (policy.mode === 'pinned' && (command === 'update' || command === 'browser-install' || (manifestSha256 && manifestSha256 !== policy.pin.digest))) throw Error('PIN_RELEASE_REQUIRED');
   if (command === 'update' && !source && !offline && trust.status === 'published') {
@@ -124,6 +141,7 @@ async function main() {
     const selected = await selectSessionRuntime(cache, trust, { manual: true });
     write({ status: 'update_checked', outcome, selected: { version: selected.productVersion, digest: selected.digest }, updates: await updateStatus(cache) }); return;
   }
+  if (command !== 'browser-install') selection = await selectAgents(agent);
   if (offline) {
     runtime = await readCurrent(cache); if (!runtime) throw Error('OFFLINE_CACHE_UNAVAILABLE');
     runtime = { ...runtime, unchanged: true };
@@ -134,6 +152,7 @@ async function main() {
     runtime = await installPublishedRelease(release, cache, fetch, { browserPreference: command === 'browser-install' || current?.browserPreference === 'pinned' ? 'pinned' : 'system', confirmDownload, onDownload: info => write({ status: 'downloading_verified_release', ...info }) });
     if (runtime.status === 'browser_download_required') { write(runtime); return; }
   }
+  selection ??= await selectAgents(agent);
   write({ status: 'installing_candidate', permissions: ['copy verified runtime to user-owned versioned cache', 'configure unchanged owned agent skills/MCP'], trial: 'not_started' });
   runtime ??= await installCandidate({ source, cache, manifestSha256 });
   // Persist a quiet Notify default; repeat setup never changes existing policy.
@@ -144,10 +163,9 @@ async function main() {
   }
   const launcher = runtime.generation ? await ensureLauncher(cache, trust) : undefined;
   const doctor = await run(runtime, ['doctor'], true);
-  const setup = await run(runtime, agent ? ['setup', '--agent', agent] : ['setup'], true);
-  if (setup.result?.reason === 'CONFLICT' && ['cursor','codex','claude'].includes(setup.agent)) setup.diagnostics = await diagnoseSetupConflict({ home: homedir(), cache, agent: setup.agent });
+  const setup = await configureAgents(runtime, cache, selection);
   const release = JSON.parse(await readFile(new URL('../release.json', import.meta.url), 'utf8'));
-  const result = { status: 'candidate_installed', installerVersion: metadata.version, version: runtime.productVersion, unchanged: runtime.unchanged, doctor, setup,
+  const result = { status: 'candidate_installed', installerVersion: metadata.version, version: runtime.productVersion, unchanged: runtime.unchanged, doctor, selection, setup,
     cache: offline ? 'verified_offline' : 'verified', hostDiscovered: 'unverified', updates: { mode: (await readUpdatePolicy(cache)).mode, delivery: 'candidate', launcher }, currentTask: {
       command: process.execPath, args: [launcher ?? runtime.entry, 'task-session'], selection: 'verified_at_new_session_start', protocol: 'agent-task-session/1',
       version: runtime.productVersion, digest: runtime.digest, generation: runtime.generation,
@@ -160,5 +178,5 @@ async function main() {
 void main().catch(error => {
   const code = error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : 'INSTALL_FAILED';
   write({ status: 'blocked', code, nodePrerequisite: code.startsWith('NODE_') ? 'https://nodejs.org/en/download' : undefined });
-  process.exitCode = 1;
+  process.exitCode = code === 'SETUP_CANCELLED' ? 130 : 1;
 });

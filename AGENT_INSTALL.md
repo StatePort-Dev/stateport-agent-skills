@@ -311,3 +311,18 @@ and same-chat boundaries remain. Cursor licensed model verification hit included
 quota; Claude Code model access remains unqualified. Aggregate provider and legacy
 Desktop statuses are unchanged. This is scoped signed-GitHub-RC evidence, not an
 npm registry installation or all-platform support claim.
+
+## Agent Runtime selection and first task
+
+In an interactive terminal, `npx stateport` proposes every detected supported
+agent, then waits for the user's choice. No editor is silently preferred.
+For automation use `--agents codex,cursor`, `--agents all`, `--agents none`, or
+the existing `--agent` form; plain non-TTY/JSON makes no agent setup changes.
+Each selected agent gets a separate result. Runtime rc.5 retains its protected
+Cursor + Codex + Claude multi-root limitation; the chooser and recovery report
+explain it. Other detected editors retain their documented manual setup.
+
+How to Start offers three messages: work on the user's task with StatePort when
+useful; ask what StatePort can help with in the project; or save a browser bug as
+a State Card for reuse while checking changes. None starts a trial or bypasses
+normal approvals, Capture Review or access checks.

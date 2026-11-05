@@ -39,7 +39,7 @@ test('new bootstrap never selects an unqualified legacy rollback as an automatic
 
 test('fresh install returns the stable first-task launcher so CLI use participates in Auto', () => updateFixture(async f => {
   const env = { ...process.env, HOME: f.root, XDG_DATA_HOME: join(f.root, 'data') }; delete env.NODE_TEST_CONTEXT;
-  const output = await exec(process.execPath, [entry, 'install', '--candidate-dir', f.source, '--manifest-sha256', f.installed.digest, '--json'], { env });
+  const output = await exec(process.execPath, [entry, 'install', '--agent', 'codex', '--candidate-dir', f.source, '--manifest-sha256', f.installed.digest, '--json'], { env });
   const result = JSON.parse(output.stdout.trim().split('\n').at(-1));
   assert.equal(result.currentTask.args[0], result.updates.launcher);
   assert.equal(result.currentTask.selection, 'verified_at_new_session_start');
