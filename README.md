@@ -35,35 +35,35 @@ only synthetic data and runs without a StatePort account or installation.
 ## Node Runtime release candidate — npm
 
 The published [npm package](https://www.npmjs.com/package/stateport) installs
-StatePort Agent Runtime RC5 with skills beta.82:
+StatePort Agent Runtime RC6 with skills beta.83 through installer rc.9:
 
 ```sh
 npx stateport
 ```
 
 PowerShell: `npx.cmd stateport`. An existing Node.js 24.x/npm installation is
-required. The transparent bootstrap is about 30 KB and verifies the signed
+required. The transparent bootstrap is about 40 KB and verifies the signed
 platform runtime, about 7 MB with a system browser. It configures owned skills
 and MCP for the selected coding agent. Desktop is optional. Explicit pinned
 Chromium fallback is a separate download, with size and digest shown before consent.
 Setup does not start a trial or grant browser/task authority.
-Bootstrap rc.8 offers a choice of agents, defaulting to every detected supported
+Bootstrap rc.9 offers a choice of agents, defaulting to every detected supported
 agent. Each selected connection has its own outcome. It distinguishes installer/runtime versions, explains warning severity
 and reports remaining conflict paths read-only. Every installation ends with
 **How to Start**, after an installed/missing checklist and concrete conflict recovery. Scripts and authorized
 same-chat installers use `npx stateport --json` for the exact launcher descriptor;
 MCP/task-session output remains protocol-only.
 
-Fresh named installation, repeat setup, mandatory Review/Save and cold Card
-inspection passed on Ubuntu 24.04 x64 and Windows 11 x64 (system Chrome/Edge).
-The Windows QA used a canonical product data path and native OS environment.
-These were model-free MCP checks. Exact registry integrity, Sigstore
-provenance and `npm audit signatures` were verified. Native Windows/macOS/Linux
-vault/Capture/concurrency/recovery controls are separate bounded evidence;
-complete native model/human/trust qualification remains unverified. See the
-[release notes](https://github.com/StatePort-Dev/stateport-releases/releases/tag/v1.0.0-rc.5-agent.1)
-and [Node contract](docs/AGENT_RUNTIME_CANDIDATE.md). Provider statuses are not
-promoted by package availability. The optional Desktop path remains below.
+Fresh bare-npx rc.9 installation, repeat setup, Review/Save and cold Card
+inspection passed on Ubuntu 24.04 x64. Source-only first-use continuation,
+introduction once and new-process no-repeat also passed on the downloaded
+runtime. Exact registry bytes, Sigstore provenance and npm signatures pass.
+Earlier Windows named-install/Capture/cold receipts remain version-bound; RC6
+adds three-OS native source/vault/Free controls and owner-confirmed Windows chat
+acceptance. Broader provider, human access and native-trust gates remain separate.
+See the [release notes](https://github.com/StatePort-Dev/stateport-releases/releases/tag/v1.0.0-rc.6-agent.1)
+and [Node contract](docs/AGENT_RUNTIME_CANDIDATE.md). Package availability does not
+promote provider statuses. The optional Desktop path remains below.
 
 ## Connect an agent — current published Desktop path
 

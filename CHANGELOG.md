@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-beta.83 / installer rc.9 / runtime rc.6
+
+- Source-only useful results without Capture or trial, attributed source choices, and one first-use introduction with persistent no-repeat progress.
+- Optional chat trial/access actions respect refusal; installation never activates a trial.
+- Registered Codex IDE detection, explicit agent selection and separate installer/runtime checklist versions.
+- Anonymous installer start/outcome events, bounded first-party delivery and documented opt-out.
+- Signed RC6 archives and RC9 npm provenance verified; native CI, actual Ubuntu first-use and owner-confirmed Windows chat are separate receipts.
+
 ## 0.1.0-beta.82 (Node RC source)
 
 - Offer the eligible trial, expired-access purchase or existing-access recovery from the current chat.

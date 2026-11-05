@@ -318,7 +318,7 @@ In an interactive terminal, `npx stateport` proposes every detected supported
 agent, then waits for the user's choice. No editor is silently preferred.
 For automation use `--agents codex,cursor`, `--agents all`, `--agents none`, or
 the existing `--agent` form; plain non-TTY/JSON makes no agent setup changes.
-Each selected agent gets a separate result. Runtime rc.5 retains its protected
+Each selected agent gets a separate result. Runtimes rc.5/rc.6 retain the protected
 Cursor + Codex + Claude multi-root limitation; the chooser and recovery report
 explain it. Other detected editors retain their documented manual setup.
 
