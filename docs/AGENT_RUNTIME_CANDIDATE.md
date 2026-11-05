@@ -1,6 +1,6 @@
 # Agent Runtime release candidate
 
-[StatePort RC5 is published on npm](https://www.npmjs.com/package/stateport).
+[StatePort runtime RC6 and installer RC9](https://www.npmjs.com/package/stateport).
 Run `npx stateport` (PowerShell: `npx.cmd stateport`) with existing Node.js 24.x/npm.
 Desktop remains an optional visual client of the same engine, Cards, protected
 storage and signed access. This is a release candidate; package availability does
@@ -14,7 +14,7 @@ integrity and cryptographic public-source provenance were verified independently
 
 ## Current task versus next session
 
-Bootstrap rc.8 prints human-readable installation progress, a component checklist
+Bootstrap rc.9 prints human-readable installation progress, a component checklist
 and first-task/explore/browser-case messages by default. An interactive terminal
 asks which agents to configure, defaulting to all detected supported hosts.
 Non-TTY/JSON requires explicit `--agents all|none|codex,cursor` or `--agent cursor`;
@@ -63,7 +63,7 @@ patch is not a user prerequisite. Other LTS ranges remain unqualified.
 | --- | --- | --- | --- |
 | Windows 11 x64 | Native CI vault/recovery/Free Capture controls; actual VM named npm/setup/repeat/cold checks | System Edge reviewed Capture/cold reads; pinned archive audited | Full native model/human/trust acceptance pending |
 | macOS Apple Silicon arm64 | Native CI Keychain/recovery/Free Capture controls | System Chrome CI Capture/cold reads; pinned archive audited | Owner-host/model/human/native trust acceptance pending |
-| Ubuntu 24.04 x64 | Native CI and actual host bounded controls; fresh named npm/repeat/cold Card checks | System Chrome reviewed Capture; pinned archive audited | Full RC5 model/human/trust acceptance pending |
+| Ubuntu 24.04 x64 | Native CI and actual host bounded controls; fresh named npm/repeat/cold Card checks | System Chrome reviewed Capture; pinned archive audited | Actual local Codex first-use MCP/foreground flow; broader human/trust acceptance pending |
 
 No WSL, cross-build, hosted package or two-platform result substitutes for all
 three native workflows. Preserve sandbox, OS security policy, browser-owned
@@ -93,3 +93,25 @@ signed activation remain authoritative. No automatic trial/purchase, secrets in
 chat or repeated Capture/setup. Retained localCommand is a fallback for older
 hosts. RC5 includes this action; the earlier immutable RC4 does not. This does
 not promote native/provider compatibility; discover the actual runtime.
+
+## RC6 first useful result and RC9 installer
+
+Runtime rc.6 contains bundled skills beta.83, bounded source-context observations,
+source-only continuation without Capture or trial, and a single first-use
+introduction after a useful result. An explicit Developer trial CTA remains
+optional; refusal does not activate access or trigger repeated offers. Ordinary
+tasks can stay quiet when no useful StatePort material is present.
+
+Codex presence includes registered extensions in VS Code, VS Code Insiders and
+Cursor, independently of a global Codex CLI. Provider-aware labels keep Copilot
+Chat distinct from Codex and retain actual configuration outcomes.
+
+The runtime has three-OS native CI proof for source/progress safety, vault and
+Free Capture controls. Local Ubuntu Codex model/foreground first-use delivery
+passed; the owner confirmed the Windows chat acceptance. macOS manual/model
+acceptance remains unverified and non-blocking by owner decision. This does not
+qualify every provider, native trust scenario or human payment/recovery flow.
+
+Installer rc.9 includes the [anonymous install-event disclosure and opt-out](../bootstrap/README.md#anonymous-installer-metrics).
+The engine remains the separately signed runtime rc.6; npm UI/source and runtime
+versions are independent.

@@ -3,11 +3,141 @@
 
 // packages/agent-install/src/agent-tool-discovery.ts
 import { access, stat } from "node:fs/promises";
-import { constants } from "node:fs";
+import { constants as constants2 } from "node:fs";
 import { posix, win32 } from "node:path";
 
 // packages/agent-install/src/protocol.ts
 var setupTools = ["vscode", "cursor", "webstorm", "claude", "codex"];
+
+// packages/agent-install/src/agent-extension-discovery.ts
+import { constants } from "node:fs";
+import { lstat as lstat2, open } from "node:fs/promises";
+import { join as join2 } from "node:path";
+
+// packages/agent-install/src/agent-install-files.ts
+import { lstat, readFile, mkdir, readdir, writeFile, rename, rm } from "node:fs/promises";
+import { dirname, join, relative, resolve, sep } from "node:path";
+
+// packages/agent-install/src/agent-skills-package.ts
+var MAX_DOWNLOAD = 8 * 1024 * 1024;
+var MAX_EXPANDED = 32 * 1024 * 1024;
+
+// packages/agent-install/src/agent-install-files.ts
+async function safePath(home, file) {
+  const rel = relative(home, file);
+  if (!rel || rel === ".." || rel.startsWith(`..${sep}`) || resolve(home, rel) !== resolve(file))
+    throw Error("CONFLICT");
+  let current = resolve(home);
+  for (const part of ["", ...rel.split(sep)]) {
+    if (part)
+      current = join(current, part);
+    try {
+      const stat2 = await lstat(current);
+      if (stat2.isSymbolicLink())
+        throw Error("CONFLICT");
+    } catch (e) {
+      if (e.code !== "ENOENT")
+        throw e;
+    }
+  }
+}
+
+// packages/agent-install/src/agent-extension-discovery.ts
+var locations = [[".vscode", "vscode"], [".vscode-insiders", "vscode-insiders"], [".cursor", "cursor"]];
+var providers = [{ id: "openai.chatgpt", publisher: "openai", name: "chatgpt", key: "codex" }, { id: "github.copilot-chat", publisher: "github", name: "copilot-chat", key: "copilotChat" }];
+var limit = 1024 * 1024;
+async function metadata(home, path, budget, expired) {
+  if (expired()) throw Error("UNAVAILABLE");
+  await safePath(home, path);
+  const before = await lstat2(path);
+  if (!before.isFile() || before.size > limit) throw Error("UNAVAILABLE");
+  const file = await open(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0));
+  try {
+    const opened = await file.stat();
+    if (!opened.isFile() || opened.dev !== before.dev || opened.ino !== before.ino || opened.size > limit) throw Error("UNAVAILABLE");
+    const chunks = [];
+    let size = 0;
+    for (; ; ) {
+      if (expired()) throw Error("UNAVAILABLE");
+      const buffer = Buffer.alloc(65536), r = await file.read(buffer, 0, buffer.length, null);
+      if (!r.bytesRead) break;
+      size += r.bytesRead;
+      budget.bytes += r.bytesRead;
+      if (size > limit || budget.bytes > 4 * limit) throw Error("UNAVAILABLE");
+      chunks.push(buffer.subarray(0, r.bytesRead));
+    }
+    await safePath(home, path);
+    const after = await lstat2(path), held = await file.stat();
+    if (!after.isFile() || after.dev !== opened.dev || after.ino !== opened.ino || after.size !== opened.size || after.mtimeMs !== opened.mtimeMs || held.size !== opened.size || held.mtimeMs !== opened.mtimeMs || expired()) throw Error("UNAVAILABLE");
+    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  } finally {
+    await file.close();
+  }
+}
+async function inspectExtensions(home, expired) {
+  const result = { codex: [], copilotChat: [] }, budget = { bytes: 0 };
+  for (const [location, editor] of locations) {
+    if (expired() || budget.bytes > 4 * limit) break;
+    const root = join2(home, location, "extensions");
+    try {
+      const index = await metadata(home, join2(root, "extensions.json"), budget, expired);
+      if (!Array.isArray(index) || index.length > 4096) continue;
+      let inspected = 0;
+      for (const value of index) {
+        if (expired()) break;
+        const entry = value;
+        if (!entry || typeof entry.identifier?.id !== "string" || typeof entry.relativeLocation !== "string") continue;
+        const provider = providers.find((p) => p.id === entry.identifier.id.toString().toLowerCase());
+        if (!provider || result[provider.key].includes(editor)) continue;
+        if (++inspected > 32) break;
+        if (!new RegExp("^" + provider.id.replaceAll(".", "\\.") + "-[a-zA-Z0-9._-]{1,120}$", "i").test(entry.relativeLocation)) continue;
+        try {
+          const manifest = await metadata(home, join2(root, entry.relativeLocation, "package.json"), budget, expired);
+          if (typeof manifest?.publisher === "string" && manifest.publisher.toLowerCase() === provider.publisher && manifest.name === provider.name) result[provider.key].push(editor);
+        } catch {
+        }
+      }
+    } catch {
+    }
+  }
+  return result;
+}
+async function installedAgentExtensions(home, callerExpired = () => false) {
+  let expired = false, timer;
+  try {
+    return await Promise.race([inspectExtensions(home, () => expired || callerExpired()), new Promise((resolve2) => {
+      timer = setTimeout(() => {
+        expired = true;
+        resolve2({ codex: [], copilotChat: [] });
+      }, 2e3);
+    })]);
+  } finally {
+    expired = true;
+    clearTimeout(timer);
+  }
+}
+
+// packages/agent-install/src/agent-tool-presentation.ts
+var editorNames = { vscode: "VS Code", "vscode-insiders": "VS Code Insiders", cursor: "Cursor" };
+var vscode = (editor) => editor === "vscode" || editor === "vscode-insiders";
+function codexLocations(discovery) {
+  if (!discovery?.detected.includes("codex")) return "CLI or IDE extension";
+  if (!discovery.codex) return "CLI";
+  return [...discovery.codex.cli ? ["CLI"] : [], ...discovery.codex.editors.map((editor) => editorNames[editor] + " extension")].join(" + ");
+}
+function manualEditorTools(discovery) {
+  const tools = [];
+  if (discovery?.detected.includes("vscode")) {
+    if (discovery.copilotChat?.some(vscode)) tools.push({ id: "vscode", label: "GitHub Copilot Chat in VS Code" });
+    else if (!discovery.codex?.editors.some(vscode)) tools.push({ id: "vscode", label: "VS Code (agent not identified)" });
+  }
+  if (discovery?.detected.includes("webstorm")) tools.push({ id: "webstorm", label: "WebStorm" });
+  return tools;
+}
+function selectionTools(discovery) {
+  const separateVscode = manualEditorTools(discovery).some((tool) => tool.id === "vscode");
+  return discovery.detected.filter((id) => id !== "vscode" || separateVscode);
+}
 
 // packages/agent-install/src/agent-tool-discovery.ts
 function toolCandidates(tool, { home, platform, env }) {
@@ -34,7 +164,7 @@ function toolCandidates(tool, { home, platform, env }) {
 async function executable(path, platform) {
   try {
     if (!(await stat(path)).isFile()) return false;
-    await access(path, platform === "win32" ? constants.F_OK : constants.X_OK);
+    await access(path, platform === "win32" ? constants2.F_OK : constants2.X_OK);
     return true;
   } catch (error) {
     if (["ENOENT", "ENOTDIR", "EACCES"].includes(error.code ?? "")) return false;
@@ -57,12 +187,16 @@ async function discoverAgentTools(input) {
           if (await toolPresent(tool, input, probe)) detected.push(tool);
           if (expired) return { status: "unavailable", detected: [] };
         }
-        return { status: "ready", detected };
+        const extensions = await installedAgentExtensions(input.home, () => expired);
+        if (expired) return { status: "unavailable", detected: [] };
+        const cli = detected.includes("codex");
+        if (extensions.codex.length && !cli) detected.push("codex");
+        return { status: "ready", detected, ...extensions.codex.length ? { codex: { cli, editors: extensions.codex } } : {}, ...extensions.copilotChat.length ? { copilotChat: extensions.copilotChat } : {} };
       })(),
-      new Promise((resolve) => {
+      new Promise((resolve2) => {
         timer = setTimeout(() => {
           expired = true;
-          resolve({ status: "unavailable", detected: [] });
+          resolve2({ status: "unavailable", detected: [] });
         }, 2500);
       })
     ]);
@@ -73,7 +207,10 @@ async function discoverAgentTools(input) {
   }
 }
 export {
+  codexLocations,
   discoverAgentTools,
+  manualEditorTools,
+  selectionTools,
   toolCandidates,
   toolPresent
 };

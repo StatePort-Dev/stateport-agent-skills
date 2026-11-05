@@ -13,12 +13,29 @@ import { createCliOutput, installNeedsAttention } from '../lib/cli-output.mjs';
 import { discoverAgentTools } from '../lib/agent-discovery.mjs';
 import { chooseAgents, setupSelectedAgents } from '../lib/agent-selection.mjs';
 import { diagnoseSetupConflict } from '../lib/setup-diagnostics.mjs';
+import { createInstallMetrics, installFailureBucket } from '../lib/install-metrics.mjs';
 
 const rawArgs = process.argv.slice(2);
 const metadata = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
 const protocolCommands = new Set(['mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close']);
-const output = createCliOutput({ json: rawArgs.includes('--json') || protocolCommands.has(rawArgs.find(arg => arg !== '--json')), installerVersion: metadata.version });
+const output = createCliOutput({ json: rawArgs.includes('--json') || protocolCommands.has(rawArgs.find(arg => !['--json', '--no-telemetry'].includes(arg))), installerVersion: metadata.version });
 const write = (value, kind) => output.emit(value, kind);
+let installMetrics;
+
+function beginInstallMetrics(release, { command, selection, current, policy, consentUpdates, offline, source }) {
+  const agents = selection?.status === 'required' || !selection ? 'required'
+    : ['codex', 'claude', 'cursor'].filter(id => selection.agents.includes(id)).join('_') || 'none';
+  installMetrics = createInstallMetrics({
+    installer_version: metadata.version, runtime_version: release.version,
+    platform: ({ linux: 'linux', win32: 'windows', darwin: 'macos' })[process.platform],
+    architecture: process.arch, node_major: Number(process.versions.node.split('.')[0]),
+    operation: command === 'browser-install' ? 'browser_install' : command,
+    installation: current ? 'existing' : 'fresh', agents,
+    browser_preference: command === 'browser-install' || current?.browserPreference === 'pinned' ? 'pinned' : 'system',
+    update_policy: consentUpdates ? 'auto' : policy.mode,
+  }, { published: metadata.private === false && release.status === 'published' && !source,
+    disabled: rawArgs.includes('--no-telemetry'), offline });
+}
 
 function cacheRoot() {
   const configured = process.platform === 'win32' ? process.env.LOCALAPPDATA : process.platform === 'linux' ? process.env.XDG_DATA_HOME : undefined;
@@ -55,8 +72,8 @@ async function configureAgents(runtime, cache, selection) {
   });
 }
 async function main() {
-  const args = rawArgs.filter(arg => arg !== '--json');
-  if (rawArgs.filter(arg => arg === '--json').length > 1) throw Error('INVALID_ARGUMENTS');
+  const args = rawArgs.filter(arg => !['--json', '--no-telemetry'].includes(arg));
+  if (['--json', '--no-telemetry'].some(flag => rawArgs.filter(arg => arg === flag).length > 1)) throw Error('INVALID_ARGUMENTS');
   if (args.length === 1 && ['--help', '-h'].includes(args[0])) { output.help(); return; }
   if (args.length === 1 && ['--version', '-v'].includes(args[0])) {
     if (rawArgs.includes('--json')) write({ version: metadata.version }); else process.stdout.write(metadata.version + '\n');
@@ -137,9 +154,13 @@ async function main() {
   const policy = await readUpdatePolicy(cache);
   if (policy.mode === 'pinned' && (command === 'update' || command === 'browser-install' || (manifestSha256 && manifestSha256 !== policy.pin.digest))) throw Error('PIN_RELEASE_REQUIRED');
   if (command === 'update' && !source && !offline && trust.status === 'published') {
+    const release = JSON.parse(await readFile(new URL('../release.json', import.meta.url), 'utf8'));
+    beginInstallMetrics(release, { command, current: await readCurrent(cache), policy, offline, source });
     const outcome = await checkForUpdates(cache, trust, { force: true, manual: true, confirmDownload });
     const selected = await selectSessionRuntime(cache, trust, { manual: true });
-    write({ status: 'update_checked', outcome, selected: { version: selected.productVersion, digest: selected.digest }, updates: await updateStatus(cache) }); return;
+    write({ status: 'update_checked', outcome, selected: { version: selected.productVersion, digest: selected.digest }, updates: await updateStatus(cache) });
+    // A checked/held/offered update is not a completed installation.
+    await installMetrics.finish('install_deferred'); return;
   }
   if (command !== 'browser-install') selection = await selectAgents(agent);
   if (offline) {
@@ -149,8 +170,9 @@ async function main() {
     const release = JSON.parse(await readFile(new URL('../release.json', import.meta.url), 'utf8'));
     if (release.status === 'unpublished') throw Error('PUBLIC_RUNTIME_RELEASE_UNPUBLISHED');
     const current = await readCurrent(cache);
+    beginInstallMetrics(release, { command, selection, current, policy, consentUpdates, offline, source });
     runtime = await installPublishedRelease(release, cache, fetch, { browserPreference: command === 'browser-install' || current?.browserPreference === 'pinned' ? 'pinned' : 'system', confirmDownload, onDownload: info => write({ status: 'downloading_verified_release', ...info }) });
-    if (runtime.status === 'browser_download_required') { write(runtime); return; }
+    if (runtime.status === 'browser_download_required') { write(runtime); await installMetrics.finish('install_deferred'); return; }
   }
   selection ??= await selectAgents(agent);
   write({ status: 'installing_candidate', permissions: ['copy verified runtime to user-owned versioned cache', 'configure unchanged owned agent skills/MCP'], trial: 'not_started' });
@@ -169,14 +191,17 @@ async function main() {
     cache: offline ? 'verified_offline' : 'verified', hostDiscovered: 'unverified', updates: { mode: (await readUpdatePolicy(cache)).mode, delivery: 'candidate', launcher }, currentTask: {
       command: process.execPath, args: [launcher ?? runtime.entry, 'task-session'], selection: 'verified_at_new_session_start', protocol: 'agent-task-session/1',
       version: runtime.productVersion, digest: runtime.digest, generation: runtime.generation,
+      ...(doctor.capabilities?.sourceOnly===true?{sourceOnly:{scope:doctor.capabilities.sourceScope,instruction:'For an originally authorized source-only coding task, this exact source scope needs no Card, browser origin, Capture or trial. Keep the original project. List the exact tools after ready. Use source review/observations and prepare_first_use_message only when advertised and a useful accepted result exists; never fabricate browser scope.'}}:{}),
       input: 'The installed version below is an offer; the ready frame binds the selected runtime at new-session start. Keep this host execution session and stdin open. First JSON line has project, scope, optional deadlineMs. Example for an originally authorized fix task: {"project":"/absolute/original/project","scope":{"userRequestedTask":true,"intent":"fix_verify","sourceOrigins":["http://127.0.0.1:3000"],"frontendOrigins":["http://127.0.0.1:3001"],"stateCardIds":[]},"deadlineMs":600000}. Replace project/origins/Card IDs from the original user task; installation grants no scope. Then JSON lines: operation tools; operation call with requestId/name/arguments; operation close.',
       permissions: 'Use normal host approval for this exact runtime command when required. Installation does not grant browser, project or task permissions.',
     }, published: !source && release.status === 'published' && release.version === runtime.productVersion };
   write(result);
   if (installNeedsAttention(result)) process.exitCode = 1;
+  await installMetrics?.finish(installNeedsAttention(result) ? 'install_needs_attention' : 'install_completed', installNeedsAttention(result) ? 'configuration' : 'none');
 }
-void main().catch(error => {
+void main().catch(async error => {
   const code = error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : 'INSTALL_FAILED';
   write({ status: 'blocked', code, nodePrerequisite: code.startsWith('NODE_') ? 'https://nodejs.org/en/download' : undefined });
   process.exitCode = code === 'SETUP_CANCELLED' ? 130 : 1;
+  await installMetrics?.finish('install_failed', installFailureBucket(error));
 });

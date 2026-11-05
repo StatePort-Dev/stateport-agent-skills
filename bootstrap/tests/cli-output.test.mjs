@@ -13,7 +13,7 @@ const entry = fileURLToPath(new URL('../bin/stateport.mjs', import.meta.url));
 async function scenario(setup, run) {
   return updateFixture(async f => {
     const doctor = { version: '1.0.0-rc.3', host: { status: 'candidate' }, browser: { status: 'found', channel: 'chrome' } };
-    const body = `const replies=${JSON.stringify({ doctor, setup })};process.stdout.write(JSON.stringify(process.argv[2]==='setup'&&replies.setup?.agent?{...replies.setup,agent:process.argv[4]}:replies[process.argv[2]]??{})+'\\n');`;
+    const body = `const replies=${JSON.stringify({ doctor, setup, 'update-readiness': { version: '1.0.0-rc.3', status: 'ready', execution: 'allowed', generation: f.generation } })};process.stdout.write(JSON.stringify(process.argv[2]==='setup'&&replies.setup?.agent?{...replies.setup,agent:process.argv[4]}:replies[process.argv[2]]??{})+'\\n');`;
     await writeFile(join(f.source, 'main.cjs'), body);
     const manifest = JSON.parse(await readFile(join(f.source, 'candidate.json'), 'utf8'));
     manifest.files[0] = { path: 'main.cjs', bytes: Buffer.byteLength(body), sha256: sha(body) };
@@ -156,4 +156,15 @@ test('real CLI accepts a batch choice and explicit none without claiming a missi
  const report=JSON.parse(batch.stdout.trim().split('\n').at(-1));assert.equal(report.setup.schemaVersion,'agent-setup-batch/1');assert.deepEqual(report.setup.results.map(r=>r.agent),['codex','cursor']);
  const none=await invoke([...args,'--agents','none']);assert.equal(none.code,0);assert.match(none.stdout,/skipped by choice/);assert.match(none.stdout,/INFO/);assert(!none.stdout.includes('BLOCKING'));
  const duplicate=await invoke([...args,'--agents','cursor,cursor']);assert.equal(duplicate.code,1);
+}));
+
+test('rollback respects runtime-only choice and rejects duplicate agents before changing the pointer',()=>scenario(success,async({invoke,install,root})=>{
+ assert.equal((await invoke(install)).code,0);
+ const source=install[install.indexOf('--candidate-dir')+1],manifest=JSON.parse(await readFile(join(source,'candidate.json'),'utf8'));
+ manifest.productVersion='1.0.0-rc.4';const bytes=JSON.stringify(manifest);await writeFile(join(source,'candidate.json'),bytes);
+ const next=[...install];next[next.indexOf('--manifest-sha256')+1]=sha(bytes);assert.equal((await invoke(next)).code,0);
+ const cache=process.platform==='darwin'?join(root,'Library/Caches/StatePort/agent-runtime'):join(root,'data/StatePort/agent-runtime');
+ const pointer=await readFile(join(cache,'current.json'));
+ const invalid=await invoke(['rollback','--agents','cursor,cursor','--json']);assert.equal(invalid.code,1);assert.equal(JSON.parse(invalid.stdout).code,'INVALID_ARGUMENTS');assert.deepEqual(await readFile(join(cache,'current.json')),pointer);
+ const result=await invoke(['rollback','--agents','none','--json']);assert.equal(result.code,0,result.stdout);const report=JSON.parse(result.stdout);assert.equal(report.runtime,'1.0.0-rc.3');assert.equal(report.setup.status,'skipped');assert.equal(report.selection.method,'explicit');
 }));

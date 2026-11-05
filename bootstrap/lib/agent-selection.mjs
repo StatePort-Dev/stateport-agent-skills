@@ -1,7 +1,8 @@
+import {codexLocations,manualEditorTools} from './agent-discovery.mjs';
 import {createInterface} from 'node:readline/promises';
 
-export const agentNames={codex:'Codex CLI',claude:'Claude Code',cursor:'Cursor'};
-const ids=Object.keys(agentNames),manualNames={vscode:'VS Code',webstorm:'WebStorm'};
+export const agentNames={codex:'Codex',claude:'Claude Code',cursor:'Cursor'};
+const ids=Object.keys(agentNames);
 export const installedAgents=discovery=>discovery?.status==='ready'?ids.filter(id=>discovery.detected.includes(id)):[];
 function parse(value,defaults,numeric=false){
  const text=value.trim().toLowerCase();
@@ -20,15 +21,15 @@ export async function promptForAgents({input=process.stdin,output=process.stdout
  finally{rl.removeListener('SIGINT',cancel);rl.removeListener('close',cancel);rl.close();}
 }
 export async function chooseAgents({discovery,explicit,interactive=Boolean(process.stdin.isTTY&&process.stdout.isTTY),output=process.stdout,ask}={}){
- const defaults=installedAgents(discovery),base={schemaVersion:'agent-selection/1',detected:discovery?.status==='ready'?[...discovery.detected]:[],discovery:discovery?.status??'unavailable'};
+ const defaults=installedAgents(discovery),base={schemaVersion:'agent-selection/1',detected:discovery?.status==='ready'?[...discovery.detected]:[],discovery:discovery?.status??'unavailable',...(discovery?.codex?{codex:discovery.codex}:{}),...(discovery?.copilotChat?{copilotChat:discovery.copilotChat}:{})};
  if(explicit!==undefined){
   if(explicit==='all'&&discovery?.status!=='ready')return {...base,status:'required',method:'explicit',agents:[]};
   const agents=parse(explicit,defaults);return{...base,status:agents.length?'selected':explicit==='all'?'required':'skipped',method:'explicit',agents};
  }
  if(!interactive)return{...base,status:'required',method:'required',agents:[]};
  output.write('\n  Choose coding agents\n  Found supported agents are checked by default. This is a proposed selection.\n\n');
- ids.forEach((id,index)=>output.write(`  [${defaults.includes(id)?'x':' '}] ${index+1}. ${agentNames[id]} · ${defaults.includes(id)?'found':'not detected'}\n`));
- for(const id of base.detected.filter(id=>manualNames[id]))output.write(`      ${manualNames[id]} · found · manual connection\n`);
+ ids.forEach((id,index)=>output.write(`  [${defaults.includes(id)?'x':' '}] ${index+1}. ${agentNames[id]} · ${id==='codex'?codexLocations(discovery)+' · ':''}${defaults.includes(id)?'found':'not detected'}\n`));
+ for(const tool of manualEditorTools(discovery))output.write(`      ${tool.label} · found · manual connection\n`);
  if(base.discovery!=='ready')output.write('  Automatic discovery is unavailable. Choose the agents you have.\n');
  if(defaults.length===3)output.write('\n  This runtime cannot combine Cursor with both Codex and Claude skills.\n  You can change the selection; each setup conflict will be reported.\n');
  output.write('\n  Enter confirms checked agents. Type numbers such as 1,3 to change.\n  Type all for every found supported agent, or none for runtime only.\n');

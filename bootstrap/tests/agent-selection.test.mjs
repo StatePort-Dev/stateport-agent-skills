@@ -51,3 +51,9 @@ test('EOF and SIGINT reject the prompt, never confirm checked defaults',async()=
   await assert.rejects(pending,/SETUP_CANCELLED/);
  }
 });
+test('Codex in VS Code is checked without CLI and is not duplicated as generic manual VS Code',async()=>{
+ const {chooseAgents}=await load(),out=output();const r=await chooseAgents({discovery:{status:'ready',detected:['vscode','codex'],codex:{cli:false,editors:['vscode']}},interactive:true,output:out.stream,ask:async()=>''});assert.deepEqual(r.agents,['codex']);assert(out.text().includes('VS Code extension'));assert(!out.text().includes('manual connection'));assert.deepEqual(r.codex,{cli:false,editors:['vscode']});
+});
+test('Copilot Chat keeps its own truthful manual label alongside automatic Codex',async()=>{
+ const {chooseAgents}=await load(),out=output();await chooseAgents({discovery:{status:'ready',detected:['vscode','codex'],codex:{cli:false,editors:['vscode']},copilotChat:['vscode']},interactive:true,output:out.stream,ask:async()=>''});assert(out.text().includes('GitHub Copilot Chat in VS Code'));assert(out.text().includes('manual connection'));
+});

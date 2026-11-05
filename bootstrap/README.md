@@ -142,3 +142,23 @@ This package contains the **MIT installer**, not the private engine source.
 lives beside the public coding-agent integrations. The compiled runtime has its
 own product licence. [StatePort on GitHub](https://github.com/StatePort-Dev) is
 the organisation's main entry point.
+
+## Anonymous installer metrics
+
+Published online installs send a start and at most one outcome event to StatePort
+by default, without a prompt. Disable this with `--no-telemetry`, `DO_NOT_TRACK=1`
+or `STATEPORT_TELEMETRY_DISABLED=1`. Offline, candidate and automated test/CI runs
+send nothing. Help/version/doctor and ordinary MCP/task use add no install events.
+
+The fixed schema contains installer/runtime versions, OS family, CPU architecture,
+Node major, operation, fresh/existing cache, selected agent set, browser preference,
+update policy and a closed outcome/failure category. It contains no user, device
+or session ID, client timestamp, paths, project/Card/source content, credentials,
+raw arguments or raw errors. There is no persistent client analytics store.
+
+Delivery uses StatePort's own HTTPS endpoint, with no redirects, cookies, retries
+or queue, and an 800 ms deadline per event. Transport failure cannot fail setup.
+Only daily aggregates are retained for 90 days; ordinary network metadata is
+processed by the hosting provider, not stored as application analytics dimensions.
+These counts describe received attempts and outcomes, not unique people or
+verified first use. See the [privacy policy](https://stateport.dev/privacy/).

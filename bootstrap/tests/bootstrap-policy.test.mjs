@@ -43,4 +43,14 @@ test('fresh install returns the stable first-task launcher so CLI use participat
   const result = JSON.parse(output.stdout.trim().split('\n').at(-1));
   assert.equal(result.currentTask.args[0], result.updates.launcher);
   assert.equal(result.currentTask.selection, 'verified_at_new_session_start');
+  assert.equal(result.currentTask.sourceOnly,undefined);
+}));
+test('advertises source-only continuation only from the verified runtime doctor capability',()=>updateFixture(async f=>{
+ const scope={userRequestedTask:true,intent:'source',sourceOrigins:[],frontendOrigins:[],stateCardIds:[]};
+ const main=Buffer.from(`process.stdout.write(JSON.stringify({capabilities:{sourceOnly:true,sourceScope:${JSON.stringify(scope)}},browser:{status:'found'}})+'\\n')`);
+ const manifest=JSON.parse(await readFile(join(f.source,'candidate.json'),'utf8'));manifest.files=[{path:'main.cjs',bytes:main.length,sha256:sha(main)}];
+ const bytes=JSON.stringify(manifest);await writeFile(join(f.source,'main.cjs'),main);await writeFile(join(f.source,'candidate.json'),bytes);
+ const env={...process.env,HOME:f.root,USERPROFILE:f.root,XDG_DATA_HOME:join(f.root,'data'),LOCALAPPDATA:join(f.root,'data')};delete env.NODE_TEST_CONTEXT;
+ const output=await exec(process.execPath,[entry,'install','--agents','none','--candidate-dir',f.source,'--manifest-sha256',sha(bytes),'--json'],{env});
+ const result=JSON.parse(output.stdout.trim().split('\n').at(-1));assert.deepEqual(result.currentTask.sourceOnly.scope,scope);assert.match(result.currentTask.sourceOnly.instruction,/no Card.*Capture or trial/);
 }));

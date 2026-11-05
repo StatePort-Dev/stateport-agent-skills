@@ -1,3 +1,4 @@
+import { manualEditorTools } from './agent-discovery.mjs';
 import { homedir } from 'node:os';
 
 const agents = { codex: 'Codex', claude: 'Claude Code', cursor: 'Cursor' };
@@ -135,9 +136,9 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
       notice('BLOCKING', 'Capture and replay', 'No supported browser was found. Runtime installation is complete; browser work is unavailable.');
       steps.push('Install Google Chrome (or Microsoft Edge on Windows), or review npx stateport browser-install.', 'Run npx stateport again after the browser is available.');
     }
-    const manual = (value.selection?.detected ?? []).filter(id => ['vscode', 'webstorm'].includes(id));
+    const manual = manualEditorTools(value.selection ? { ...value.selection, status: value.selection.discovery ?? 'ready' } : undefined);
     if (manual.length) {
-      notice('INFO', 'Other tools found', manual.map(id => ({ vscode: 'VS Code', webstorm: 'WebStorm' })[id]).join(', ') + ': use the documented manual connection. This installer did not change their setup.');
+      notice('INFO', 'Other tools found', manual.map(tool => tool.label).join(', ') + ': use the documented manual connection. This installer did not change their setup.');
       line('Connection guide:');
       command('https://github.com/StatePort-Dev/stateport-agent-skills/blob/main/AGENT_INSTALL.md');
     }
@@ -213,11 +214,11 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
     heading('Command complete'); line('Details are available with --json.'); line();
   };
   return { begin, emit, help: () => {
-    if (json) { emit({ name: 'stateport', commands: ['install', 'doctor', 'update', 'updates', 'browser-install', 'rollback', 'uninstall', 'repair-launcher'], options: ['--json', '--help', '--version'] }); return; }
+    if (json) { emit({ name: 'stateport', commands: ['install', 'doctor', 'update', 'updates', 'browser-install', 'rollback', 'uninstall', 'repair-launcher'], options: ['--json', '--help', '--version', '--no-telemetry'] }); return; }
     begin(); heading('Get started'); line('npx stateport'); line('Install StatePort and connect your coding agent.');
     heading('Manage your installation');
     for (const [command, description] of [['install', 'Choose coding agents; all found agents checked by default'], ['install --agents codex,cursor', 'Explicit choice for scripts; all or none also accepted'], ['doctor', 'Check runtime and browser'], ['doctor --agent cursor', 'Read-only setup conflict details'], ['update', 'Check for an update'], ['updates status', 'Show update policy'], ['browser-install', 'Review optional Chromium download'], ['rollback', 'Restore the retained previous runtime'], ['uninstall', 'Remove unchanged owned agent setup'], ['repair-launcher --confirm', 'Repair the launcher; keep a backup']]) line(`npx stateport ${command}  — ${description}`);
-    heading('Options'); line('--json     Machine-readable output for agents and scripts'); line('--offline  Use a verified installation without downloading'); line('--version  Show installer version'); line();
+    heading('Options'); line('--json     Machine-readable output for agents and scripts'); line('--offline  Use a verified installation without downloading'); line('--version  Show installer version'); line('--no-telemetry  Disable anonymous installer metrics (also DO_NOT_TRACK=1)'); line();
   } };
 }
 
