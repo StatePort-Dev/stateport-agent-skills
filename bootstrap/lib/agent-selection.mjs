@@ -1,7 +1,7 @@
 import {codexLocations,manualEditorTools} from './agent-discovery.mjs';
 import {createInterface} from 'node:readline/promises';
 
-export const agentNames={codex:'Codex',claude:'Claude Code',cursor:'Cursor'};
+export const agentNames={codex:'Codex',claude:'Claude Code',cursor:'Cursor',vscode:'VS Code / Copilot'};
 const ids=Object.keys(agentNames);
 export const installedAgents=discovery=>discovery?.status==='ready'?ids.filter(id=>discovery.detected.includes(id)):[];
 function parse(value,defaults,numeric=false){
@@ -9,8 +9,8 @@ function parse(value,defaults,numeric=false){
  if(text==='all'||(numeric&&text===''))return [...defaults];
  if(text==='none')return [];
  const parts=text.split(',').map(s=>s.trim());
- const selected=parts.map(s=>numeric&&/^[1-3]$/.test(s)?ids[Number(s)-1]:s);
- if(!selected.length||selected.length>3||selected.some(id=>!ids.includes(id))||new Set(selected).size!==selected.length)throw Error('INVALID_ARGUMENTS');
+ const selected=parts.map(s=>numeric&&/^[1-4]$/.test(s)?ids[Number(s)-1]:s);
+ if(!selected.length||selected.length>ids.length||selected.some(id=>!ids.includes(id))||new Set(selected).size!==selected.length)throw Error('INVALID_ARGUMENTS');
  return ids.filter(id=>selected.includes(id));
 }
 export async function promptForAgents({input=process.stdin,output=process.stdout,terminal=Boolean(input.isTTY&&output.isTTY),query}){
@@ -31,12 +31,12 @@ export async function chooseAgents({discovery,explicit,interactive=Boolean(proce
  ids.forEach((id,index)=>output.write(`  [${defaults.includes(id)?'x':' '}] ${index+1}. ${agentNames[id]} · ${id==='codex'?codexLocations(discovery)+' · ':''}${defaults.includes(id)?'found':'not detected'}\n`));
  for(const tool of manualEditorTools(discovery))output.write(`      ${tool.label} · found · manual connection\n`);
  if(base.discovery!=='ready')output.write('  Automatic discovery is unavailable. Choose the agents you have.\n');
- if(defaults.length===3)output.write('\n  This runtime cannot combine Cursor with both Codex and Claude skills.\n  You can change the selection; each setup conflict will be reported.\n');
+ if(['codex','claude','cursor'].every(id=>defaults.includes(id)))output.write('\n  This runtime cannot combine Cursor with both Codex and Claude skills.\n  You can change the selection; each setup conflict will be reported.\n');
  output.write('\n  Enter confirms checked agents. Type numbers such as 1,3 to change.\n  Type all for every found supported agent, or none for runtime only.\n');
  const query=`  Selection [${defaults.map(id=>ids.indexOf(id)+1).join(',')||'none'}]: `;
  for(;;){
   const answer=await (ask?ask(query):promptForAgents({output,query}));
-  let agents;try{agents=parse(answer,defaults,true);}catch{output.write('  Choose numbers 1–3 separated by commas, all, or none.\n');continue;}
+  let agents;try{agents=parse(answer,defaults,true);}catch{output.write('  Choose numbers 1–4 separated by commas, all, or none.\n');continue;}
   output.write(`  Selected: ${agents.map(id=>agentNames[id]).join(', ')||'runtime only'}\n\n`);
   return{...base,status:agents.length?'selected':'skipped',method:'interactive',agents};
  }

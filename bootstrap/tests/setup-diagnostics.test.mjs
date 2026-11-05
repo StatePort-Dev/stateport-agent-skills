@@ -47,3 +47,17 @@ test('names a current owned multi-root Cursor conflict instead of pointing at an
  await mkdir(join(cache,'agent-setup'),{recursive:true});await writeFile(join(cache,'agent-setup/receipt.json'),JSON.stringify({schemaVersion:1,roots}));
  const result=await diagnoseSetupConflict({home,cache,agent:'cursor',platform:'linux',env:{}});assert(result.issues.some(i=>i.code==='MULTIPLE_OWNED_SKILL_ROOTS'));assert(!result.issues.some(i=>i.code==='UNOWNED_OR_EDITED_SKILLS'));
 }));
+test('Codex diagnostics parse real TOML and distinguish enabled plugin from inactive cache',()=>fixture(async({home,cache})=>{
+ const {diagnoseSetupConflict}=await import('../lib/setup-diagnostics.mjs');
+ await mkdir(join(home,'.codex/plugins/cache/stateport-dev'),{recursive:true});
+ await writeFile(join(home,'.codex/config.toml'),'model="unchanged"\n');
+ const cached=await diagnoseSetupConflict({home,cache,agent:'codex',platform:'linux',env:{}});
+ assert.equal(cached.configState,'absent');assert.deepEqual(cached.issues,[]);
+ const text='[plugins."stateport@stateport-dev"]\nenabled=true\n[mcp_servers.other]\nenv={TOKEN="DO_NOT_EXPOSE_SECRET"}\n[mcp_servers.stateport]\ncommand="/opt/StatePort/resources/mcp-runtime/node"\nargs=["/opt/StatePort/resources/mcp-runtime/mcp-main.cjs"]\n';
+ await writeFile(join(home,'.codex/config.toml'),text);
+ const result=await diagnoseSetupConflict({home,cache,agent:'codex',platform:'linux',env:{}});
+ assert.equal(result.configState,'present');assert.equal(result.migrationAvailable,true);
+ assert(result.issues.some(i=>i.code==='CODEX_PLUGIN_ACTIVE'));
+ assert(!JSON.stringify(result).includes('DO_NOT_EXPOSE'));
+ assert.equal(await readFile(join(home,'.codex/config.toml'),'utf8'),text);
+}));

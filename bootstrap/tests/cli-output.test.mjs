@@ -81,6 +81,10 @@ test('MCP failure remains machine-only without requiring --json', () => scenario
   const r = await invoke(['mcp']); assert.equal(r.code, 1);
   assert.equal(JSON.parse(r.stdout).code, 'RUNTIME_NOT_INSTALLED'); assert.equal(r.stderr, '');
 }));
+test('a retained older runtime offers an update instead of calling an unsupported VS Code adapter',()=>scenario(success,async({invoke,install})=>{
+ const args=install.map(value=>value==='cursor'?'vscode':value),r=await invoke(args);
+ assert.equal(r.code,1);assert.match(r.stdout,/runtime predates automatic VS Code/);assert.match(r.stdout,/npx stateport update/);assert.match(r.stdout,/settings were not changed/);
+}));
 
 test('doctor and management status have readable defaults and explicit JSON', () => scenario(success, async ({ invoke, install }) => {
   await invoke(install);
@@ -119,6 +123,16 @@ test('prerequisite, download, signature and lock failures offer one safe next ac
   }
 });
 
+test('unsupported Node explains the detected version, impact and executable upgrade steps', () => {
+  const text = rendered({status:'blocked', code:'NODE_24_LTS_CANDIDATE_REQUIRED', detectedNode:'20.19.3'});
+  assert.match(text, /20\.19\.3/);
+  assert.match(text, /Node\.js 24/);
+  assert.match(text, /nvm install 24/);
+  assert.match(text, /nvm use 24/);
+  assert.match(text, /No runtime or agent settings were changed/);
+  assert.match(text, /How to Start/);
+});
+
 test('uninstall, repair, rollback and held updates never imply unproved setup success', () => {
   assert.match(rendered({ status: 'uninstalled' }), /Cards and protected data preserved/);
   assert.match(rendered({ status: 'launcher_repaired' }), /backed up/);
@@ -142,6 +156,14 @@ test('multiple selected agents retain separate outcomes and actionable ready ver
  const results=[{...success,agent:'codex'},{...success,agent:'claude',status:'failed',result:{status:'failed',reason:'CONFLICT'}}];
  const text=rendered({status:'candidate_installed',version:'1.0.0-rc.5',doctor:{browser:{status:'found',channel:'chrome'}},setup:{schemaVersion:'agent-setup-batch/1',status:'partial',results}});
  assert.match(text,/Codex.*MCP launch checked/);assert.match(text,/Claude Code.*not configured/);assert.match(text,/BLOCKING.*Claude Code/);assert.match(text,/Ready now: Codex/);assert.match(text,/How to Start/);
+});
+test('recognized Codex conflict offers one migration command and explains its effect',()=>{
+ const text=rendered({status:'candidate_installed',version:'1.0.0-rc.10',doctor:{browser:{status:'found',channel:'chrome'}},setup:{agent:'codex',status:'failed',result:{reason:'CONFLICT'},diagnostics:{configState:'present',migrationAvailable:true,issues:[{code:'CODEX_PLUGIN_ACTIVE',path:'.codex/config.toml'}]}}});
+ assert.match(text,/enabled StatePort skills plugin/);
+ assert.match(text,/StatePort-only backup/);
+ assert.match(text,/npx stateport install --agent codex --migrate-codex/);
+ assert(!text.includes('Inspect the exact blocker'));
+ assert(text.lastIndexOf('How to Start')>text.indexOf('BLOCKING'));
 });
 
 test('real CLI without a non-TTY selection installs runtime only and returns the same-chat descriptor',()=>scenario(success,async({invoke,install})=>{

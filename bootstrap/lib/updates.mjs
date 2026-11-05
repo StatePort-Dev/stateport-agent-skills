@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { withInstallTransaction, readCurrent, readInstalled, readPrevious } from './install.mjs';
-import { readJson, readUpdatePolicy, checkDue, compatibleGeneration, hex } from './update-policy.mjs';
+import { readJson, readUpdatePolicy, checkDue, compatibleGeneration, validGeneration, hex } from './update-policy.mjs';
 import { download, verifyChannelEnvelope, installReleaseDocument, compareVersions } from './release.mjs';
 
 const empty = () => ({ schemaVersion: 'agent-update-state/1', checkedAt: null, water: {}, available: null, pending: null, quarantine: [], hold: null });
@@ -22,6 +22,47 @@ function channelTrust(trust, policy) {
   const url = trust.channels?.[policy.channel] ?? (trust.channel === policy.channel ? trust.url : undefined);
   if (!url) throw Error('UPDATE_CHANNEL_UNAVAILABLE');
   return { ...trust, channel: policy.channel, url };
+}
+/** An explicit stable installation selects current signed metadata, independently
+ * of the npm bootstrap's baseline version. One verifier/lock/stager remains the
+ * authority. Existing channel/Auto consent, pins and running tasks are retained. */
+export async function installCurrentPublishedRelease(cache,trust,options={}) {
+  return withInstallTransaction(cache,async transaction=>{
+    const policy=await readUpdatePolicy(cache),current=await transaction.current();
+    if(policy.mode==='pinned'){
+      if(!current||current.digest!==policy.pin.digest||current.productVersion!==policy.pin.version)throw Error('UPDATE_PIN_INVALID');
+      options.onResolved?.({version:current.productVersion});
+      return {...current,unchanged:true};
+    }
+    const state=await stateFor(cache),config=channelTrust(trust,{channel:'stable'});
+    const signal=options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(130000)]):AbortSignal.timeout(130000);
+    const fetcher=options.fetcher??fetch;
+    const envelope=JSON.parse((await download(config.url,2*1024*1024,fetcher,{signal,timeoutMs:5000,metadataChannel:'stable'})).toString('utf8'));
+    const verified=verifyChannelEnvelope(envelope,config,state.water.stable),document=verified.document;
+    if(options.minimumVersion&&compareVersions(document.version,options.minimumVersion)<0)throw Error('RELEASE_DOWNGRADE');
+    const browserPreference=options.browserPreference??current?.browserPreference??'system',asset=assetFor(document,browserPreference);
+    if(!validGeneration(asset.generation))throw Error('UPDATE_INCOMPATIBLE');
+    if(current&&(!validGeneration(current.generation)||current.generation.storageRead!==asset.generation.storageRead||current.generation.storageWrite!==asset.generation.storageWrite))throw Error('UPDATE_INCOMPATIBLE');
+    if(quarantined(state,asset.manifestSha256))throw Error('UPDATE_QUARANTINED');
+    const order=current?compareVersions(document.version,current.productVersion):1;
+    if(order<0)throw Error('RELEASE_DOWNGRADE');
+    if(order===0&&asset.manifestSha256!==current.digest&&browserPreference===current.browserPreference)throw Error('RELEASE_VERSION_REPLACED');
+    if(current?.digest===asset.manifestSha256&&compatibleGeneration(current.generation,asset.generation))throw Error('RELEASE_GENERATION');
+    state.water.stable={sequence:document.sequence,version:document.version,releaseDigest:verified.digest};
+    state.checkedAt=Date.now();
+    await transaction.write('update-state.json',state);
+    options.onResolved?.({version:document.version});
+    let result;
+    if(current?.digest===asset.manifestSha256)result={...current,unchanged:true};
+    else{
+      const candidate=await installReleaseDocument(document,cache,fetcher,{...options,browserPreference,generation:asset.generation,signal,install:transaction.stage});
+      if(candidate.status==='browser_download_required')return candidate;
+      result=await transaction.activate(candidate.digest);
+    }
+    state.available=null;state.pending=null;state.hold=null;
+    await transaction.write('update-state.json',state);
+    return {...result,publicDeliveryVerified:true};
+  });
 }
 function assetFor(document, browserPreference) {
   const platform = document.assets.find(asset => asset.platform === process.platform && asset.arch === process.arch);

@@ -11,8 +11,9 @@ StatePort LocalRuntime owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
 > **Beta source.** The integration version is <!-- integration-version:start -->`0.1.0-beta.83`<!-- integration-version:end -->. Source
-> installation and bounded Codex CLI workflows have been checked, but there is
-> no general supported end-user release claim. Tagged prereleases distribute source;
+> installation and bounded Codex CLI workflows have been checked. The npm
+> installer has its own stable release; this does not qualify every provider.
+> Integration prereleases distribute source;
 > New Bug Workflows real-host acceptance
 > remains unverified until version-bound results are recorded. Use synthetic data and review
 > the source before installing it.
@@ -32,24 +33,28 @@ dependency-free localhost app with a deliberate bug, a failing regression test,
 a technical walkthrough and an optional StatePort capture/fix task. It uses
 only synthetic data and runs without a StatePort account or installation.
 
-## Node Runtime release candidate — npm
+## Install StatePort — npm
 
 The published [npm package](https://www.npmjs.com/package/stateport) installs
-StatePort Agent Runtime RC6 with skills beta.83 through installer rc.9:
+the signed stable StatePort engine with skills beta.83 through installer 1.0.0:
 
 ```sh
 npx stateport
 ```
 
 PowerShell: `npx.cmd stateport`. An existing Node.js 24.x/npm installation is
-required. The transparent bootstrap is about 40 KB and verifies the signed
+required for the engine. The installer starts on Node 20–23 with upgrade steps.
+The small transparent bootstrap verifies the signed
 platform runtime, about 7 MB with a system browser. It configures owned skills
 and MCP for the selected coding agent. Desktop is optional. Explicit pinned
 Chromium fallback is a separate download, with size and digest shown before consent.
 Setup does not start a trial or grant browser/task authority.
-Bootstrap rc.9 offers a choice of agents, defaulting to every detected supported
+Installer 1.0.0 offers a choice of Codex, Claude Code, Cursor and VS Code/Copilot, defaulting to every detected supported
 agent. Each selected connection has its own outcome. It distinguishes installer/runtime versions, explains warning severity
-and reports remaining conflict paths read-only. Every installation ends with
+and offers an explicit backed-up migration for recognized old Codex setups.
+Custom or edited configuration stays protected. New installations select the
+signed stable engine independently of the npm version; existing pins and update
+consent are preserved. Every installation ends with
 **How to Start**, after an installed/missing checklist and concrete conflict recovery. Scripts and authorized
 same-chat installers use `npx stateport --json` for the exact launcher descriptor;
 MCP/task-session output remains protocol-only.
@@ -65,7 +70,7 @@ See the [release notes](https://github.com/StatePort-Dev/stateport-releases/rele
 and [Node contract](docs/AGENT_RUNTIME_CANDIDATE.md). Package availability does not
 promote provider statuses. The optional Desktop path remains below.
 
-## Connect an agent — current published Desktop path
+## Connect an agent — optional Desktop path
 
 1. Resolve the current Desktop release in the selected channel using the
    [installation entrypoint](AGENT_INSTALL.md#resolve-the-desktop-release), install

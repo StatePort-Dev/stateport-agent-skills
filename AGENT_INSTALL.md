@@ -12,9 +12,9 @@ generated from [`integration.json`](integration.json) by `npm run sync` and
 validated by `npm run check`. It is independent of the Desktop version and is
 not a claim about the newest remote source or the version an agent has loaded.
 
-## Node Runtime RC installation
+## Node Runtime installation
 
-The [published Node Runtime RC](docs/AGENT_RUNTIME_CANDIDATE.md) uses an existing
+The [Node Runtime](docs/AGENT_RUNTIME_CANDIDATE.md) uses an existing
 Node.js 24.x/npm installation, the shared local engine and optional Desktop:
 
 ```sh
@@ -32,7 +32,9 @@ For scripts or an authorized current-chat agent installation, run
 exact `currentTask` descriptor. Incomplete agent setup exits 1; inspect the final
 JSON object to distinguish installed runtime from setup conflict. Use its returned
 finite current-chat continuation when appropriate;
-restart the coding host for next-session MCP discovery. Setup, host discovery,
+restart the coding host for next-session MCP discovery. VS Code/Copilot is an automatic setup target
+separate from Codex; select `--agent vscode` or include it in `--agents`. Standard
+macOS VS Code applications are detected even without `code` on PATH. Setup, host discovery,
 task authority, browser readiness and signed access remain distinct. Installation
 does not start a trial. Human access codes never enter chat.
 
@@ -57,7 +59,9 @@ confirmed automatic canonical user MCP discovery without a project alias or Enab
 click. Run CLI setup in the same user environment as the IDE; a config written
 under another HOME is not visible to it. New candidate setup output identifies
 that exact path. Native approval policy and foreign/disabled entries remain
-protected. This source change has not replaced the published RC.
+protected. Recognized old Codex plugin/MCP setup has an explicit backed-up
+migration: `npx stateport install --agent codex --migrate-codex`. Modified or
+custom configuration is preserved with precise recovery instructions.
 
 ## Desktop setup button
 

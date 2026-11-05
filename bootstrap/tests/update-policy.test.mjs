@@ -4,13 +4,14 @@ import { mkdtemp, rm, realpath, mkdir, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { readUpdatePolicy, setUpdatePolicy, checkDue, compatibleGeneration } from '../lib/update-policy.mjs';
+import { readUpdatePolicy, setUpdatePolicy, checkDue, compatibleGeneration,validGeneration } from '../lib/update-policy.mjs';
 import { installCandidate } from '../lib/install.mjs';
 
 test('Notify default never silently acquires Auto consent; repeat setup preserves exact pin/channel', async () => {
   const cache = await mkdtemp(join(await realpath(tmpdir()), 'stateport-policy-'));
   try {
     assert.equal((await readUpdatePolicy(cache)).mode, 'notify');
+    assert.equal((await readUpdatePolicy(cache)).channel, 'stable');
     await assert.rejects(setUpdatePolicy(cache, { mode: 'auto' }), /UPDATE_CONSENT_REQUIRED/);
     assert.equal((await setUpdatePolicy(cache, { mode: 'auto', consent: true })).mode, 'auto');
     const source = join(cache, 'fixture'); await mkdir(source);
@@ -44,6 +45,10 @@ test('generation compatibility is explicit, exact and conservative, including sk
     assert.equal(compatibleGeneration(a, { ...a, [field]: 'changed' }), 'UPDATE_INCOMPATIBLE');
   }
   assert.equal(compatibleGeneration(a, { ...a, browser: { ...a.browser, preference: 'pinned' } }), 'UPDATE_INCOMPATIBLE');
+  const dependencyUpdate={...a,browser:{...a.browser,playwright:'1.64.0'}};
+  assert.equal(validGeneration(dependencyUpdate),true,'signed manifest version is structural, not an npm bootstrap dependency');
+  assert.equal(validGeneration({...a,browser:{...a.browser,playwright:['1.64.0']}}),false);
+  assert.equal(compatibleGeneration(a,dependencyUpdate),'UPDATE_INCOMPATIBLE','running-generation compatibility stays exact');
   assert.equal(compatibleGeneration(a, { ...a, unknownPermission: true }), 'UPDATE_INCOMPATIBLE');
   assert.equal(compatibleGeneration(undefined, a), 'UPDATE_INCOMPATIBLE');
 });

@@ -24,11 +24,13 @@ export async function updateFixture(run) {
   const a = bundle('1.0.0-rc.3'), b = bundle('1.0.0-rc.4');
   await writeFile(join(source, 'main.cjs'), a.main); await writeFile(join(source, 'candidate.json'), a.manifest);
   const installed = await installCandidate({ source, cache, manifestSha256: sha(a.manifest) });
+  // Existing RC policy remains explicit; fresh installations default to stable.
+  await writeFile(join(cache,'update-policy.json'),JSON.stringify({schemaVersion:'agent-update-policy/1',mode:'notify',channel:'rc',consent:false,pin:null}));
   const trust = { status: 'published', keyId: 'fixture', publicKey: key.publicKey.export({ type: 'spki', format: 'pem' }), publisher: 'StatePort-Dev', channel: 'rc', url: base + 'channel.json' };
   let doc, envelope, candidate = b; const requests = [];
-  const release = (next = b, sequence = 2) => {
+  const release = (next = b, sequence = 2, channel = 'rc') => {
     candidate = next;
-    doc = { schemaVersion: 'agent-runtime-release/2', version: JSON.parse(next.manifest).productVersion, publisher: trust.publisher, channel: 'rc', sequence,
+    doc = { schemaVersion: 'agent-runtime-release/2', version: JSON.parse(next.manifest).productVersion, publisher: trust.publisher, channel, sequence,
       assets: [['linux','x64'],['win32','x64'],['darwin','arm64']].map(([platform, arch]) => ({ platform, arch, ...next.asset, browserFallback: next.asset })) };
     const bytes = Buffer.from(JSON.stringify(doc)); envelope = { keyId: trust.keyId, payload: bytes.toString('base64'), signature: sign(null, bytes, key.privateKey).toString('base64') };
   }; release();

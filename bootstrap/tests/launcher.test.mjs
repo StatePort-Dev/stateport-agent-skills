@@ -17,3 +17,30 @@ test('stable loader is unchanged on repeat, refuses edits and repairs only expli
   assert.equal(backups.length, 1);
   assert.equal(await readFile(join(f.cache, backups[0], 'main.cjs'), 'utf8'), 'my deliberate local edit');
 }));
+test('automatic stable metadata migration cannot replace a key, foreign URL, edited loader or extra file',async()=>{
+ for(const change of ['key','url','code','extra'])await updateFixture(async f=>{
+  const prefix='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/';
+  const old={schemaVersion:'agent-update-trust/1',status:'published',publisher:'StatePort-Dev',channel:'rc',url:prefix+'rc.json',keyId:f.trust.keyId,publicKey:f.trust.publicKey};
+  const next={...old,channel:'stable',url:prefix+'stable.json',channels:{stable:prefix+'stable.json',rc:prefix+'rc.json'}};
+  await ensureLauncher(f.cache,old);
+  if(change==='key')next.keyId='different-key';
+  if(change==='url')next.url='https://example.test/stable.json';
+  if(change==='code')await writeFile(join(f.cache,'launcher/lib/install.mjs'),'custom local code');
+  if(change==='extra')await writeFile(join(f.cache,'launcher/private.env'),'SYNTHETIC_PRIVATE_VALUE');
+  await assert.rejects(ensureLauncher(f.cache,next),/LAUNCHER_REPAIR_REQUIRED/);
+  assert.deepEqual(JSON.parse(await readFile(join(f.cache,'launcher/release.json'),'utf8')),old);
+  assert.equal((await readdir(f.cache)).filter(n=>n.startsWith('.launcher-backup-')).length,0);
+ });
+});
+test('unchanged owned RC launcher adopts the same-key official stable catalog without asking for repair',()=>updateFixture(async f=>{
+ const prefix='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/';
+ const old={schemaVersion:'agent-update-trust/1',status:'published',publisher:'StatePort-Dev',channel:'rc',url:prefix+'rc.json',keyId:f.trust.keyId,publicKey:f.trust.publicKey};
+ const next={...old,channel:'stable',url:prefix+'stable.json',channels:{stable:prefix+'stable.json',rc:prefix+'rc.json'}};
+ const loader=await ensureLauncher(f.cache,old),bytes=await readFile(loader);
+ assert.equal(await ensureLauncher(f.cache,next),loader);
+ assert.deepEqual(await readFile(loader),bytes);
+ assert.deepEqual(JSON.parse(await readFile(join(f.cache,'launcher/release.json'),'utf8')),next);
+ assert.equal((await readdir(f.cache)).filter(n=>n.startsWith('.launcher-backup-')).length,1);
+ await ensureLauncher(f.cache,next);
+ assert.equal((await readdir(f.cache)).filter(n=>n.startsWith('.launcher-backup-')).length,1);
+}));

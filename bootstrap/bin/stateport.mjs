@@ -6,12 +6,12 @@ import { spawn } from 'node:child_process';
 import { installCandidate, readCurrent, withInstallTransaction } from '../lib/install.mjs';
 import { installPublishedRelease } from '../lib/release.mjs';
 import { readUpdatePolicy, setUpdatePolicy } from '../lib/update-policy.mjs';
-import { updateStatus, checkForUpdates, selectSessionRuntime, rollbackGeneration } from '../lib/updates.mjs';
+import { updateStatus, checkForUpdates, selectSessionRuntime, rollbackGeneration,installCurrentPublishedRelease } from '../lib/updates.mjs';
 import { updateControl } from '../lib/controls.mjs';
 import { ensureLauncher } from '../lib/launcher.mjs';
 import { createCliOutput, installNeedsAttention } from '../lib/cli-output.mjs';
 import { discoverAgentTools } from '../lib/agent-discovery.mjs';
-import { chooseAgents, setupSelectedAgents } from '../lib/agent-selection.mjs';
+import { chooseAgents, setupSelectedAgents, promptForAgents } from '../lib/agent-selection.mjs';
 import { diagnoseSetupConflict } from '../lib/setup-diagnostics.mjs';
 import { createInstallMetrics, installFailureBucket } from '../lib/install-metrics.mjs';
 
@@ -24,7 +24,7 @@ let installMetrics;
 
 function beginInstallMetrics(release, { command, selection, current, policy, consentUpdates, offline, source }) {
   const agents = selection?.status === 'required' || !selection ? 'required'
-    : ['codex', 'claude', 'cursor'].filter(id => selection.agents.includes(id)).join('_') || 'none';
+    : ['codex', 'claude', 'cursor', 'vscode'].filter(id => selection.agents.includes(id)).join('_') || 'none';
   installMetrics = createInstallMetrics({
     installer_version: metadata.version, runtime_version: release.version,
     platform: ({ linux: 'linux', win32: 'windows', darwin: 'macos' })[process.platform],
@@ -63,11 +63,22 @@ async function selectAgents(explicit) {
   if (!rawArgs.includes('--json') && process.stdin.isTTY && process.stdout.isTTY) output.begin();
   return chooseAgents({ discovery: await discoverAgentTools({ home: homedir(), platform: process.platform, env: process.env }), explicit, interactive: !rawArgs.includes('--json') && Boolean(process.stdin.isTTY && process.stdout.isTTY) });
 }
-async function configureAgents(runtime, cache, selection) {
+async function configureAgents(runtime, cache, selection, migrateCodex = false, setupCapabilities) {
   return setupSelectedAgents(selection, async selected => {
-    const outcome = await run(runtime, ['setup', '--agent', selected], true);
+    const targets=setupCapabilities?.schemaVersion===1?setupCapabilities.targets:['codex','claude','cursor'];
+    if(!Array.isArray(targets)||!targets.includes(selected))return {status:'failed',agent:selected,result:{status:'failed',reason:'RUNTIME_UPDATE_REQUIRED'}};
+    let outcome = await run(runtime, ['setup', '--agent', selected], true);
     if (outcome.agent !== selected || !['installed', 'failed'].includes(outcome.status)) throw Error('RUNTIME_REPLY_INVALID');
+    const canMigrate=outcome.capabilities?.schemaVersion===1&&outcome.capabilities?.codexMigration===true;
+    if(migrateCodex&&selected==='codex'&&canMigrate&&outcome.result?.reason==='CONFLICT')outcome=await run(runtime,['setup','--agent','codex','--migrate-codex'],true);
     if (outcome.result?.reason === 'CONFLICT') outcome.diagnostics = await diagnoseSetupConflict({ home: homedir(), cache, agent: selected });
+    if(outcome.diagnostics?.migrationAvailable&&!canMigrate){outcome.diagnostics.migrationAvailable=false;outcome.diagnostics.issues.push({code:'MIGRATION_UPDATE_REQUIRED',path:'StatePort runtime',severity:'blocking',scope:selected});}
+    if(selected==='codex'&&outcome.diagnostics?.migrationAvailable&&!rawArgs.includes('--json')&&process.stdin.isTTY&&process.stdout.isTTY&&!migrateCodex){
+      process.stdout.write('\n  Codex: existing StatePort plugin / Desktop connection found.\n  Switch to this Node runtime? This disables only the old StatePort skills plugin,\n  replaces its generated MCP entry and saves a private StatePort-only backup.\n  Plugin cache, pins, other servers and tool permissions are preserved.\n');
+      const answer=await promptForAgents({query:'  Migrate StatePort in Codex? [y/N]: '});
+      if(/^y(?:es)?$/i.test(answer.trim()))outcome=await run(runtime,['setup','--agent','codex','--migrate-codex'],true);
+    }
+    if (outcome.agent !== selected || !['installed', 'failed'].includes(outcome.status)) throw Error('RUNTIME_REPLY_INVALID');
     return outcome;
   });
 }
@@ -99,7 +110,7 @@ async function main() {
     if (command === 'doctor') {
       let selected;
       if (args.length) {
-        if (args.length !== 2 || args[0] !== '--agent' || !['cursor', 'codex', 'claude'].includes(args[1])) throw Error('INVALID_ARGUMENTS');
+        if (args.length !== 2 || args[0] !== '--agent' || !['cursor', 'codex', 'claude', 'vscode'].includes(args[1])) throw Error('INVALID_ARGUMENTS');
         selected = args[1];
       }
       const report = { ...await run(runtime, ['doctor'], true), installerVersion: metadata.version };
@@ -127,29 +138,32 @@ async function main() {
   }
   if (command === 'rollback') {
     if (args.length && !(args.length === 2 && ['--agent', '--agents'].includes(args[0]))) throw Error('INVALID_ARGUMENTS');
-    if (args.length && (!/^(?:all|none|(?:codex|claude|cursor)(?:,(?:codex|claude|cursor)){0,2})$/.test(args[1]) || new Set(args[1].split(',')).size !== args[1].split(',').length || (args[0] === '--agent' && !['codex', 'claude', 'cursor'].includes(args[1])))) throw Error('INVALID_ARGUMENTS');
+    if (args.length && (!/^(?:all|none|(?:codex|claude|cursor|vscode)(?:,(?:codex|claude|cursor|vscode)){0,3})$/.test(args[1]) || new Set(args[1].split(',')).size !== args[1].split(',').length || (args[0] === '--agent' && !['codex', 'claude', 'cursor', 'vscode'].includes(args[1])))) throw Error('INVALID_ARGUMENTS');
     const policy = await readUpdatePolicy(cache);
     if (policy.mode === 'pinned') throw Error('PIN_RELEASE_REQUIRED');
     const runtime = await rollbackGeneration(cache);
     const selection = await selectAgents(args[1]);
-    const result = { status: 'rolled_back', runtime: runtime.productVersion, doctor: await run(runtime, ['doctor'], true), selection, setup: await configureAgents(runtime, cache, selection), hostDiscovered: 'unverified' };
+    const doctor=await run(runtime,['doctor'],true);
+    const result = { status: 'rolled_back', runtime: runtime.productVersion, doctor, selection, setup: await configureAgents(runtime, cache, selection,false,doctor.capabilities?.agentSetup), hostDiscovered: 'unverified' };
     write(result); if (installNeedsAttention(result)) process.exitCode = 1; return;
   }
-  let source, manifestSha256, agent, offline = false, confirmDownload, consentUpdates = false;
+  let source, manifestSha256, agent, offline = false, confirmDownload, consentUpdates = false, migrateCodex = false;
   while (args.length) {
     const option = args.shift();
     if (option === '--offline' && !offline) { offline = true; continue; }
     if (option === '--consent-updates' && !consentUpdates) { consentUpdates = true; continue; }
+    if (option === '--migrate-codex' && !migrateCodex) { migrateCodex = true; continue; }
     const value = args.shift();
     if (!value) throw Error('INVALID_ARGUMENTS');
     if (option === '--candidate-dir' && !source) source = value;
     else if (option === '--manifest-sha256' && !manifestSha256) manifestSha256 = value;
-    else if (option === '--agent' && !agent && ['codex', 'claude', 'cursor'].includes(value)) agent = value;
-    else if (option === '--agents' && !agent && /^(?:all|none|(?:codex|claude|cursor)(?:,(?:codex|claude|cursor)){0,2})$/.test(value)) agent = value;
+    else if (option === '--agent' && !agent && ['codex', 'claude', 'cursor', 'vscode'].includes(value)) agent = value;
+    else if (option === '--agents' && !agent && /^(?:all|none|(?:codex|claude|cursor|vscode)(?:,(?:codex|claude|cursor|vscode)){0,3})$/.test(value)) agent = value;
     else if (option === '--confirm-download' && !confirmDownload && /^[a-f0-9]{64}$/.test(value)) confirmDownload = value;
     else throw Error('INVALID_ARGUMENTS');
   }
   if ((source && !manifestSha256) || (!source && manifestSha256) || (source && offline)) throw Error('INVALID_ARGUMENTS');
+  if(migrateCodex&&(agent!=='codex'||command!=='install'))throw Error('INVALID_ARGUMENTS');
   let runtime, selection;
   const policy = await readUpdatePolicy(cache);
   if (policy.mode === 'pinned' && (command === 'update' || command === 'browser-install' || (manifestSha256 && manifestSha256 !== policy.pin.digest))) throw Error('PIN_RELEASE_REQUIRED');
@@ -170,8 +184,12 @@ async function main() {
     const release = JSON.parse(await readFile(new URL('../release.json', import.meta.url), 'utf8'));
     if (release.status === 'unpublished') throw Error('PUBLIC_RUNTIME_RELEASE_UNPUBLISHED');
     const current = await readCurrent(cache);
-    beginInstallMetrics(release, { command, selection, current, policy, consentUpdates, offline, source });
-    runtime = await installPublishedRelease(release, cache, fetch, { browserPreference: command === 'browser-install' || current?.browserPreference === 'pinned' ? 'pinned' : 'system', confirmDownload, onDownload: info => write({ status: 'downloading_verified_release', ...info }) });
+    const resolved=({version})=>{if(!installMetrics)beginInstallMetrics({...release,version}, { command, selection, current, policy, consentUpdates, offline, source });};
+    const options={browserPreference: command === 'browser-install' || current?.browserPreference === 'pinned' ? 'pinned' : 'system',confirmDownload,onDownload:info=>write({status:'downloading_verified_release',...info})};
+    if(trust.status==='published'&&(trust.channel==='stable'||trust.channels?.stable)){
+      try{runtime=await installCurrentPublishedRelease(cache,trust,{...options,minimumVersion:release.version,onResolved:resolved});}
+      catch(error){resolved(release);throw error;}
+    }else{resolved(release);runtime=await installPublishedRelease(release,cache,fetch,options);}
     if (runtime.status === 'browser_download_required') { write(runtime); await installMetrics.finish('install_deferred'); return; }
   }
   selection ??= await selectAgents(agent);
@@ -185,23 +203,23 @@ async function main() {
   }
   const launcher = runtime.generation ? await ensureLauncher(cache, trust) : undefined;
   const doctor = await run(runtime, ['doctor'], true);
-  const setup = await configureAgents(runtime, cache, selection);
+  const setup = await configureAgents(runtime, cache, selection, migrateCodex,doctor.capabilities?.agentSetup);
   const release = JSON.parse(await readFile(new URL('../release.json', import.meta.url), 'utf8'));
   const result = { status: 'candidate_installed', installerVersion: metadata.version, version: runtime.productVersion, unchanged: runtime.unchanged, doctor, selection, setup,
-    cache: offline ? 'verified_offline' : 'verified', hostDiscovered: 'unverified', updates: { mode: (await readUpdatePolicy(cache)).mode, delivery: 'candidate', launcher }, currentTask: {
+    cache: offline ? 'verified_offline' : 'verified', hostDiscovered: 'unverified', updates: { mode: (await readUpdatePolicy(cache)).mode, channel:(await readUpdatePolicy(cache)).channel, delivery: 'candidate', launcher }, currentTask: {
       command: process.execPath, args: [launcher ?? runtime.entry, 'task-session'], selection: 'verified_at_new_session_start', protocol: 'agent-task-session/1',
       version: runtime.productVersion, digest: runtime.digest, generation: runtime.generation,
       ...(doctor.capabilities?.sourceOnly===true?{sourceOnly:{scope:doctor.capabilities.sourceScope,instruction:'For an originally authorized source-only coding task, this exact source scope needs no Card, browser origin, Capture or trial. Keep the original project. List the exact tools after ready. Use source review/observations and prepare_first_use_message only when advertised and a useful accepted result exists; never fabricate browser scope.'}}:{}),
       input: 'The installed version below is an offer; the ready frame binds the selected runtime at new-session start. Keep this host execution session and stdin open. First JSON line has project, scope, optional deadlineMs. Example for an originally authorized fix task: {"project":"/absolute/original/project","scope":{"userRequestedTask":true,"intent":"fix_verify","sourceOrigins":["http://127.0.0.1:3000"],"frontendOrigins":["http://127.0.0.1:3001"],"stateCardIds":[]},"deadlineMs":600000}. Replace project/origins/Card IDs from the original user task; installation grants no scope. Then JSON lines: operation tools; operation call with requestId/name/arguments; operation close.',
       permissions: 'Use normal host approval for this exact runtime command when required. Installation does not grant browser, project or task permissions.',
-    }, published: !source && release.status === 'published' && release.version === runtime.productVersion };
+    }, published: !source && release.status === 'published' && (runtime.publicDeliveryVerified===true||(!trust.channels?.stable&&trust.channel!=='stable'&&release.version===runtime.productVersion)) };
   write(result);
   if (installNeedsAttention(result)) process.exitCode = 1;
   await installMetrics?.finish(installNeedsAttention(result) ? 'install_needs_attention' : 'install_completed', installNeedsAttention(result) ? 'configuration' : 'none');
 }
 void main().catch(async error => {
   const code = error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : 'INSTALL_FAILED';
-  write({ status: 'blocked', code, nodePrerequisite: code.startsWith('NODE_') ? 'https://nodejs.org/en/download' : undefined });
+  write({ status: 'blocked', code, ...(code.startsWith('NODE_') ? {nodePrerequisite:'https://nodejs.org/en/download', detectedNode:process.versions.node, requiredNode:'24.x'} : {}) });
   process.exitCode = code === 'SETUP_CANCELLED' ? 130 : 1;
   await installMetrics?.finish('install_failed', installFailureBucket(error));
 });

@@ -23,7 +23,7 @@ test('sends one start and one terminal to the fixed first-party endpoint without
     assert.equal(init.credentials, 'omit');
     assert.deepEqual(Object.keys(init.headers), ['content-type', 'user-agent']);
     const body = JSON.parse(init.body);
-    assert.deepEqual(body, { schema_version: 1, ...context, event_name: body.event_name, result_bucket: 'none' });
+    assert.deepEqual(body, { schema_version: 2, ...context, event_name: body.event_name, result_bucket: 'none' });
     assert(!/SECRET|alice|private|argv|project|home/.test(init.body));
   }
   assert.deepEqual(requests.map(r => JSON.parse(r.init.body).event_name), ['install_started', 'install_completed']);
@@ -67,4 +67,11 @@ test('only closed error buckets leave the installer', () => {
   assert.equal(installFailureBucket(Error('DOWNLOAD_TIMEOUT')), 'network');
   assert.equal(installFailureBucket(Error('RUNTIME_FAILED')), 'configuration');
   assert.equal(installFailureBucket(Error('https://customer.example Bearer SECRET')), 'unknown');
+});
+test('VS Code selections are counted explicitly rather than dropped or labelled as another agent',async()=>{
+ const requests=[];
+ await createInstallMetrics({...context,agents:'codex_cursor_vscode'},{...options,fetcher:async(_url,init)=>{requests.push(JSON.parse(init.body));return new Response(null,{status:204});}}).finish('install_completed');
+ assert.equal(requests.length,2);
+ assert.equal(requests[0].agents,'codex_cursor_vscode');
+ assert.equal(requests[0].schema_version,2);
 });

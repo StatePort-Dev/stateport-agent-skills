@@ -2,9 +2,9 @@ import {lstat,readdir,open} from 'node:fs/promises';
 import {join,relative,resolve,sep} from 'node:path';
 import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
+import {inspectCodexConfig,planCodexMigration,inspectVscodeConfig,agentConfigPath,agentSkillRoots} from './agent-discovery.mjs';
 
-const roots=['.agents/skills','.claude/skills','.codex/skills','.cursor/skills'];
-const configs={cursor:'.cursor/mcp.json',claude:'.claude.json',codex:'.codex/config.toml'};
+const configs={cursor:'.cursor/mcp.json',claude:'.claude.json',codex:'.codex/config.toml',vscode:true};
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 async function safe(home,path) {
   const rel=relative(home,path);if(!rel||rel==='..'||rel.startsWith('..'+sep))throw Error('UNSAFE_SETUP_PATH');
@@ -53,13 +53,13 @@ function same(actual,expected) {
  * authority, file contents, launch arguments, credentials or another writer. */
 export async function diagnoseSetupConflict({home,cache,agent,platform=process.platform,env=process.env}) {
   if(!configs[agent])return {schemaVersion:'agent-setup-diagnostics/1',agent,configState:'unknown',issues:[]};
-  const issues=[],ownedRoots=[],configPath=configs[agent];let configState='unknown';
+  const issues=[],ownedRoots=[],configPath=agent==='vscode'?relative(home,agentConfigPath(home,agent,platform,env)):configs[agent];let configState='unknown',codexPlugin='absent';
   const add=(code,path,extra={})=>{if(issues.length<12)issues.push({code,path,severity:'blocking',scope:agent,...extra});};
   let current,legacy;
   const appData=platform==='darwin'?join(home,'Library/Application Support'):platform==='win32'?(env.APPDATA??join(home,'AppData/Roaming')):(env.XDG_CONFIG_HOME??join(home,'.config'));
   try{current=await json(home,join(cache,'agent-setup/receipt.json'));}catch{add('OWNERSHIP_RECORD_UNREADABLE',relative(home,join(cache,'agent-setup/receipt.json')));}
   try{legacy=await json(home,join(appData,'ScenarioDeck Local Alpha/agent-setup/receipt.json'));}catch{/* legacy ownership remains unproved */}
-  for(const root of (agent==='cursor'?roots:agent==='codex'?roots.slice(0,1).concat('.codex/skills'):['.claude/skills'])){
+  for(const root of agentSkillRoots[agent]){
     try {
       const actual=await inventory(home,root);if(!actual.folders.length)continue;
       if(current?.schemaVersion===1&&same(actual.hashes,current.roots?.[root]?.hashes)){ownedRoots.push({root,folders:actual.folders});continue;}
@@ -72,8 +72,31 @@ export async function diagnoseSetupConflict({home,cache,agent,platform=process.p
   try {
     const raw=await bytes(home,join(home,configPath));
     if(!raw)configState='absent';
-    else if(agent==='codex'){configState='unknown';if(!issues.length)add('MCP_CONFIG_REVIEW',configPath);}
-    else{
+    else if(agent==='codex'){
+      const text=raw.toString('utf8'), owned=current?.agents?.codex?.config?.entry, inspected=inspectCodexConfig(text,owned);configState=inspected.configState;
+      codexPlugin=inspected.plugin;
+      if(!inspected.valid)add('MCP_CONFIG_UNREADABLE',configPath);
+      else {
+        if(inspected.plugin==='enabled')add('CODEX_PLUGIN_ACTIVE',configPath);
+        else if(inspected.plugin==='unknown')add('CODEX_PLUGIN_UNKNOWN',configPath);
+        if(inspected.mcpDisabled)add('MCP_DISABLED',configPath);
+        else if(configState==='present'&&!inspected.matchesOwned)add('MCP_ENTRY_CONFLICT',configPath);
+        if(inspected.legacy)add('LEGACY_MCP_ENTRY',configPath);
+        if(inspected.plugin==='enabled'||(configState==='present'&&!current?.agents?.codex)){
+          try{planCodexMigration(text,platform);if((!owned||inspected.matchesOwned)&&!issues.some(i=>!['CODEX_PLUGIN_ACTIVE','MCP_ENTRY_CONFLICT'].includes(i.code))){
+            for(const issue of issues)if(issue.code==='MCP_ENTRY_CONFLICT')issue.code='PREVIOUS_MCP_CONNECTION';
+            return {schemaVersion:'agent-setup-diagnostics/1',agent,configState,issues,migrationAvailable:true};
+          }}catch{if(inspected.plugin==='enabled')add('CODEX_PLUGIN_MANUAL',configPath);}
+        }
+      }
+    }
+    else if(agent==='vscode'){
+      const inspected=inspectVscodeConfig(raw.toString('utf8'),current?.agents?.vscode?.config?.entry);
+      configState=inspected.present?'present':'absent';
+      if(inspected.legacy)add('LEGACY_MCP_ENTRY',configPath);
+      if(inspected.disabled)add('MCP_DISABLED',configPath);
+      else if(inspected.present&&!inspected.matchesOwned)add('MCP_ENTRY_CONFLICT',configPath);
+    }else{
       const config=JSON.parse(raw);if(!config||typeof config!=='object'||Array.isArray(config))throw Error('invalid');const servers=config.mcpServers??{};
       if(!servers||typeof servers!=='object'||Array.isArray(servers))throw Error('invalid');
       configState=Object.hasOwn(servers,'stateport')?'present':'absent';
@@ -85,10 +108,10 @@ export async function diagnoseSetupConflict({home,cache,agent,platform=process.p
       }
     }
   }catch(e){add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'MCP_CONFIG_UNREADABLE',configPath);}
-  for(const file of ['installed_plugins.json','config.json']) {
-    try {const value=await bytes(home,join(home,`.${agent}/plugins`,file));if(value&&/stateport|scenariodeck/i.test(value.toString('utf8')))add('PLUGIN_INSTALL_PRESENT',`.${agent}/plugins/${file}`);}
+  for(const file of agent==='codex'&&codexPlugin!=='absent'?[]:['installed_plugins.json','config.json']) {
+    try {const value=await bytes(home,join(home,`.${agent}/plugins`,file));if(value&&/stateport|scenariodeck/i.test(value.toString('utf8')))add(agent==='codex'?'CODEX_PLUGIN_REGISTRY_UNKNOWN':'PLUGIN_INSTALL_PRESENT',`.${agent}/plugins/${file}`);}
     catch(e){add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'SETUP_DATA_UNREADABLE',`.${agent}/plugins/${file}`);}
   }
-  try{const path=join(home,`.${agent}/plugins/cache`);await safe(home,path);if((await readdir(path)).some(n=>/stateport|scenariodeck/i.test(n)))add('PLUGIN_INSTALL_PRESENT',`.${agent}/plugins/cache`);}catch(e){if(e.code!=='ENOENT')add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'SETUP_DATA_UNREADABLE',`.${agent}/plugins/cache`);}
+  if(agent!=='codex')try{const path=join(home,`.${agent}/plugins/cache`);await safe(home,path);if((await readdir(path)).some(n=>/stateport|scenariodeck/i.test(n)))add('PLUGIN_INSTALL_PRESENT',`.${agent}/plugins/cache`);}catch(e){if(e.code!=='ENOENT')add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'SETUP_DATA_UNREADABLE',`.${agent}/plugins/cache`);}
   return {schemaVersion:'agent-setup-diagnostics/1',agent,configState,issues};
 }

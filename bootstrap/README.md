@@ -10,7 +10,8 @@ coding agent can return to the same case while changing the code.
 
 ## Install
 
-You need **Node.js 24.x**, npm, and an installed coding agent.
+Use **Node.js 24.x**, npm, and an installed coding agent. The installer can start
+on Node 20–23 to explain the prerequisite, but the engine requires Node 24.
 
 ```sh
 npx stateport@latest
@@ -60,6 +61,11 @@ single-agent form. Non-interactive/JSON use requires an explicit selection;
 otherwise agent files are preserved and the installer reports what to run next.
 The task-session descriptor remains available for authorised same-chat work.
 
+Supported automatic targets are **Codex, Claude Code, Cursor and VS Code with
+Copilot**. Standard macOS applications are detected without a shell command on
+PATH. VS Code and Codex are separate connections; an account/model subscription
+and VS Code MCP trust remain your coding host’s own steps.
+
 The report shows each selected agent separately. Other detected editors with no
 installer adapter are marked as needing manual connection. **Current runtime
 limitation:** Cursor can be configured alongside Codex or Claude Code, but not
@@ -91,13 +97,17 @@ macOS/Linux; Windows can use Edge or Chrome. Optional pinned Chromium is a
 separate download with size and SHA-256 confirmation. Desktop is optional.
 
 Runtime assets are available for **Linux x64, Windows x64, and macOS Apple
-Silicon arm64**. This is a release candidate: package availability and setup do
+Silicon arm64**. Package availability and setup do
 not imply complete model, host or native-trust qualification on every platform.
 See the [runtime and compatibility notes](https://github.com/StatePort-Dev/stateport-agent-skills/blob/main/docs/AGENT_RUNTIME_CANDIDATE.md).
 
 The **Installer** and **Runtime** versions shown in the checklist may differ.
-The installer has its own releases; a UI or npm-page improvement can retain the
-same independently verified runtime. The integration/skills version is separate too.
+The installer changes when installation or verification needs a fix. New installs
+resolve the current **signed stable engine** without requiring a new npm version.
+Existing pins remain pinned. Engine update policy is separate: **Notify** by
+default; **Auto** requires explicit consent and applies only to a new session.
+Skills have their own version and compatibility checks. A running task never
+switches engine or instructions.
 
 ## If setup needs attention
 
@@ -118,6 +128,18 @@ output. Removing an old MCP entry alone may leave its skill files behind. The
 check reports the remaining paths rather than asking you to repeat the same
 uninstall. Keep customised files; back up old StatePort copies outside all agent
 skills folders before replacing them. Do not delete unrelated agent settings.
+
+A recognized old Codex StatePort plugin/MCP setup can be migrated with a private
+backup. The interactive installer explains the change and asks before applying
+it. For an explicit migration:
+
+```sh
+npx stateport install --agent codex --migrate-codex
+```
+
+This disables only the recognized active StatePort skills plugin and replaces
+the recognized connection. Custom entries, disabled connections and edited owned
+files stay protected; the report gives the exact remaining action.
 
 For automation and an authorised same-chat setup:
 
@@ -158,7 +180,8 @@ raw arguments or raw errors. There is no persistent client analytics store.
 
 Delivery uses StatePort's own HTTPS endpoint, with no redirects, cookies, retries
 or queue, and an 800 ms deadline per event. Transport failure cannot fail setup.
-Only daily aggregates are retained for 90 days; ordinary network metadata is
-processed by the hosting provider, not stored as application analytics dimensions.
+Daily aggregates are retained for 90 days. A separate private server receipt
+journal retains receipt time, validated IP address when available and recognized
+installer User-Agent for 30 days. The client adds no identifier or timestamp.
 These counts describe received attempts and outcomes, not unique people or
 verified first use. See the [privacy policy](https://stateport.dev/privacy/).

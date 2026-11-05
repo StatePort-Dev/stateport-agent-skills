@@ -1,9 +1,9 @@
-# Agent Runtime release candidate
+# Agent Runtime and qualification
 
-[StatePort runtime RC6 and installer RC9](https://www.npmjs.com/package/stateport).
+[StatePort stable installer 1.0.0](https://www.npmjs.com/package/stateport).
 Run `npx stateport` (PowerShell: `npx.cmd stateport`) with existing Node.js 24.x/npm.
 Desktop remains an optional visual client of the same engine, Cards, protected
-storage and signed access. This is a release candidate; package availability does
+storage and signed access. Package availability does
 not establish full native/model/trust acceptance or upgrade provider statuses.
 
 The [transparent MIT bootstrap](../bootstrap/README.md) verifies an independently
@@ -14,11 +14,13 @@ integrity and cryptographic public-source provenance were verified independently
 
 ## Current task versus next session
 
-Bootstrap rc.9 prints human-readable installation progress, a component checklist
+Installer 1.0.0 prints human-readable installation progress, a component checklist
 and first-task/explore/browser-case messages by default. An interactive terminal
 asks which agents to configure, defaulting to all detected supported hosts.
 Non-TTY/JSON requires explicit `--agents all|none|codex,cursor` or `--agent cursor`;
-no agent is selected silently. Per-agent outcomes remain separate. Automation and authorized same-chat setup use
+no agent is selected silently. Codex, Claude Code, Cursor and VS Code/Copilot
+are separate automatic setup targets. A known old Codex installation can be
+migrated explicitly with a private scoped backup; custom state stays protected. Per-agent outcomes remain separate. Automation and authorized same-chat setup use
 `npx stateport --json`; its exact `currentTask` descriptor remains machine-readable.
 MCP/task-session stay protocol-only without a flag. An incomplete agent setup
 exits 1, including a protected conflict with an existing installation. The runtime
@@ -115,3 +117,15 @@ qualify every provider, native trust scenario or human payment/recovery flow.
 Installer rc.9 includes the [anonymous install-event disclosure and opt-out](../bootstrap/README.md#anonymous-installer-metrics).
 The engine remains the separately signed runtime rc.6; npm UI/source and runtime
 versions are independent.
+
+## Independent stable engine delivery
+
+Installer 1.0.0 resolves the current signed stable engine for a new install.
+Ed25519 trust, sequence high-water, archive inventory and generation/storage
+compatibility are checked before activation. Existing exact pins remain pinned;
+no running session switches engine. Fresh update policy is Stable/Notify.
+Existing RC policy is preserved and can be changed explicitly with
+`npx stateport updates channel stable --confirm`. Auto still requires consent.
+The installer can explain the Node 24 prerequisite when started on Node 20–23.
+The engine itself remains Node 24.x; no private Node or Chromium is bundled by
+default. Package releases, engine releases and skills versions are independent.

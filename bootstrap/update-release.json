@@ -2,8 +2,12 @@
   "schemaVersion": "agent-update-trust/1",
   "status": "published",
   "publisher": "StatePort-Dev",
-  "channel": "rc",
-  "url": "https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/rc.json",
+  "channel": "stable",
+  "url": "https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json",
   "keyId": "stateport-agent-release-2026-11-03",
-  "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA8uC2jzpeW53A/MGquI0i7vjAHRpk6MKslN2asEIQQjs=\n-----END PUBLIC KEY-----\n"
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA8uC2jzpeW53A/MGquI0i7vjAHRpk6MKslN2asEIQQjs=\n-----END PUBLIC KEY-----\n",
+  "channels": {
+    "stable": "https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json",
+    "rc": "https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/rc.json"
+  }
 }

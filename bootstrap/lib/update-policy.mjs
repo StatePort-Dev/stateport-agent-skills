@@ -9,7 +9,7 @@ export async function readJson(cache, name, fallback) {
   catch (error) { if (error?.code === 'ENOENT') return structuredClone(fallback); throw Error('UPDATE_STATE_INVALID'); }
 }
 export async function readUpdatePolicy(cache) {
-  const policy = await readJson(cache, 'update-policy.json', { schemaVersion: 'agent-update-policy/1', mode: 'notify', channel: 'rc', consent: false, pin: null });
+  const policy = await readJson(cache, 'update-policy.json', { schemaVersion: 'agent-update-policy/1', mode: 'notify', channel: 'stable', consent: false, pin: null });
   if (policy.schemaVersion !== 'agent-update-policy/1' || !['auto', 'notify', 'pinned'].includes(policy.mode)
     || !['stable', 'beta', 'rc'].includes(policy.channel) || typeof policy.consent !== 'boolean'
     || (policy.mode === 'auto' && !policy.consent)
@@ -56,7 +56,7 @@ export function validGeneration(value) {
     && Array.isArray(value.permissions) && value.permissions.length > 0 && value.permissions.length <= 16
     && value.permissions.every(item => typeof item === 'string' && /^[a-z_-]{1,64}$/.test(item))
     && value.browser && Object.keys(value.browser).sort().join(',') === 'payload,playwright,preference'
-    && ['system', 'pinned'].includes(value.browser.preference) && value.browser.playwright === '1.63.0'
+    && ['system', 'pinned'].includes(value.browser.preference) && typeof value.browser.playwright==='string' && /^\d{1,4}\.\d{1,4}\.\d{1,4}$/.test(value.browser.playwright)
     && (value.browser.preference === 'system' ? value.browser.payload === null : hex(value.browser.payload));
 }
 /** Unknown contracts, different instructions or schemas require explicit setup/restart. */

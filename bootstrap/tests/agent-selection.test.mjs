@@ -7,11 +7,11 @@ const output=()=>{let text='';const stream={isTTY:true,write:s=>{text+=s;}};retu
 test('Enter defaults to every detected supported host, without preferring the running editor',async()=>{
  const {chooseAgents}=await load(),out=output();
  const result=await chooseAgents({discovery,interactive:true,output:out.stream,ask:async()=>''});
- assert.deepEqual(result.agents,['codex','claude','cursor']);assert.equal(result.method,'interactive');assert(out.text().includes('[x] 1. Codex'));assert(out.text().includes('[x] 3. Cursor'));assert(out.text().includes('VS Code'));assert(out.text().includes('manual'));
+ assert.deepEqual(result.agents,['codex','claude','cursor','vscode']);assert.equal(result.method,'interactive');assert(out.text().includes('[x] 1. Codex'));assert(out.text().includes('[x] 3. Cursor'));assert(out.text().includes('VS Code'));assert(out.text().includes('[x] 4. VS Code / Copilot'));
 });
 test('user can select a subset, all installed, none, and explicitly retry a missing host',async()=>{
  const {chooseAgents}=await load();
- for(const [answer,agents] of [['1,3',['codex','cursor']],['all',['codex','claude','cursor']],['none',[]],['2',['claude']]]){
+ for(const [answer,agents] of [['1,3',['codex','cursor']],['all',['codex','claude','cursor','vscode']],['none',[]],['2',['claude']]]){
   const r=await chooseAgents({discovery,interactive:true,output:output().stream,ask:async()=>answer});assert.deepEqual(r.agents,agents);
  }
  const r=await chooseAgents({discovery:{status:'ready',detected:['cursor']},explicit:'codex',interactive:false});assert.deepEqual(r.agents,['codex']);
@@ -24,20 +24,20 @@ test('non-interactive and JSON without an explicit choice do not configure any a
  const {chooseAgents,setupSelectedAgents}=await load();let calls=0;
  const selection=await chooseAgents({discovery,interactive:false});assert.equal(selection.status,'required');assert.deepEqual(selection.agents,[]);
  const r=await setupSelectedAgents(selection,async()=>{calls++;});assert.equal(calls,0);assert.equal(r.status,'guided_setup_required');assert.equal(r.reason,'AGENT_SELECTION_REQUIRED');
- const all=await chooseAgents({discovery,explicit:'all',interactive:false});assert.deepEqual(all.agents,['codex','claude','cursor']);
+ const all=await chooseAgents({discovery,explicit:'all',interactive:false});assert.deepEqual(all.agents,['codex','claude','cursor','vscode']);
 });
 test('unavailable discovery cannot become automatic all, explicit names still work',async()=>{
  const {chooseAgents}=await load(),d={status:'unavailable',detected:[]};
  assert.equal((await chooseAgents({discovery:d,explicit:'all',interactive:false})).status,'required');
  assert.deepEqual((await chooseAgents({discovery:d,explicit:'cursor,codex',interactive:false})).agents,['codex','cursor']);
  await assert.rejects(chooseAgents({discovery,explicit:'cursor,cursor'}),/INVALID_ARGUMENTS/);
- await assert.rejects(chooseAgents({discovery,explicit:'vscode'}),/INVALID_ARGUMENTS/);
+ await assert.rejects(chooseAgents({discovery,explicit:'unknown'}),/INVALID_ARGUMENTS/);
 });
 test('batch configures only selected agents sequentially, keeps each failure and single-agent response compatibility',async()=>{
  const {setupSelectedAgents}=await load();const calls=[];
  const configure=async agent=>{calls.push(agent);return{status:agent==='claude'?'failed':'installed',agent,result:agent==='claude'?{status:'failed',reason:'CONFLICT'}:{status:'installed',version:'0.1.0-beta.82',mcp:'ready'}}};
- const result=await setupSelectedAgents({status:'selected',agents:['codex','claude','cursor']},configure);
- assert.equal(result.schemaVersion,'agent-setup-batch/1');assert.equal(result.status,'partial');assert.deepEqual(calls,['codex','claude','cursor']);assert.equal(result.results[1].result.reason,'CONFLICT');
+ const result=await setupSelectedAgents({status:'selected',agents:['codex','claude','cursor','vscode']},configure);
+ assert.equal(result.schemaVersion,'agent-setup-batch/1');assert.equal(result.status,'partial');assert.deepEqual(calls,['codex','claude','cursor','vscode']);assert.equal(result.results[1].result.reason,'CONFLICT');
  const single=await setupSelectedAgents({status:'selected',agents:['cursor']},configure);assert.deepEqual(single,await configure('cursor'));
  const skipped=await setupSelectedAgents({status:'skipped',agents:[]},configure);assert.equal(skipped.status,'skipped');
 });
@@ -52,8 +52,8 @@ test('EOF and SIGINT reject the prompt, never confirm checked defaults',async()=
  }
 });
 test('Codex in VS Code is checked without CLI and is not duplicated as generic manual VS Code',async()=>{
- const {chooseAgents}=await load(),out=output();const r=await chooseAgents({discovery:{status:'ready',detected:['vscode','codex'],codex:{cli:false,editors:['vscode']}},interactive:true,output:out.stream,ask:async()=>''});assert.deepEqual(r.agents,['codex']);assert(out.text().includes('VS Code extension'));assert(!out.text().includes('manual connection'));assert.deepEqual(r.codex,{cli:false,editors:['vscode']});
+ const {chooseAgents}=await load(),out=output();const r=await chooseAgents({discovery:{status:'ready',detected:['vscode','codex'],codex:{cli:false,editors:['vscode']}},interactive:true,output:out.stream,ask:async()=>''});assert.deepEqual(r.agents,['codex','vscode']);assert(out.text().includes('VS Code extension'));assert(!out.text().includes('manual connection'));assert.deepEqual(r.codex,{cli:false,editors:['vscode']});
 });
-test('Copilot Chat keeps its own truthful manual label alongside automatic Codex',async()=>{
- const {chooseAgents}=await load(),out=output();await chooseAgents({discovery:{status:'ready',detected:['vscode','codex'],codex:{cli:false,editors:['vscode']},copilotChat:['vscode']},interactive:true,output:out.stream,ask:async()=>''});assert(out.text().includes('GitHub Copilot Chat in VS Code'));assert(out.text().includes('manual connection'));
+test('Copilot Chat keeps its own automatic host label alongside automatic Codex',async()=>{
+ const {chooseAgents}=await load(),out=output();await chooseAgents({discovery:{status:'ready',detected:['vscode','codex'],codex:{cli:false,editors:['vscode']},copilotChat:['vscode']},interactive:true,output:out.stream,ask:async()=>''});assert(out.text().includes('VS Code / Copilot'));assert(!out.text().includes('manual connection'));
 });

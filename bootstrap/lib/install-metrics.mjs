@@ -5,7 +5,7 @@ const release = value => typeof value === 'string' && /^\d{1,4}\.\d{1,4}\.\d{1,4
 const dimensions = {
   platform: ['linux', 'windows', 'macos'], architecture: ['x64', 'arm64'],
   operation: ['install', 'update', 'browser_install'], installation: ['fresh', 'existing'],
-  agents: ['none', 'required', 'codex', 'claude', 'cursor', 'codex_claude', 'codex_cursor', 'claude_cursor', 'codex_claude_cursor'],
+  agents: ['none', 'required', 'codex', 'claude', 'cursor', 'codex_claude', 'codex_cursor', 'claude_cursor', 'codex_claude_cursor', 'vscode', 'codex_vscode', 'claude_vscode', 'cursor_vscode', 'codex_claude_vscode', 'codex_cursor_vscode', 'claude_cursor_vscode', 'codex_claude_cursor_vscode'],
   browser_preference: ['system', 'pinned'], update_policy: ['notify', 'auto', 'pinned'],
 };
 const buckets = ['configuration', 'network', 'verification', 'unsupported', 'unknown'];
@@ -51,7 +51,7 @@ export function createInstallMetrics(input, {
       await Promise.race([
         Promise.resolve().then(() => fetcher(endpoint, {
           method: 'POST', headers: { 'content-type': 'application/json', 'user-agent': 'StatePortInstaller/1' },
-          body: JSON.stringify({ schema_version: 1, ...context, event_name, result_bucket }),
+          body: JSON.stringify({ schema_version: 2, ...context, event_name, result_bucket }),
           signal: controller.signal, redirect: 'error', credentials: 'omit', cache: 'no-store',
         })).then(response => { void response?.body?.cancel().catch(() => {}); }),
         new Promise(resolve => { timer = setTimeout(resolve, timeoutMs); }),

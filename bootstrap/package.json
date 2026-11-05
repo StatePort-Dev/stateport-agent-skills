@@ -1,6 +1,6 @@
 {
   "name": "stateport",
-  "version": "1.0.0-rc.9",
+  "version": "1.0.0",
   "private": false,
   "description": "Save browser reproductions as State Cards. Reopen them and verify fixes with your coding agent.",
   "type": "module",
@@ -16,7 +16,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=24 <25"
+    "node": ">=20 <25"
   },
   "scripts": {
     "build": "node --check bin/stateport.mjs",
