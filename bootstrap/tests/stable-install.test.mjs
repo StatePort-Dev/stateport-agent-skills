@@ -34,7 +34,7 @@ test('an invalid stable signature leaves the current runtime and payload untouch
 test('a failed payload download still retains the observed signed-channel high-water mark',()=>updateFixture(async f=>{
  f.trust.channel='stable';f.trust.url='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json';f.release(f.bundle('1.0.1'),2,'stable');
  const options={minimumVersion:'1.0.0',fetcher:async(url,init)=>{if(url!==f.trust.url)throw Error('synthetic network failure');return f.fetcher(url,init);}};
- await assert.rejects(updates.installCurrentPublishedRelease(f.cache,f.trust,options),/synthetic network failure/);
+ await assert.rejects(updates.installCurrentPublishedRelease(f.cache,f.trust,options),/RELEASE_NETWORK/);
  assert.equal((await readCurrent(f.cache)).digest,f.installed.digest);
  f.release(f.bundle('1.0.0'),1,'stable');
  await assert.rejects(updates.installCurrentPublishedRelease(f.cache,f.trust,options),/RELEASE_REPLAY/);
@@ -52,4 +52,16 @@ test('explicit installation keeps a valid pin and does not contact the channel',
  const result=await updates.installCurrentPublishedRelease(f.cache,f.trust,{fetcher:f.fetcher,minimumVersion:'1.0.0'});
  assert.equal(result.digest,pin.digest);assert.equal(result.unchanged,true);assert.equal(f.requests.length,0);
  assert.deepEqual((await readUpdatePolicy(f.cache)).pin,pin);
+}));
+
+test('explicit install tolerates metadata past the background five-second budget and reports phases',()=>updateFixture(async f=>{
+ f.trust.channel='stable';f.trust.url='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json';
+ f.release(f.bundle('1.0.1'),2,'stable');
+ const phases=[];
+ const result=await updates.installCurrentPublishedRelease(f.cache,f.trust,{minimumVersion:'1.0.0',onPhase:phase=>phases.push(phase),fetcher:async(url,init)=>{
+  if(url===f.trust.url)await new Promise((resolve,reject)=>{const timer=setTimeout(resolve,5100);init.signal.addEventListener('abort',()=>{clearTimeout(timer);reject(init.signal.reason);},{once:true});});
+  return f.fetcher(url,init);
+ }});
+ assert.equal(result.productVersion,'1.0.1');assert.equal(phases[0],'metadata');
+ assert(phases.includes('download'));assert(phases.includes('verification'));assert(phases.includes('extraction'));
 }));

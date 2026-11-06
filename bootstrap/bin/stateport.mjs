@@ -9,13 +9,14 @@ import { readUpdatePolicy, setUpdatePolicy } from '../lib/update-policy.mjs';
 import { updateStatus, checkForUpdates, selectSessionRuntime, rollbackGeneration,installCurrentPublishedRelease } from '../lib/updates.mjs';
 import { updateControl } from '../lib/controls.mjs';
 import { ensureLauncher } from '../lib/launcher.mjs';
-import { createCliOutput, installNeedsAttention } from '../lib/cli-output.mjs';
+import { createCliOutput, installNeedsAttention, installationReadiness } from '../lib/cli-output.mjs';
 import { discoverAgentTools } from '../lib/agent-discovery.mjs';
 import { chooseAgents, setupSelectedAgents, promptForAgents } from '../lib/agent-selection.mjs';
 import { diagnoseSetupConflict } from '../lib/setup-diagnostics.mjs';
 import { createInstallMetrics, installFailureBucket } from '../lib/install-metrics.mjs';
 
 const rawArgs = process.argv.slice(2);
+const cliContract=JSON.parse(await readFile(new URL('../cli-contract.json',import.meta.url),'utf8'));
 const metadata = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
 const protocolCommands = new Set(['mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close']);
 const output = createCliOutput({ json: rawArgs.includes('--json') || protocolCommands.has(rawArgs.find(arg => !['--json', '--no-telemetry'].includes(arg))), installerVersion: metadata.version });
@@ -82,6 +83,7 @@ async function configureAgents(runtime, cache, selection, migrateCodex = false, 
     return outcome;
   });
 }
+let installPhase='prerequisites';
 async function main() {
   const args = rawArgs.filter(arg => !['--json', '--no-telemetry'].includes(arg));
   if (['--json', '--no-telemetry'].some(flag => rawArgs.filter(arg => arg === flag).length > 1)) throw Error('INVALID_ARGUMENTS');
@@ -92,7 +94,7 @@ async function main() {
   }
   if (Number(process.versions.node.split('.')[0]) !== 24) throw Error('NODE_24_LTS_CANDIDATE_REQUIRED');
   if (!((process.platform === 'linux' || process.platform === 'win32') && process.arch === 'x64') && !(process.platform === 'darwin' && process.arch === 'arm64')) throw Error('PLATFORM_UNSUPPORTED');
-  const commands = new Set(['install', 'update', 'updates', 'repair-launcher', 'rollback', 'uninstall', 'browser-install', 'doctor', 'open', 'access', 'mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close']);
+  const commands = new Set(cliContract.commands.map(command=>command.name));
   if (args[0] && !args[0].startsWith('--') && !commands.has(args[0])) throw Error('INVALID_ARGUMENTS');
   const command = commands.has(args[0]) ? args.shift() : 'install';
   if (args.length === 1 && ['--help', '-h'].includes(args[0])) { output.help(); return; }
@@ -106,13 +108,16 @@ async function main() {
   }
   if (command === 'updates') { write(await updateControl(cache, trust, args), 'updates'); return; }
   if (['doctor', 'open', 'access', 'mcp', 'task-session', 'task-start', 'task-call', 'task-tools', 'task-close'].includes(command)) {
-    const runtime = await readCurrent(cache); if (!runtime) throw Error('RUNTIME_NOT_INSTALLED');
+    const runtime = await readCurrent(cache);
+    if (!runtime && command !== 'doctor') throw Error('RUNTIME_NOT_INSTALLED');
+    if (runtime) installPhase='start';
     if (command === 'doctor') {
       let selected;
       if (args.length) {
         if (args.length !== 2 || args[0] !== '--agent' || !['cursor', 'codex', 'claude', 'vscode'].includes(args[1])) throw Error('INVALID_ARGUMENTS');
         selected = args[1];
       }
+      if(!runtime){write({status:'blocked',code:'RUNTIME_NOT_INSTALLED',diagnostics:{schemaVersion:'agent-install-failure/1',phase:'prerequisites',runtimeInstalled:false},installerVersion:metadata.version,prerequisites:{node:'24.x',npm:true,platform:`${process.platform}-${process.arch}`,network:['npm','GitHub'],browser:'optional_for_source'},nextAction:'npx stateport'},'doctor');process.exitCode=1;return;}
       const report = { ...await run(runtime, ['doctor'], true), installerVersion: metadata.version };
       if (selected) report.setupDiagnostics = await diagnoseSetupConflict({ home: homedir(), cache, agent: selected });
       write(report, 'doctor'); return;
@@ -176,7 +181,7 @@ async function main() {
     // A checked/held/offered update is not a completed installation.
     await installMetrics.finish('install_deferred'); return;
   }
-  if (command !== 'browser-install') selection = await selectAgents(agent);
+  if (command !== 'browser-install') {installPhase='agent_setup';selection = await selectAgents(agent);}
   if (offline) {
     runtime = await readCurrent(cache); if (!runtime) throw Error('OFFLINE_CACHE_UNAVAILABLE');
     runtime = { ...runtime, unchanged: true };
@@ -185,7 +190,7 @@ async function main() {
     if (release.status === 'unpublished') throw Error('PUBLIC_RUNTIME_RELEASE_UNPUBLISHED');
     const current = await readCurrent(cache);
     const resolved=({version})=>{if(!installMetrics)beginInstallMetrics({...release,version}, { command, selection, current, policy, consentUpdates, offline, source });};
-    const options={browserPreference: command === 'browser-install' || current?.browserPreference === 'pinned' ? 'pinned' : 'system',confirmDownload,onDownload:info=>write({status:'downloading_verified_release',...info})};
+    const options={onPhase:phase=>{installPhase=phase;},browserPreference: command === 'browser-install' || current?.browserPreference === 'pinned' ? 'pinned' : 'system',confirmDownload,onDownload:info=>write({status:'downloading_verified_release',...info})};
     if(trust.status==='published'&&(trust.channel==='stable'||trust.channels?.stable)){
       try{runtime=await installCurrentPublishedRelease(cache,trust,{...options,minimumVersion:release.version,onResolved:resolved});}
       catch(error){resolved(release);throw error;}
@@ -194,7 +199,7 @@ async function main() {
   }
   selection ??= await selectAgents(agent);
   write({ status: 'installing_candidate', permissions: ['copy verified runtime to user-owned versioned cache', 'configure unchanged owned agent skills/MCP'], trial: 'not_started' });
-  runtime ??= await installCandidate({ source, cache, manifestSha256 });
+  if(!runtime){installPhase='verification';runtime=await installCandidate({source,cache,manifestSha256});}
   // Persist a quiet Notify default; repeat setup never changes existing policy.
   if (consentUpdates) await setUpdatePolicy(cache, { mode: 'auto', consent: true });
   else {
@@ -202,7 +207,9 @@ async function main() {
     await withInstallTransaction(cache, async () => atomicJson(cache, 'update-policy.json', await readUpdatePolicy(cache)));
   }
   const launcher = runtime.generation ? await ensureLauncher(cache, trust) : undefined;
+  installPhase='start';
   const doctor = await run(runtime, ['doctor'], true);
+  installPhase='agent_setup';
   const setup = await configureAgents(runtime, cache, selection, migrateCodex,doctor.capabilities?.agentSetup);
   const release = JSON.parse(await readFile(new URL('../release.json', import.meta.url), 'utf8'));
   const result = { status: 'candidate_installed', installerVersion: metadata.version, version: runtime.productVersion, unchanged: runtime.unchanged, doctor, selection, setup,
@@ -213,13 +220,15 @@ async function main() {
       input: 'The installed version below is an offer; the ready frame binds the selected runtime at new-session start. Keep this host execution session and stdin open. First JSON line has project, scope, optional deadlineMs. Example for an originally authorized fix task: {"project":"/absolute/original/project","scope":{"userRequestedTask":true,"intent":"fix_verify","sourceOrigins":["http://127.0.0.1:3000"],"frontendOrigins":["http://127.0.0.1:3001"],"stateCardIds":[]},"deadlineMs":600000}. Replace project/origins/Card IDs from the original user task; installation grants no scope. Then JSON lines: operation tools; operation call with requestId/name/arguments; operation close.',
       permissions: 'Use normal host approval for this exact runtime command when required. Installation does not grant browser, project or task permissions.',
     }, published: !source && release.status === 'published' && (runtime.publicDeliveryVerified===true||(!trust.channels?.stable&&trust.channel!=='stable'&&release.version===runtime.productVersion)) };
+  result.readiness=installationReadiness(result);
   write(result);
   if (installNeedsAttention(result)) process.exitCode = 1;
   await installMetrics?.finish(installNeedsAttention(result) ? 'install_needs_attention' : 'install_completed', installNeedsAttention(result) ? 'configuration' : 'none');
 }
 void main().catch(async error => {
   const code = error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : 'INSTALL_FAILED';
-  write({ status: 'blocked', code, ...(code.startsWith('NODE_') ? {nodePrerequisite:'https://nodejs.org/en/download', detectedNode:process.versions.node, requiredNode:'24.x'} : {}) });
+  const installed=await readCurrent(cacheRoot()).then(value=>Boolean(value)).catch(()=>null);
+  write({ status: 'blocked', code, diagnostics:{schemaVersion:'agent-install-failure/1',phase:installPhase,runtimeInstalled:installed}, ...(code.startsWith('NODE_') ? {nodePrerequisite:'https://nodejs.org/en/download', detectedNode:process.versions.node, requiredNode:'24.x'} : {}) });
   process.exitCode = code === 'SETUP_CANCELLED' ? 130 : 1;
   await installMetrics?.finish('install_failed', installFailureBucket(error));
 });

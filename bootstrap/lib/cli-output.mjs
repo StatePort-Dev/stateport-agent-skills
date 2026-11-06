@@ -17,7 +17,16 @@ export function installNeedsAttention(value) {
   return value.doctor?.browser?.status !== 'found' || (setup.status !== 'skipped' && (!results?.length || results.some(item => item.status !== 'installed' || item.result?.mcp !== 'ready')));
 }
 
+export function installationReadiness(value) {
+ const root=value.setup??{},results=root.schemaVersion==='agent-setup-batch/1'?root.results??[]:[root];
+ return {schemaVersion:'agent-install-readiness/1',runtime:'installed',source:value.doctor?.capabilities?.sourceOnly===true?'ready':'unverified',browser:value.doctor?.browser?.status==='found'?'ready':'unavailable',agentConfiguration:results.length&&results.every(r=>r.status==='installed'&&r.result?.mcp==='ready')?'configured':root.status==='skipped'?'skipped':'needs_attention',agentDiscovery:'unverified',access:'not_checked'};
+}
+
 const recovery = {
+  AGENT_SELECTION_CONFLICT: ['These agents cannot be connected together.', 'Choose a compatible subset, for example npx stateport install --agents codex,cursor. No agent configuration was changed.'],
+  RELEASE_TIMEOUT: ['The network request timed out.', 'Check your connection and retry npx stateport. If a verified runtime is already installed, use npx stateport install --offline.'],
+  RELEASE_NETWORK: ['The network request failed.', 'Check your connection and retry npx stateport. If a verified runtime is already installed, use npx stateport install --offline.'],
+  RELEASE_CANCELLED: ['The download was cancelled.', 'Run npx stateport when you want to retry.'],
   SETUP_CANCELLED: ['Setup cancelled. No agent configuration was changed.', 'Run npx stateport when you want to choose your agents.'],
   INVALID_ARGUMENTS: ['That command is not recognised.', 'Run npx stateport --help to see the available commands.'],
   PLATFORM_UNSUPPORTED: ['This platform is not supported yet.', 'Use Windows x64, macOS Apple Silicon, or Linux x64.'],
@@ -146,6 +155,9 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
         steps.push(`Open ${agent} and inspect its StatePort MCP connection status.`, 'If it fails, run npx stateport doctor --json and review the agent error.');
       }
     }
+    if (value.doctor?.capabilities?.sourceOnly === true) {
+      notice('INFO', 'Source', 'Source work is available. Capture and replay require a supported browser and their own access checks.');
+    }
     if (browser?.status !== 'found') {
       notice('BLOCKING', 'Capture and replay', 'No supported browser was found. Runtime installation is complete; browser work is unavailable.');
       steps.push('Install Google Chrome (or Microsoft Edge on Windows), or review npx stateport browser-install.', 'Run npx stateport again after the browser is available.');
@@ -181,6 +193,14 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
     line();
   }
   function doctor(value) {
+    if (value.code === 'RUNTIME_NOT_INSTALLED' && !value.version) {
+      heading('Installation check'); check(true,'Installer',version(value.installerVersion ?? installerVersion));
+      line('Runtime: not installed. No engine diagnostics are available yet.');
+      line('Prerequisites: Node.js 24 with npm; Windows x64, macOS Apple Silicon or Linux x64.');
+      line('Source work needs no browser. Capture and replay need Chrome/Edge or an explicitly confirmed browser download.');
+      next(['Check connectivity to npm and GitHub, then run npx stateport to download and verify the runtime.']); line(); return;
+    }
+    if (value.capabilities?.sourceOnly === true) line('Source work is available. Browser readiness is checked separately.');
     heading('Installation check'); check(true, 'Installer', version(value.installerVersion ?? installerVersion) + ' · npm package'); check(Boolean(value.version), 'Runtime', version(value.version) + ' · engine');
     check(value.browser?.status === 'found', 'Browser', value.browser?.status === 'found' ? `${browsers[value.browser.channel] ?? 'System browser'} · found` : 'not found');
     if (value.vault) check(['roundtrip_passed', 'available'].includes(value.vault.status), 'OS key store', terminalText(value.vault.status));
@@ -218,6 +238,7 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
         line('Other Node installations: https://nodejs.org/en/download', '2');
         line(); line('Error: NODE_VERSION_UNSUPPORTED', '2'); line(); return;
       }
+      if(value.diagnostics){line(`Stage: ${value.diagnostics.phase}`);line(`Runtime: ${value.diagnostics.runtimeInstalled===true?'installed and verified':value.diagnostics.runtimeInstalled===false?'not installed':'status unavailable'}`);}
       notice(code === 'SETUP_CANCELLED' ? 'INFO' : 'BLOCKING', 'This command', title); next(Array.isArray(step) ? step : [step], 'How to Start'); line(); line(`Error: ${code === 'NODE_24_LTS_CANDIDATE_REQUIRED' ? 'NODE_VERSION_UNSUPPORTED' : code}`, '2'); line(); return;
     }
     if (kind === 'uninstalled') { heading('StatePort connection removed'); check(true, 'User data', 'Cards and protected data preserved'); line('Verified runtime cache is retained for active processes.'); next(['Run npx stateport whenever you want to connect again.']); line(); return; }
@@ -246,7 +267,7 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
     if (json) { emit({ name: 'stateport', commands: ['install', 'doctor', 'update', 'updates', 'browser-install', 'rollback', 'uninstall', 'repair-launcher'], options: ['--json', '--help', '--version', '--no-telemetry'] }); return; }
     begin(); heading('Get started'); line('npx stateport'); line('Install StatePort and connect your coding agent.');
     heading('Manage your installation');
-    for (const [command, description] of [['install', 'Choose coding agents; all found agents checked by default'], ['install --agents codex,cursor', 'Explicit choice for scripts; all or none also accepted'], ['install --agent codex --migrate-codex', 'Back up and migrate a recognized StatePort Codex connection'], ['doctor', 'Check runtime and browser'], ['doctor --agent cursor', 'Read-only setup conflict details'], ['update', 'Check for an update'], ['updates status', 'Show update policy'], ['browser-install', 'Review optional Chromium download'], ['rollback', 'Restore the retained previous runtime'], ['uninstall', 'Remove unchanged owned agent setup'], ['repair-launcher --confirm', 'Repair the launcher; keep a backup']]) line(`npx stateport ${command}  — ${description}`);
+    for (const [command, description] of [['install', 'Choose a compatible set of coding agents'], ['install --agents codex,cursor', 'Explicit choice for scripts; all or none also accepted'], ['install --agent codex --migrate-codex', 'Back up and migrate a recognized StatePort Codex connection'], ['doctor', 'Check runtime and browser'], ['access', 'Open human-only Developer access and recovery'], ['open <state-card-id> [--frontend <loopback-origin>]', 'Open the current saved Card; Developer access applies'], ['doctor --agent cursor', 'Read-only setup conflict details'], ['update', 'Check for an update'], ['updates status', 'Show update policy'], ['browser-install', 'Review optional Chromium download'], ['rollback', 'Restore the retained previous runtime'], ['uninstall', 'Remove unchanged owned agent setup'], ['repair-launcher --confirm', 'Repair the launcher; keep a backup']]) line(`npx stateport ${command}  — ${description}`);
     heading('Options'); line('--json     Machine-readable output for agents and scripts'); line('--offline  Use a verified installation without downloading'); line('--version  Show installer version'); line('--no-telemetry  Disable anonymous installer metrics (also DO_NOT_TRACK=1)'); line();
   } };
 }

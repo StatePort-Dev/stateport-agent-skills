@@ -7,10 +7,15 @@ environment and use its supported integration mechanism. It is separate from the
 debugging must not install a runtime or change user configuration to bypass a
 missing capability. Use this entrypoint when the user requests setup or an update.
 If StatePort is already installed, use the update procedure below instead of
-creating another copy. This checkout's integration source version is <!-- integration-version:start -->`0.1.0-beta.83`<!-- integration-version:end -->,
+creating another copy. This checkout's integration source version is <!-- integration-version:start -->`0.1.0-beta.84`<!-- integration-version:end -->,
 generated from [`integration.json`](integration.json) by `npm run sync` and
 validated by `npm run check`. It is independent of the Desktop version and is
 not a claim about the newest remote source or the version an agent has loaded.
+
+Canonical installation: [Install and connect StatePort](https://docs.stateport.dev/getting-started/install/).
+This guide is an alternative entry to that same Node setup, not a second plugin
+installation after successful setup. Installer/runtime stable 1.0.0 and skills
+beta.83 are independent; publication does not qualify every agent host.
 
 ## Node Runtime installation
 
@@ -28,7 +33,7 @@ and a final How to Start section. Installer and runtime versions are labelled
 separately. `npx stateport doctor --agent cursor` inspects remaining setup blockers
 read-only, including old skills after an MCP entry was removed.
 For scripts or an authorized current-chat agent installation, run
-`npx stateport --json` (PowerShell: `npx.cmd stateport --json`) and use the returned
+`npx stateport install --agent codex --json` (PowerShell: `npx.cmd stateport install --agent codex --json`) and use the returned
 exact `currentTask` descriptor. Incomplete agent setup exits 1; inspect the final
 JSON object to distinguish installed runtime from setup conflict. Use its returned
 finite current-chat continuation when appropriate;
@@ -44,6 +49,32 @@ non-interactive default. It never changes a running task or user-edited skills.
 Changed contracts or skills require explicit reviewed setup; publication alone
 is not proof of automatic compatibility. Native/model/trust limits remain in the
 Node contract. The Desktop installation sections below are the optional visual path.
+
+## Continue with a useful task
+
+Use your original intention: change existing source, check a criterion at a local
+URL with Developer access, or Free Capture → Review → Save. Source-only review
+starts before edits to existing files for source-choice receipts; retrospective
+review cannot create that baseline. Interpretation remains agent-reported.
+A small edit or no-op may correctly have no additional observation. Installation,
+configuration, actual discovery, useful operation and final-answer delivery are
+separate; prepared_not_displayed is not display proof.
+
+An empty Library is valid. Keep the foreground continuation for this conversation;
+reconnect/new-session MCP must be observed in the selected host. Do not add a
+second plugin/MCP instance. Missing browser support can leave source work ready.
+
+For execution access, offer recovery once; explicit acceptance opens the human-only
+screen. The person enters email/code/payment outside chat. Opening the screen is
+not activation. Recheck access and continue the same Card/revision/target after
+verified return. Decline/cancel preserves free work without repeated upsell.
+
+## Source follow-up 6 November — not published
+
+Current bootstrap source rejects incompatible explicit selections before any
+configuration writes and requires a compatible subset in the interactive chooser.
+Published 1.0.0 still proposes all detected agents and may warn about conflicts.
+New network/readiness diagnostics are source changes awaiting a separate release.
 
 ## Exact Ubuntu Node host limits
 

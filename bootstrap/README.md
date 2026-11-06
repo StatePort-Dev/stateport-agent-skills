@@ -1,5 +1,17 @@
 # StatePort
 
+## Source follow-up 6 November 2026
+
+The changes in this checkout are not a new published installer. Source now resolves
+known agent-selection conflicts before any configuration writes, gives explicit
+installation metadata 30 seconds while background checks keep 5 seconds, sanitizes
+network/timeout reasons and phase, and explains source versus browser readiness.
+Cold doctor reports prerequisites before engine installation. Partial readiness
+retains exit 1; JSON readiness/failure diagnostics are additive versioned objects.
+Canonical setup: https://docs.stateport.dev/getting-started/install/ .
+
+## Published 1.0.0 behaviour and retained instructions
+
 **Capture a browser reproduction once. Reopen it. Verify the fix.**
 
 StatePort saves the setup of a web-app bug as a **State Card** so you and your

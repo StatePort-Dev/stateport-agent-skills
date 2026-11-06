@@ -31,7 +31,7 @@ const success = { status: 'installed', agent: 'cursor', result: { status: 'insta
 
 test('ordinary install shows a component checklist and a concrete next agent request, without protocol JSON', () => scenario(success, async ({ invoke, install }) => {
   const r = await invoke(install);
-  assert.equal(r.code, 0, r.stderr);
+  assert.equal(r.code, 0, r.stdout + r.stderr);
   for (const text of ['StatePort', 'Installer', 'Runtime', 'Google Chrome', 'Skills', 'Cursor', 'How to Start', 'new chat', 'Use StatePort']) assert(r.stdout.includes(text), text);
   assert(!/candidate_installed|currentTask|agent-task-session|nativeAcceptance|published|"status"|\x1b/.test(r.stdout), r.stdout);
   assert.equal(r.stderr, '');
@@ -189,4 +189,11 @@ test('rollback respects runtime-only choice and rejects duplicate agents before 
  const pointer=await readFile(join(cache,'current.json'));
  const invalid=await invoke(['rollback','--agents','cursor,cursor','--json']);assert.equal(invalid.code,1);assert.equal(JSON.parse(invalid.stdout).code,'INVALID_ARGUMENTS');assert.deepEqual(await readFile(join(cache,'current.json')),pointer);
  const result=await invoke(['rollback','--agents','none','--json']);assert.equal(result.code,0,result.stdout);const report=JSON.parse(result.stdout);assert.equal(report.runtime,'1.0.0-rc.3');assert.equal(report.setup.status,'skipped');assert.equal(report.selection.method,'explicit');
+}));
+
+test('cold doctor explains prerequisites before engine installation without an install/doctor loop',()=>scenario(success,async({invoke})=>{
+ const result=await invoke(['doctor','--json']);assert.equal(result.code,1);
+ const report=JSON.parse(result.stdout);assert.equal(report.status,'blocked');assert.equal(report.code,'RUNTIME_NOT_INSTALLED');
+ assert.deepEqual(report.prerequisites.network,['npm','GitHub']);assert.equal(report.prerequisites.browser,'optional_for_source');
+ const human=await invoke(['doctor']);assert.match(human.stdout,/No engine diagnostics/);assert.match(human.stdout,/connectivity/);
 }));

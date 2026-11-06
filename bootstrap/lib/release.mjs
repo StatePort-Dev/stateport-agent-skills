@@ -58,6 +58,7 @@ export async function download(url, maximumBytes, fetcher, options = {}) {
   url = validateUrl(url);
   const timeout = AbortSignal.timeout(options.timeoutMs ?? 120_000);
   const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
+  try {
   for (let hop = 0; hop <= 5; hop++) {
     const response = await fetcher(url, { redirect: 'manual', credentials: 'omit', referrerPolicy: 'no-referrer', signal });
     if ([301, 302, 303, 307, 308].includes(response.status)) {
@@ -70,10 +71,17 @@ export async function download(url, maximumBytes, fetcher, options = {}) {
     return Buffer.concat(chunks);
   }
   throw Error('RELEASE_REDIRECTS');
+  } catch(error) {
+    if (signal.aborted) throw Error(signal.reason?.name === 'TimeoutError' ? 'RELEASE_TIMEOUT' : 'RELEASE_CANCELLED');
+    if (['RELEASE_HTTP','RELEASE_SIZE','RELEASE_REDIRECTS','RELEASE_URL'].includes(error?.message)) throw error;
+    throw Error('RELEASE_NETWORK');
+  }
 }
 export async function installPublishedRelease(config, cache, fetcher = fetch, options = {}) {
   if (config.status !== 'published') throw Error('RELEASE_UNPUBLISHED');
-  const envelope = JSON.parse((await download(config.url, 2 * 1024 * 1024, fetcher)).toString('utf8'));
+  options.onPhase?.('metadata');
+  const envelope = JSON.parse((await download(config.url, 2 * 1024 * 1024, fetcher, {...options, timeoutMs:30_000})).toString('utf8'));
+  options.onPhase?.('verification');
   const document = verifyReleaseEnvelope(envelope, config);
   return installReleaseDocument(document, cache, fetcher, options);
 }
@@ -87,9 +95,12 @@ export async function installReleaseDocument(document, cache, fetcher = fetch, o
     status: 'browser_download_required', bytes: asset.bytes, sha256: asset.sha256, version: document.version,
     action: 'Repeat browser-install with --confirm-download and this exact SHA-256 after host approval. No browser downloaded yet.',
   };
+  options.onPhase?.('download');
   options.onDownload?.({ bytes: asset.bytes, version: document.version, browser: options.browserPreference === 'pinned' ? 'pinned_chromium' : 'system' });
   const bytes = await download(asset.url, asset.bytes, fetcher, options);
+  options.onPhase?.('verification');
   if (bytes.length !== asset.bytes || sha(bytes) !== asset.sha256) throw Error('RELEASE_ASSET_INTEGRITY');
+  options.onPhase?.('extraction');
   const files = decodeRuntimeArchive(bytes, { allowBundleLinks: true, allowPathHeaders: true });
   const metadataFile = files.find(file => file.path === 'candidate.json');
   if (!metadataFile || sha(metadataFile.bytes) !== asset.manifestSha256) throw Error('RELEASE_ASSET_INTEGRITY');

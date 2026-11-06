@@ -10,7 +10,7 @@ is [StatePort-Dev](https://github.com/StatePort-Dev).
 StatePort LocalRuntime owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Beta source.** The integration version is <!-- integration-version:start -->`0.1.0-beta.83`<!-- integration-version:end -->. Source
+> **Beta source.** The integration version is <!-- integration-version:start -->`0.1.0-beta.84`<!-- integration-version:end -->. Source
 > installation and bounded Codex CLI workflows have been checked. The npm
 > installer has its own stable release; this does not qualify every provider.
 > Integration prereleases distribute source;
@@ -59,16 +59,24 @@ consent are preserved. Every installation ends with
 same-chat installers use `npx stateport --json` for the exact launcher descriptor;
 MCP/task-session output remains protocol-only.
 
-Fresh bare-npx rc.9 installation, repeat setup, Review/Save and cold Card
-inspection passed on Ubuntu 24.04 x64. Source-only first-use continuation,
-introduction once and new-process no-repeat also passed on the downloaded
-runtime. Exact registry bytes, Sigstore provenance and npm signatures pass.
-Earlier Windows named-install/Capture/cold receipts remain version-bound; RC6
-adds three-OS native source/vault/Free controls and owner-confirmed Windows chat
-acceptance. Broader provider, human access and native-trust gates remain separate.
-See the [release notes](https://github.com/StatePort-Dev/stateport-releases/releases/tag/v1.0.0-rc.6-agent.1)
-and [Node contract](docs/AGENT_RUNTIME_CANDIDATE.md). Package availability does not
-promote provider statuses. The optional Desktop path remains below.
+Fresh bare-npx stable 1.0.0 installation and repeat passed on Ubuntu 24.04 x64,
+with exact registry bytes, signatures and provenance checked separately. Native
+packaging/control checks ran on three OSes. Actual model/first-use receipts remain
+bound to their versions; Windows chat is owner-reported on its contextual baseline.
+Broader provider/model, human access and native-trust qualification remain separate.
+See [stable release notes](https://github.com/StatePort-Dev/stateport-releases/releases/tag/v1.0.0-agent.1)
+and the [Node contract](docs/AGENT_RUNTIME_CANDIDATE.md). Package availability does
+not promote provider statuses. Canonical setup:
+https://docs.stateport.dev/getting-started/install/ .
+
+## Source follow-up 6 November 2026 — not published
+
+The current bootstrap source requires a compatible agent subset before any setup
+writes when Codex/Claude/Cursor conflict. It separates explicit metadata deadlines
+from background checks, returns safe network cause/phase and explains partial
+source/browser readiness. These changes require a future installer publication;
+existing 1.0.0 bytes retain their original behaviour. No provider/model acceptance
+is inferred from source tests. The optional Desktop path remains below.
 
 ## Connect an agent — optional Desktop path
 

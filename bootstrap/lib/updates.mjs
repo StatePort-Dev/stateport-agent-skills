@@ -37,7 +37,9 @@ export async function installCurrentPublishedRelease(cache,trust,options={}) {
     const state=await stateFor(cache),config=channelTrust(trust,{channel:'stable'});
     const signal=options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(130000)]):AbortSignal.timeout(130000);
     const fetcher=options.fetcher??fetch;
-    const envelope=JSON.parse((await download(config.url,2*1024*1024,fetcher,{signal,timeoutMs:5000,metadataChannel:'stable'})).toString('utf8'));
+    options.onPhase?.('metadata');
+    const envelope=JSON.parse((await download(config.url,2*1024*1024,fetcher,{signal,timeoutMs:30_000,metadataChannel:'stable'})).toString('utf8'));
+    options.onPhase?.('verification');
     const verified=verifyChannelEnvelope(envelope,config,state.water.stable),document=verified.document;
     if(options.minimumVersion&&compareVersions(document.version,options.minimumVersion)<0)throw Error('RELEASE_DOWNGRADE');
     const browserPreference=options.browserPreference??current?.browserPreference??'system',asset=assetFor(document,browserPreference);

@@ -1,6 +1,13 @@
 # Cursor Agent integration
 
-For a validated Node-only candidate, use the
+Start with the [canonical Node setup](https://docs.stateport.dev/getting-started/install/).
+Do not add this provider package as a second integration after successful setup.
+Setup/configuration, discovery, first useful task and complete same-case fix loop
+are independent evidence. CLI and IDE surfaces of one brand are separate; stable
+package publication does not upgrade the retained provider compatibility status.
+
+
+For the published Node setup and its exact qualification, use the
 [shared candidate contract](../../docs/AGENT_RUNTIME_CANDIDATE.md). Same-chat CLI
 continuity and future-session MCP are separate. The
 [4 November Ubuntu record](../../docs/compatibility/node-agents-ubuntu-2026-11-04.md)
@@ -15,7 +22,7 @@ current-chat foreground continuity remain unqualified.
 
 The portable StatePort Agent Plugin is a source candidate for Cursor. Local
 plugin loading and a complete StatePort workflow remain unverified. The package
-contains five generated canonical skills and no bundled runtime or automatic MCP
+contains seven generated canonical skills and no bundled runtime or automatic MCP
 configuration.
 
 ## Load the development source

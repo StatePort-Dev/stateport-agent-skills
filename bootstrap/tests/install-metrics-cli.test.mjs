@@ -15,6 +15,7 @@ async function scenario(run,stable=false) {
     await mkdir(join(bootstrap, 'bin'), { recursive: true });
     await cp(new URL('../lib', import.meta.url), join(bootstrap, 'lib'), { recursive: true });
     await cp(new URL('../bin/stateport.mjs', import.meta.url), join(bootstrap, 'bin/stateport.mjs'));
+    await cp(new URL('../cli-contract.json', import.meta.url), join(bootstrap, 'cli-contract.json'));
     // Legacy release-only scenarios must not inherit the checkout's published
     // trust catalog. Stable-channel scenarios install their own signed fixture.
     await writeFile(join(bootstrap, 'update-release.json'), JSON.stringify({ status: 'unpublished' }));

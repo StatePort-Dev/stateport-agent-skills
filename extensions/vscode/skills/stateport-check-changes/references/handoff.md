@@ -47,3 +47,9 @@ and behavior verdicts, known build evidence, and remaining two-attempt/120-secon
 recovery budget. Reload `read_run_checks` by exact run ID after resumption; do not
 read private paths. Recheck source/target/conditions and discover changed schemas.
 A warm PASS or missing/corrupt receipt remains unverified.
+
+When no Desktop URI receiver exists, a capable Node host may return a text Card-ID
+fallback instead of a link. Include the safe returned fallback; never manufacture
+stateport:// or browser links. Node `open` uses the current Card ID, not a pinned
+historical revision. Inspect the revision before comparing; opening is not verified
+reproduction and still uses Developer access. An unavailable link is not a failed Save.

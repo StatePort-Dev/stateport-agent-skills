@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "agent-bootstrap-cli/1",
+  "commands": [
+    {
+      "name": "install",
+      "usage": "install [--agent codex|claude|cursor|vscode] [--agents <subset>|all|none] [--offline] [--consent-updates]",
+      "purpose": "Install verified runtime and connect selected agents; default command. Choose a compatible subset.",
+      "integration": false
+    },
+    {
+      "name": "doctor",
+      "usage": "doctor [--agent codex|claude|cursor|vscode]",
+      "purpose": "Read-only installer, runtime/browser and optional setup diagnostics.",
+      "integration": false
+    },
+    {
+      "name": "open",
+      "usage": "open <state-card-id> [--frontend <loopback-origin>]",
+      "purpose": "Forward to Node human Open by current Card ID, not a capsule path; Developer access applies.",
+      "integration": false
+    },
+    {
+      "name": "access",
+      "usage": "access",
+      "purpose": "Open private human-only trial, purchase or recovery screen; no activation by merely opening.",
+      "integration": false
+    },
+    {
+      "name": "browser-install",
+      "usage": "browser-install [--confirm-download <sha256>]",
+      "purpose": "Offer a separate pinned browser download; require explicit digest confirmation.",
+      "integration": false
+    },
+    {
+      "name": "update",
+      "usage": "update",
+      "purpose": "Explicit signed compatible update; preserve pins, consent and running tasks.",
+      "integration": false
+    },
+    {
+      "name": "updates",
+      "usage": "updates status|check|retry|auto|notify|pin|channel",
+      "purpose": "Manage policy. Auto needs --consent; channel needs --confirm; retry and pin need exact manifest digest.",
+      "integration": false
+    },
+    {
+      "name": "repair-launcher",
+      "usage": "repair-launcher --confirm",
+      "purpose": "Repair owned launcher explicitly and retain changed-file backup.",
+      "integration": false
+    },
+    {
+      "name": "rollback",
+      "usage": "rollback [--agent <agent>] [--agents <subset>|none]",
+      "purpose": "Select an eligible verified previous generation, preserve data and task safety.",
+      "integration": false
+    },
+    {
+      "name": "uninstall",
+      "usage": "uninstall",
+      "purpose": "Remove only unchanged owned agent setup; preserve Cards, protected data and verified cache.",
+      "integration": false
+    },
+    {
+      "name": "mcp",
+      "usage": "mcp",
+      "purpose": "Integration-only stdio MCP transport.",
+      "integration": true
+    },
+    {
+      "name": "task-session",
+      "usage": "task-session",
+      "purpose": "Integration-only finite foreground NDJSON session.",
+      "integration": true
+    },
+    {
+      "name": "task-start",
+      "usage": "task-start",
+      "purpose": "Legacy controlled-launcher task start; stdin JSON.",
+      "integration": true
+    },
+    {
+      "name": "task-call",
+      "usage": "task-call",
+      "purpose": "Bounded existing-task call; stdin JSON.",
+      "integration": true
+    },
+    {
+      "name": "task-tools",
+      "usage": "task-tools",
+      "purpose": "Read allowed tools for existing task; stdin JSON.",
+      "integration": true
+    },
+    {
+      "name": "task-close",
+      "usage": "task-close",
+      "purpose": "Close exact owned task; stdin JSON.",
+      "integration": true
+    }
+  ]
+}

@@ -1,6 +1,13 @@
 # GitHub Copilot integrations
 
-For a validated Node-only candidate, use the
+Start with the [canonical Node setup](https://docs.stateport.dev/getting-started/install/).
+Do not add this provider package as a second integration after successful setup.
+Setup/configuration, discovery, first useful task and complete same-case fix loop
+are independent evidence. CLI and IDE surfaces of one brand are separate; stable
+package publication does not upgrade the retained provider compatibility status.
+
+
+For the published Node setup and its exact qualification, use the
 [shared candidate contract](../../docs/AGENT_RUNTIME_CANDIDATE.md). Same-chat CLI
 continuity and future-session MCP are separate. The
 [4 November Ubuntu record](../../docs/compatibility/node-agents-ubuntu-2026-11-04.md)

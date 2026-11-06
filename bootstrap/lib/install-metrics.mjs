@@ -24,7 +24,7 @@ function safeContext(input) {
 
 export function installFailureBucket(error) {
   const code = error instanceof Error ? error.message : '';
-  if (['RELEASE_HTTP', 'RELEASE_REDIRECTS'].includes(code) || (error instanceof Error && ['TimeoutError', 'AbortError'].includes(error.name))) return 'network';
+  if (['RELEASE_HTTP', 'RELEASE_REDIRECTS', 'RELEASE_NETWORK', 'RELEASE_TIMEOUT', 'RELEASE_CANCELLED'].includes(code) || (error instanceof Error && ['TimeoutError', 'AbortError'].includes(error.name))) return 'network';
   if (/^(?:RELEASE_[A-Z_]+|ARCHIVE_[A-Z_]+|MANIFEST_[A-Z_]+|INVENTORY_[A-Z_]+|INSTALL_INTEGRITY)$/.test(code)) return 'verification';
   if (/^(?:DOWNLOAD_[A-Z_]+|NETWORK_[A-Z_]+)$/.test(code)) return 'network';
   if (['PLATFORM_UNSUPPORTED', 'NODE_24_LTS_CANDIDATE_REQUIRED'].includes(code)) return 'unsupported';

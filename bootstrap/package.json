@@ -8,6 +8,7 @@
     "stateport": "./bin/stateport.mjs"
   },
   "files": [
+    "cli-contract.json",
     "bin",
     "lib",
     "release.json",

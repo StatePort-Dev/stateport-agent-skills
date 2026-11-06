@@ -12,6 +12,18 @@ engine source, own Node or Electron. The system-browser runtime excludes Chromiu
 the pinned fallback requires a separate explicit download confirmation. Registry
 integrity and cryptographic public-source provenance were verified independently.
 
+## Current publication and source boundary
+
+Canonical setup: https://docs.stateport.dev/getting-started/install/ . Installer
+and engine 1.0.0 are published independently from skills beta.83. Three-OS native
+machine controls are separate from real model/human acceptance; Windows chat is
+owner-reported on its contextual baseline and macOS manual/model is unverified,
+tracked and non-blocking. Retained provider receipts keep their original versions.
+
+The 6 November chooser/network/doctor changes in bootstrap are unpublished source.
+They do not change the installed 1.0.0 contract described below. No personal
+configuration or provider status is changed by documentation or static tests.
+
 ## Current task versus next session
 
 Installer 1.0.0 prints human-readable installation progress, a component checklist

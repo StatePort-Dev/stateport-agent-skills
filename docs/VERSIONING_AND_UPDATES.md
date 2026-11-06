@@ -10,7 +10,7 @@ StatePort uses three independent version lines:
 
 - **Integration version** identifies this repository's skill, plugin manifests,
   setup helpers and native source candidates. The current beta source version
-  is <!-- integration-version:start -->`0.1.0-beta.83`<!-- integration-version:end -->
+  is <!-- integration-version:start -->`0.1.0-beta.84`<!-- integration-version:end -->
   in [`integration.json`](../integration.json).
 - **Desktop/runtime version** identifies the installed StatePort application and
   MCP process. It does not determine the integration version.
