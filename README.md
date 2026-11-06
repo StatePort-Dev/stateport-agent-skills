@@ -36,7 +36,7 @@ only synthetic data and runs without a StatePort account or installation.
 ## Install StatePort — npm
 
 The published [npm package](https://www.npmjs.com/package/stateport) installs
-the signed stable StatePort engine with skills beta.84 through installer 1.0.1:
+the signed stable StatePort engine with skills beta.84 through installer 1.0.2:
 
 ```sh
 npx stateport
@@ -49,7 +49,7 @@ platform runtime, about 7 MB with a system browser. It configures owned skills
 and MCP for the selected coding agent. Desktop is optional. Explicit pinned
 Chromium fallback is a separate download, with size and digest shown before consent.
 Setup does not start a trial or grant browser/task authority.
-Installer 1.0.1 offers Codex, Claude Code, Cursor and VS Code/Copilot as detected
+Installer 1.0.2 offers Codex, Claude Code, Cursor and VS Code/Copilot as detected
 proposals. Known incompatible selections must be resolved before agent writes. Each selected connection has its own outcome. It distinguishes installer/runtime versions, explains warning severity
 and offers an explicit backed-up migration for recognized old Codex setups.
 Custom or edited configuration stays protected. New installations select the

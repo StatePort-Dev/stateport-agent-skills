@@ -1,5 +1,11 @@
 # StatePort
 
+Installer 1.0.2 fixes explicit upgrades from runtime 1.0.0 to 1.0.1.
+That exact transition was reviewed: only trusted runtime options changed the
+conservative storage fingerprint; persisted data formats did not change. Auto
+updates, pins, running tasks and unknown storage changes keep their protections.
+Runtime 1.0.1 and skills beta.84 retain their independent versions.
+
 ## Installer 1.0.1 audit fixes
 
 Installer 1.0.1 resolves

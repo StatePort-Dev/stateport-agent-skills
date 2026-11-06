@@ -65,3 +65,44 @@ test('explicit install tolerates metadata past the background five-second budget
  assert.equal(result.productVersion,'1.0.1');assert.equal(phases[0],'metadata');
  assert(phases.includes('download'));assert(phases.includes('verification'));assert(phases.includes('extraction'));
 }));
+
+test('reviewed setup upgrades published 1.0.0 to 1.0.1 across the runtime-options-only fingerprint change',()=>updateFixture(async f=>{
+ const oldStorage='5f0e61063a05a1f4c700c030ac61d6477c891e7d4762933600c32b6368c6e889';
+ const newStorage='1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b';
+ const before=f.bundle('1.0.0',{...f.generation,storageRead:oldStorage,storageWrite:oldStorage});
+ const {writeFile}=await import('node:fs/promises');
+ const {installCandidate,readInstalled}=await import('../lib/install.mjs');
+ const {sha}=await import('./update-fixture.mjs');
+ await writeFile(join(f.source,'main.cjs'),before.main);await writeFile(join(f.source,'candidate.json'),before.manifest);
+ const installed=await installCandidate({source:f.source,cache:f.cache,manifestSha256:sha(before.manifest)});
+ f.trust.channel='stable';f.trust.url='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json';
+ f.release(f.bundle('1.0.1',{...f.generation,mcp:'d'.repeat(64),skills:'e'.repeat(64),storageRead:newStorage,storageWrite:newStorage}),2,'stable');
+ await setUpdatePolicy(f.cache,{mode:'auto',consent:true,channel:'stable'});
+ await updates.checkForUpdates(f.cache,f.trust,{fetcher:f.fetcher,force:true,readiness:async()=>{throw Error('must not run automatically');}});
+ assert.equal((await updates.updateStatus(f.cache)).hold,'UPDATE_INCOMPATIBLE');
+ assert.equal((await readCurrent(f.cache)).digest,installed.digest);
+ assert.deepEqual(f.requests.map(r=>r.url),[f.trust.url]);
+ const policyBefore=await readFile(join(f.cache,'update-policy.json'),'utf8');
+ const result=await updates.installCurrentPublishedRelease(f.cache,f.trust,{fetcher:f.fetcher,minimumVersion:'1.0.1'});
+ assert.equal(result.productVersion,'1.0.1');assert.equal((await readCurrent(f.cache)).digest,result.digest);
+ assert.equal(await readFile(join(f.cache,'update-policy.json'),'utf8'),policyBefore);
+ assert.equal((await readInstalled(f.cache,installed.digest)).productVersion,'1.0.0');
+ assert.deepEqual(await readFile(installed.entry),before.main);
+ assert.equal((await updates.installCurrentPublishedRelease(f.cache,f.trust,{fetcher:f.fetcher,minimumVersion:'1.0.1'})).unchanged,true);
+}));
+
+for (const [name,version,read,write] of [
+ ['unknown target version','1.0.2','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b'],
+ ['unknown storage hash','1.0.1','f'.repeat(64),'f'.repeat(64)],
+ ['mixed read/write contracts','1.0.1','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b','f'.repeat(64)],
+]) test(`reviewed storage exception rejects ${name} before payload download`,()=>updateFixture(async f=>{
+ const oldStorage='5f0e61063a05a1f4c700c030ac61d6477c891e7d4762933600c32b6368c6e889';
+ const before=f.bundle('1.0.0',{...f.generation,storageRead:oldStorage,storageWrite:oldStorage});
+ const {writeFile}=await import('node:fs/promises');const {installCandidate}=await import('../lib/install.mjs');const {sha}=await import('./update-fixture.mjs');
+ await writeFile(join(f.source,'main.cjs'),before.main);await writeFile(join(f.source,'candidate.json'),before.manifest);
+ const installed=await installCandidate({source:f.source,cache:f.cache,manifestSha256:sha(before.manifest)});
+ f.trust.channel='stable';f.trust.url='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json';
+ f.release(f.bundle(version,{...f.generation,storageRead:read,storageWrite:write}),2,'stable');
+ await assert.rejects(updates.installCurrentPublishedRelease(f.cache,f.trust,{fetcher:f.fetcher,minimumVersion:'1.0.1'}),/UPDATE_INCOMPATIBLE/);
+ assert.equal((await readCurrent(f.cache)).digest,installed.digest);assert.deepEqual(f.requests.map(r=>r.url),[f.trust.url]);
+}));

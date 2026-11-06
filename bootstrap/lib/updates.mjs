@@ -23,6 +23,20 @@ function channelTrust(trust, policy) {
   if (!url) throw Error('UPDATE_CHANNEL_UNAVAILABLE');
   return { ...trust, channel: policy.channel, url };
 }
+// Reviewed 1.0.0 -> 1.0.1 storage closure differs only by two trusted runtime
+// option declarations, not persisted Card/Capsule/auth/vault types or readers.
+// This exact one-way exception is for explicit setup only. Auto/session/rollback
+// compatibility remains exact; unknown hashes or release pairs still fail closed.
+function explicitStorageCompatible(current, generation, targetVersion) {
+  const before = current.generation;
+  if (!validGeneration(before)) return false;
+  if (before.storageRead === generation.storageRead && before.storageWrite === generation.storageWrite) return true;
+  return current.productVersion === '1.0.0' && targetVersion === '1.0.1'
+    && before.storageRead === '5f0e61063a05a1f4c700c030ac61d6477c891e7d4762933600c32b6368c6e889'
+    && before.storageWrite === before.storageRead
+    && generation.storageRead === '1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b'
+    && generation.storageWrite === generation.storageRead;
+}
 /** An explicit stable installation selects current signed metadata, independently
  * of the npm bootstrap's baseline version. One verifier/lock/stager remains the
  * authority. Existing channel/Auto consent, pins and running tasks are retained. */
@@ -44,7 +58,7 @@ export async function installCurrentPublishedRelease(cache,trust,options={}) {
     if(options.minimumVersion&&compareVersions(document.version,options.minimumVersion)<0)throw Error('RELEASE_DOWNGRADE');
     const browserPreference=options.browserPreference??current?.browserPreference??'system',asset=assetFor(document,browserPreference);
     if(!validGeneration(asset.generation))throw Error('UPDATE_INCOMPATIBLE');
-    if(current&&(!validGeneration(current.generation)||current.generation.storageRead!==asset.generation.storageRead||current.generation.storageWrite!==asset.generation.storageWrite))throw Error('UPDATE_INCOMPATIBLE');
+    if(current&&!explicitStorageCompatible(current,asset.generation,document.version))throw Error('UPDATE_INCOMPATIBLE');
     if(quarantined(state,asset.manifestSha256))throw Error('UPDATE_QUARANTINED');
     const order=current?compareVersions(document.version,current.productVersion):1;
     if(order<0)throw Error('RELEASE_DOWNGRADE');

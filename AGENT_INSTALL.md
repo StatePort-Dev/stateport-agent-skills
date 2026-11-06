@@ -14,7 +14,7 @@ not a claim about the newest remote source or the version an agent has loaded.
 
 Canonical installation: [Install and connect StatePort](https://docs.stateport.dev/getting-started/install/).
 This guide is an alternative entry to that same Node setup, not a second plugin
-installation after successful setup. Installer/runtime stable 1.0.1 and skills
+installation after successful setup. Installer 1.0.2, runtime 1.0.1 and skills
 beta.84 are independent; publication does not qualify every agent host.
 
 ## Node Runtime installation

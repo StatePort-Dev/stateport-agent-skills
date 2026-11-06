@@ -1,6 +1,6 @@
 {
   "name": "stateport",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "description": "Save browser reproductions as State Cards. Reopen them and verify fixes with your coding agent.",
   "type": "module",
