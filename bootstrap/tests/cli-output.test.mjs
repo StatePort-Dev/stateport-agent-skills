@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { readFile, writeFile, access } from 'node:fs/promises';
+import { readFile, writeFile, access, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { updateFixture, sha } from './update-fixture.mjs';
@@ -10,6 +10,11 @@ import { createCliOutput } from '../lib/cli-output.mjs';
 
 const exec = promisify(execFile);
 const entry = fileURLToPath(new URL('../bin/stateport.mjs', import.meta.url));
+test('incompatible upgrade preserves the installed runtime and avoids a same-command recovery loop',()=>{
+ const text=rendered({status:'blocked',code:'UPDATE_INCOMPATIBLE'});
+ assert.match(text,/install --offline/);assert.match(text,/installed runtime/i);
+ assert.doesNotMatch(text,/Run npx stateport to review the new installation/);
+});
 async function scenario(setup, run) {
   return updateFixture(async f => {
     const doctor = { version: '1.0.0-rc.3', host: { status: 'candidate' }, browser: { status: 'found', channel: 'chrome' } };
@@ -20,14 +25,25 @@ async function scenario(setup, run) {
     const bytes = JSON.stringify(manifest); await writeFile(join(f.source, 'candidate.json'), bytes);
     const env = { ...process.env, HOME: f.root, USERPROFILE: f.root, XDG_DATA_HOME: join(f.root, 'data'), LOCALAPPDATA: join(f.root, 'data'), NO_COLOR: '1' };
     delete env.NODE_TEST_CONTEXT; delete env.FORCE_COLOR;
-    const invoke = async args => {
-      try { return { ...(await exec(process.execPath, [entry, ...args], { env })), code: 0 }; }
+    const invoke = async (args, extraEnv={}) => {
+      try { return { ...(await exec(process.execPath, [entry, ...args], { env:{...env,...extraEnv} })), code: 0 }; }
       catch (error) { if (typeof error.code !== 'number') throw error; return { stdout: error.stdout, stderr: error.stderr, code: error.code }; }
     };
     await run({ invoke, root: f.root, install: ['install', '--agent', 'cursor', '--candidate-dir', f.source, '--manifest-sha256', sha(bytes)] });
   });
 }
 const success = { status: 'installed', agent: 'cursor', result: { status: 'installed', version: '0.1.0-beta.82', mcp: 'ready', unchanged: false }, configuration: { scope: 'user', path: '/synthetic/home/.cursor/mcp.json', serverName: 'stateport' } };
+test('manual selection flag fails clearly without a terminal before agent setup',()=>scenario(success,async({invoke,install})=>{
+ const args=install.filter((_,i)=>i!==1&&i!==2);
+ const reply=await invoke([...args,'--choose-agents','--json']);assert.equal(reply.code,1,reply.stdout);
+ assert.equal(JSON.parse(reply.stdout.trim().split('\n').at(-1)).code,'AGENT_CHOICE_REQUIRES_TTY');
+}));
+test('IDE-only Claude on a retained old engine requires its setup capability before any setup call',()=>scenario(success,async({invoke,install,root})=>{
+ const ext=join(root,'.vscode/extensions'),folder='Anthropic.claude-code-1.0.0';await mkdir(join(ext,folder),{recursive:true});
+ await writeFile(join(ext,'extensions.json'),JSON.stringify([{identifier:{id:'Anthropic.claude-code'},relativeLocation:folder}]));await writeFile(join(ext,folder,'package.json'),JSON.stringify({publisher:'Anthropic',name:'claude-code'}));
+ const args=install.filter((_,i)=>i!==1&&i!==2);const r=await invoke([...args,'--agent','claude','--json'],{PATH:''});
+ const report=JSON.parse(r.stdout.trim().split('\n').at(-1));assert.equal(r.code,1);assert.deepEqual(report.selection.claude,{cli:false,editors:['vscode']});assert.equal(report.setup.result.reason,'RUNTIME_UPDATE_REQUIRED');
+}));
 
 test('ordinary install shows a component checklist and a concrete next agent request, without protocol JSON', () => scenario(success, async ({ invoke, install }) => {
   const r = await invoke(install);
@@ -63,12 +79,12 @@ test('explicit JSON retains task-session contract and failure semantics', () => 
   assert(!r.stdout.includes('\x1b')); assert.equal(r.stderr, '');
 }));
 
-test('no detected agent is an explicit incomplete checklist and offers supported agent commands', () => scenario({ status: 'guided_setup_required', detected: [] }, async ({ invoke, install }) => {
-  const r = await invoke(install.filter((_,i)=>i!==1&&i!==2)); assert.equal(r.code, 1);
-  assert.match(r.stdout, /Skills.*not configured/i); assert.match(r.stdout, /agent.*not selected/i);
-  assert.match(r.stdout, /npx stateport install --agent codex/);
-  assert.match(r.stdout, /--agent claude/); assert.match(r.stdout, /--agent cursor/);
-}));
+test('no detected agent is an explicit incomplete checklist and offers supported agent commands', () => {
+  const text=rendered({status:'candidate_installed',version:'1.0.1',doctor:{browser:{status:'found',channel:'chrome'}},setup:{status:'guided_setup_required',reason:'AGENT_NOT_FOUND'}});
+  assert.match(text, /Skills.*not configured/i); assert.match(text, /agent.*not selected/i);
+  assert.match(text, /npx stateport --choose-agents/);assert.match(text, /npx stateport install --agent codex/);
+  assert.match(text, /--agent claude/); assert.match(text, /--agent cursor/);
+});
 
 test('help and version do not install anything, unknown commands fail with useful help', () => scenario(success, async ({ invoke, root }) => {
   const help = await invoke(['--help']); assert.equal(help.code, 0); assert.match(help.stdout, /--json/);
@@ -83,7 +99,7 @@ test('MCP failure remains machine-only without requiring --json', () => scenario
 }));
 test('a retained older runtime offers an update instead of calling an unsupported VS Code adapter',()=>scenario(success,async({invoke,install})=>{
  const args=install.map(value=>value==='cursor'?'vscode':value),r=await invoke(args);
- assert.equal(r.code,1);assert.match(r.stdout,/runtime predates automatic VS Code/);assert.match(r.stdout,/npx stateport update/);assert.match(r.stdout,/settings were not changed/);
+ assert.equal(r.code,1);assert.match(r.stdout,/runtime cannot configure this VS Code/);assert.match(r.stdout,/npx stateport install/);assert.match(r.stdout,/settings were not changed/);
 }));
 
 test('doctor and management status have readable defaults and explicit JSON', () => scenario(success, async ({ invoke, install }) => {
@@ -166,10 +182,11 @@ test('recognized Codex conflict offers one migration command and explains its ef
  assert(text.lastIndexOf('How to Start')>text.indexOf('BLOCKING'));
 });
 
-test('real CLI without a non-TTY selection installs runtime only and returns the same-chat descriptor',()=>scenario(success,async({invoke,install})=>{
+test('real CLI without a non-TTY selection uses automatic discovery and returns the same-chat descriptor',()=>scenario(success,async({invoke,install})=>{
  const args=install.filter((_,i)=>i!==1&&i!==2);
- const r=await invoke([...args,'--json']);assert.equal(r.code,1);const result=JSON.parse(r.stdout.trim().split('\n').at(-1));
- assert.equal(result.selection.status,'required');assert.equal(result.setup.reason,'AGENT_SELECTION_REQUIRED');assert.equal(result.currentTask.protocol,'agent-task-session/1');
+ const r=await invoke([...args,'--json']);const result=JSON.parse(r.stdout.trim().split('\n').at(-1));
+ assert.equal(result.selection.method,'automatic');assert.equal(result.selection.schemaVersion,'agent-selection/2');
+ assert.deepEqual(result.selection.agents,['codex','claude','cursor','vscode'].filter(id=>result.selection.detected.includes(id)));assert.equal(result.currentTask.protocol,'agent-task-session/1');
  assert(!r.stdout.includes('Selection ['));assert(!r.stdout.includes('“'));
 }));
 test('real CLI accepts a batch choice and explicit none without claiming a missing connection',()=>scenario(success,async({invoke,install})=>{

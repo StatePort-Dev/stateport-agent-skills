@@ -60,14 +60,15 @@ async function run(runtime, args, capture = false) {
     });
   });
 }
-async function selectAgents(explicit) {
+async function selectAgents(explicit,choose=false) {
   if (!rawArgs.includes('--json') && process.stdin.isTTY && process.stdout.isTTY) output.begin();
-  return chooseAgents({ discovery: await discoverAgentTools({ home: homedir(), platform: process.platform, env: process.env }), explicit, interactive: !rawArgs.includes('--json') && Boolean(process.stdin.isTTY && process.stdout.isTTY) });
+  return chooseAgents({ discovery: await discoverAgentTools({ home: homedir(), platform: process.platform, env: process.env }), explicit, choose, interactive: !rawArgs.includes('--json') && Boolean(process.stdin.isTTY && process.stdout.isTTY) });
 }
 async function configureAgents(runtime, cache, selection, migrateCodex = false, setupCapabilities) {
   return setupSelectedAgents(selection, async selected => {
     const targets=setupCapabilities?.schemaVersion===1?setupCapabilities.targets:['codex','claude','cursor'];
     if(!Array.isArray(targets)||!targets.includes(selected))return {status:'failed',agent:selected,result:{status:'failed',reason:'RUNTIME_UPDATE_REQUIRED'}};
+    if(selected==='claude'&&selection.claude?.cli===false&&selection.claude.editors?.length&&setupCapabilities?.claudeIde!==true)return{status:'failed',agent:selected,result:{status:'failed',reason:'RUNTIME_UPDATE_REQUIRED'}};
     let outcome = await run(runtime, ['setup', '--agent', selected], true);
     if (outcome.agent !== selected || !['installed', 'failed'].includes(outcome.status)) throw Error('RUNTIME_REPLY_INVALID');
     const canMigrate=outcome.capabilities?.schemaVersion===1&&outcome.capabilities?.codexMigration===true;
@@ -152,12 +153,13 @@ async function main() {
     const result = { status: 'rolled_back', runtime: runtime.productVersion, doctor, selection, setup: await configureAgents(runtime, cache, selection,false,doctor.capabilities?.agentSetup), hostDiscovered: 'unverified' };
     write(result); if (installNeedsAttention(result)) process.exitCode = 1; return;
   }
-  let source, manifestSha256, agent, offline = false, confirmDownload, consentUpdates = false, migrateCodex = false;
+  let source, manifestSha256, agent, offline = false, confirmDownload, consentUpdates = false, migrateCodex = false, choose = false;
   while (args.length) {
     const option = args.shift();
     if (option === '--offline' && !offline) { offline = true; continue; }
     if (option === '--consent-updates' && !consentUpdates) { consentUpdates = true; continue; }
     if (option === '--migrate-codex' && !migrateCodex) { migrateCodex = true; continue; }
+    if (option === '--choose-agents' && !choose) { choose = true; continue; }
     const value = args.shift();
     if (!value) throw Error('INVALID_ARGUMENTS');
     if (option === '--candidate-dir' && !source) source = value;
@@ -169,6 +171,7 @@ async function main() {
   }
   if ((source && !manifestSha256) || (!source && manifestSha256) || (source && offline)) throw Error('INVALID_ARGUMENTS');
   if(migrateCodex&&(agent!=='codex'||command!=='install'))throw Error('INVALID_ARGUMENTS');
+  if(choose&&(agent!==undefined||command!=='install'))throw Error('INVALID_ARGUMENTS');
   let runtime, selection;
   const policy = await readUpdatePolicy(cache);
   if (policy.mode === 'pinned' && (command === 'update' || command === 'browser-install' || (manifestSha256 && manifestSha256 !== policy.pin.digest))) throw Error('PIN_RELEASE_REQUIRED');
@@ -181,7 +184,7 @@ async function main() {
     // A checked/held/offered update is not a completed installation.
     await installMetrics.finish('install_deferred'); return;
   }
-  if (command !== 'browser-install') {installPhase='agent_setup';selection = await selectAgents(agent);}
+  if (command !== 'browser-install') {installPhase='agent_setup';selection = await selectAgents(agent,choose);}
   if (offline) {
     runtime = await readCurrent(cache); if (!runtime) throw Error('OFFLINE_CACHE_UNAVAILABLE');
     runtime = { ...runtime, unchanged: true };
@@ -197,7 +200,7 @@ async function main() {
     }else{resolved(release);runtime=await installPublishedRelease(release,cache,fetch,options);}
     if (runtime.status === 'browser_download_required') { write(runtime); await installMetrics.finish('install_deferred'); return; }
   }
-  selection ??= await selectAgents(agent);
+  selection ??= await selectAgents(agent,choose);
   write({ status: 'installing_candidate', permissions: ['copy verified runtime to user-owned versioned cache', 'configure unchanged owned agent skills/MCP'], trial: 'not_started' });
   if(!runtime){installPhase='verification';runtime=await installCandidate({source,cache,manifestSha256});}
   // Persist a quiet Notify default; repeat setup never changes existing policy.

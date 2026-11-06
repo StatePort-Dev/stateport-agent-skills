@@ -14,7 +14,7 @@ not a claim about the newest remote source or the version an agent has loaded.
 
 Canonical installation: [Install and connect StatePort](https://docs.stateport.dev/getting-started/install/).
 This guide is an alternative entry to that same Node setup, not a second plugin
-installation after successful setup. Installer 1.0.2, runtime 1.0.1 and skills
+installation after successful setup. Installer 1.0.3, runtime 1.0.2 and skills
 beta.84 are independent; publication does not qualify every agent host.
 
 ## Node Runtime installation
@@ -71,9 +71,9 @@ verified return. Decline/cancel preserves free work without repeated upsell.
 
 ## Installer 1.0.1 audit fixes
 
-Current bootstrap source rejects incompatible explicit selections before any
-configuration writes and requires a compatible subset in the interactive chooser.
-Earlier 1.0.0 proposed all detected agents and warned about conflicts.
+Current bootstrap configures every detected supported agent by default. Use
+`--choose-agents` for the optional terminal picker, or an explicit `--agents` list.
+Protected per-agent conflicts are reported while setup continues for other targets.
 Installer 1.0.1 also adds safe network and partial-readiness diagnostics.
 
 ## Exact Ubuntu Node host limits
@@ -349,13 +349,15 @@ npm registry installation or all-platform support claim.
 
 ## Agent Runtime selection and first task
 
-In an interactive terminal, `npx stateport` proposes every detected supported
-agent, then waits for the user's choice. No editor is silently preferred.
-For automation use `--agents codex,cursor`, `--agents all`, `--agents none`, or
-the existing `--agent` form; plain non-TTY/JSON makes no agent setup changes.
-Each selected agent gets a separate result. Runtimes rc.5/rc.6 retain the protected
-Cursor + Codex + Claude multi-root limitation; the chooser and recovery report
-explain it. Other detected editors retain their documented manual setup.
+`npx stateport` configures every detected supported agent without asking for a
+selection, in terminals and non-interactive/JSON use. `--choose-agents` opens
+an optional terminal picker. Explicit `--agents codex,cursor`, `--agents all`,
+`--agents none`, or the existing `--agent` form remain available. The picker
+requires a TTY and cannot be combined with an explicit list. Official Claude Code
+IDE extensions count as host presence without a standalone CLI. Each target has
+its own outcome; a protected conflict does not suppress the remaining targets.
+Existing multi-root limitations remain protected and get concrete recovery steps.
+Editors without an installer adapter retain their documented manual setup.
 
 How to Start offers three messages: work on the user's task with StatePort when
 useful; ask what StatePort can help with in the project; or save a browser bug as

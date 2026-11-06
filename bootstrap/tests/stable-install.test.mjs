@@ -6,6 +6,19 @@ import {updateFixture} from './update-fixture.mjs';
 import * as updates from '../lib/updates.mjs';
 import {readCurrent} from '../lib/install.mjs';
 import {readUpdatePolicy,setUpdatePolicy} from '../lib/update-policy.mjs';
+for(const sourceVersion of ['1.0.0-rc.6','1.0.0'])for(const targetVersion of ['1.0.1','1.0.2'])test(`reviewed explicit upgrade ${sourceVersion} -> ${targetVersion} preserves old runtime and policy`,()=>updateFixture(async f=>{
+ const oldStorage='5f0e61063a05a1f4c700c030ac61d6477c891e7d4762933600c32b6368c6e889',newStorage='1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b';
+ const before=f.bundle(sourceVersion,{...f.generation,storageRead:oldStorage,storageWrite:oldStorage});
+ const {writeFile}=await import('node:fs/promises');const{installCandidate,readInstalled}=await import('../lib/install.mjs');const{sha}=await import('./update-fixture.mjs');
+ await writeFile(join(f.source,'main.cjs'),before.main);await writeFile(join(f.source,'candidate.json'),before.manifest);
+ const installed=await installCandidate({source:f.source,cache:f.cache,manifestSha256:sha(before.manifest)});
+ const policy=await readFile(join(f.cache,'update-policy.json'),'utf8');
+ f.trust.channel='stable';f.trust.url='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json';
+ f.release(f.bundle(targetVersion,{...f.generation,storageRead:newStorage,storageWrite:newStorage}),2,'stable');
+ const result=await updates.installCurrentPublishedRelease(f.cache,f.trust,{fetcher:f.fetcher,minimumVersion:'1.0.1'});
+ assert.equal(result.productVersion,targetVersion);assert.equal((await readInstalled(f.cache,installed.digest)).productVersion,sourceVersion);
+ assert.equal(await readFile(join(f.cache,'update-policy.json'),'utf8'),policy);
+}));
 test('one bootstrap installs the signed current stable runtime, repeats without payload download and refuses replay',()=>updateFixture(async f=>{
  f.trust.channel='stable';f.trust.url='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json';
  await rm(join(f.cache,'current.json'));
@@ -92,7 +105,7 @@ test('reviewed setup upgrades published 1.0.0 to 1.0.1 across the runtime-option
 }));
 
 for (const [name,version,read,write] of [
- ['unknown target version','1.0.2','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b'],
+ ['unknown target version','1.0.3','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b'],
  ['unknown storage hash','1.0.1','f'.repeat(64),'f'.repeat(64)],
  ['mixed read/write contracts','1.0.1','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b','f'.repeat(64)],
 ]) test(`reviewed storage exception rejects ${name} before payload download`,()=>updateFixture(async f=>{
@@ -103,6 +116,18 @@ for (const [name,version,read,write] of [
  const installed=await installCandidate({source:f.source,cache:f.cache,manifestSha256:sha(before.manifest)});
  f.trust.channel='stable';f.trust.url='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json';
  f.release(f.bundle(version,{...f.generation,storageRead:read,storageWrite:write}),2,'stable');
+ await assert.rejects(updates.installCurrentPublishedRelease(f.cache,f.trust,{fetcher:f.fetcher,minimumVersion:'1.0.1'}),/UPDATE_INCOMPATIBLE/);
+ assert.equal((await readCurrent(f.cache)).digest,installed.digest);assert.deepEqual(f.requests.map(r=>r.url),[f.trust.url]);
+}));
+
+test('reviewed storage exception rejects an unknown RC source with the known old hash',()=>updateFixture(async f=>{
+ const oldStorage='5f0e61063a05a1f4c700c030ac61d6477c891e7d4762933600c32b6368c6e889',newStorage='1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b';
+ const before=f.bundle('1.0.0-rc.5',{...f.generation,storageRead:oldStorage,storageWrite:oldStorage});
+ const {writeFile}=await import('node:fs/promises'),{installCandidate}=await import('../lib/install.mjs'),{sha}=await import('./update-fixture.mjs');
+ await writeFile(join(f.source,'main.cjs'),before.main);await writeFile(join(f.source,'candidate.json'),before.manifest);
+ const installed=await installCandidate({source:f.source,cache:f.cache,manifestSha256:sha(before.manifest)});
+ f.trust.channel='stable';f.trust.url='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json';
+ f.release(f.bundle('1.0.2',{...f.generation,storageRead:newStorage,storageWrite:newStorage}),2,'stable');
  await assert.rejects(updates.installCurrentPublishedRelease(f.cache,f.trust,{fetcher:f.fetcher,minimumVersion:'1.0.1'}),/UPDATE_INCOMPATIBLE/);
  assert.equal((await readCurrent(f.cache)).digest,installed.digest);assert.deepEqual(f.requests.map(r=>r.url),[f.trust.url]);
 }));

@@ -23,7 +23,8 @@ function channelTrust(trust, policy) {
   if (!url) throw Error('UPDATE_CHANNEL_UNAVAILABLE');
   return { ...trust, channel: policy.channel, url };
 }
-// Reviewed 1.0.0 -> 1.0.1 storage closure differs only by two trusted runtime
+// Published RC6 and 1.0.0 have the same signed storage identity. The reviewed
+// transition to 1.0.1/1.0.2 differs only by two trusted runtime
 // option declarations, not persisted Card/Capsule/auth/vault types or readers.
 // This exact one-way exception is for explicit setup only. Auto/session/rollback
 // compatibility remains exact; unknown hashes or release pairs still fail closed.
@@ -31,7 +32,7 @@ function explicitStorageCompatible(current, generation, targetVersion) {
   const before = current.generation;
   if (!validGeneration(before)) return false;
   if (before.storageRead === generation.storageRead && before.storageWrite === generation.storageWrite) return true;
-  return current.productVersion === '1.0.0' && targetVersion === '1.0.1'
+  return ['1.0.0-rc.6','1.0.0'].includes(current.productVersion) && ['1.0.1','1.0.2'].includes(targetVersion)
     && before.storageRead === '5f0e61063a05a1f4c700c030ac61d6477c891e7d4762933600c32b6368c6e889'
     && before.storageWrite === before.storageRead
     && generation.storageRead === '1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b'

@@ -1,20 +1,15 @@
 # StatePort
 
-Installer 1.0.2 fixes explicit upgrades from runtime 1.0.0 to 1.0.1.
-That exact transition was reviewed: only trusted runtime options changed the
-conservative storage fingerprint; persisted data formats did not change. Auto
-updates, pins, running tasks and unknown storage changes keep their protections.
-Runtime 1.0.1 and skills beta.84 retain their independent versions.
+Installer 1.0.3 configures every detected supported coding agent by default.
+Use `--choose-agents` to select a subset interactively. Claude Code installed
+as an official VS Code, Insiders or Cursor extension is detected independently
+of a standalone CLI. Each connection has its own result; protected conflicts do
+not stop setup of the other targets.
 
-## Installer 1.0.1 audit fixes
-
-Installer 1.0.1 resolves
-known agent-selection conflicts before any configuration writes, gives explicit
-installation metadata 30 seconds while background checks keep 5 seconds, sanitizes
-network/timeout reasons and phase, and explains source versus browser readiness.
-Cold doctor reports prerequisites before engine installation. Partial readiness
-retains exit 1; JSON readiness/failure diagnostics are additive versioned objects.
-Canonical setup: https://docs.stateport.dev/getting-started/install/ .
+Explicit upgrades from runtime RC6 or 1.0.0 to the reviewed stable engine now
+preserve the existing data format. Unknown storage changes, pins and automatic
+updates retain their protections. Runtime 1.0.2 and skills beta.84 are versioned
+independently. [Setup guide](https://docs.stateport.dev/getting-started/install/).
 
 ## Install and continue
 
@@ -43,9 +38,8 @@ what was installed, what still needs attention, and the next action for your age
 
 ## How to Start
 
-1. Run the install command and choose which agents to connect. Detected hosts
-   are proposed; resolve any known incompatibility before confirming. Enter
-   numbers to change the set, or choose `none` for runtime only.
+1. Run the install command. Every detected supported agent is configured
+   automatically. Add `--choose-agents` if you want to select a subset.
 2. Resolve any **BLOCKING** items. Open a successfully configured agent and start
    a new chat; restart the host if it needs to reload tools.
 3. Start with your current task, or explore another useful workflow:
@@ -65,9 +59,10 @@ what was installed, what still needs attention, and the next action for your age
 Keep the browser setup in a State Card; reopen it to check your changes. You can
 continue an ordinary task without inventing a bug or starting a Capture session.
 
-### Choose agents in a script
+### Choose agents manually or in a script
 
 ```sh
+npx stateport --choose-agents
 npx stateport install --agents codex,cursor
 npx stateport install --agents all
 npx stateport install --agents none
@@ -75,20 +70,22 @@ npx stateport install --agents none
 
 `all` means every detected supported agent; it does not install missing agents.
 `none` retains the runtime and existing connections. `--agent cursor` remains the
-single-agent form. Non-interactive/JSON use requires an explicit selection;
-otherwise agent files are preserved and the installer reports what to run next.
+single-agent form. Non-interactive/JSON use configures all detected supported
+agents by default. `--choose-agents` requires a terminal and cannot be combined
+with an explicit list.
 The task-session descriptor remains available for authorised same-chat work.
 
 Supported automatic targets are **Codex, Claude Code, Cursor and VS Code with
 Copilot**. Standard macOS applications are detected without a shell command on
-PATH. VS Code and Codex are separate connections; an account/model subscription
+PATH. Official Claude Code IDE extensions are detected without a standalone
+Claude CLI. VS Code/Copilot, Claude Code and Codex are separate connections; an account/model subscription
 and VS Code MCP trust remain your coding host’s own steps.
 
 The report shows each selected agent separately. Other detected editors with no
 installer adapter are marked as needing manual connection. **Current runtime
 limitation:** Cursor can be configured alongside Codex or Claude Code, but not
-with both skill folders at once. The chooser warns about this combination;
-protected conflicts remain visible rather than overwriting existing settings.
+with both skill folders at once. Each affected connection reports a protected conflict; setup continues for the
+other targets without overwriting existing settings.
 
 Your agent follows the normal permission flow. When Capture is needed, review
 what was recorded before saving the State Card. A successful setup is separate
@@ -112,7 +109,7 @@ Your coding agent's own account/model access is separate.
 The npm package is the transparent MIT installer. It downloads and verifies the
 signed platform runtime (about **7 MB** with a system browser). Chrome is used on
 macOS/Linux; Windows can use Edge or Chrome. Optional pinned Chromium is a
-separate download with size and SHA-256 confirmation. Desktop is optional.
+separate download with size and SHA-256 confirmation.
 
 Runtime assets are available for **Linux x64, Windows x64, and macOS Apple
 Silicon arm64**. Package availability and setup do

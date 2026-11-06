@@ -101,7 +101,7 @@ async function safePath(home, file) {
 
 // packages/agent-install/src/agent-extension-discovery.ts
 var locations = [[".vscode", "vscode"], [".vscode-insiders", "vscode-insiders"], [".cursor", "cursor"]];
-var providers = [{ id: "openai.chatgpt", publisher: "openai", name: "chatgpt", key: "codex" }, { id: "github.copilot-chat", publisher: "github", name: "copilot-chat", key: "copilotChat" }];
+var providers = [{ id: "openai.chatgpt", publisher: "openai", name: "chatgpt", key: "codex" }, { id: "github.copilot-chat", publisher: "github", name: "copilot-chat", key: "copilotChat" }, { id: "anthropic.claude-code", publisher: "anthropic", name: "claude-code", key: "claude" }];
 var limit = 1024 * 1024;
 async function metadata(home, path, budget, expired) {
   if (expired()) throw Error("UNAVAILABLE");
@@ -132,7 +132,7 @@ async function metadata(home, path, budget, expired) {
   }
 }
 async function inspectExtensions(home, expired) {
-  const result = { codex: [], copilotChat: [] }, budget = { bytes: 0 };
+  const result = { codex: [], copilotChat: [], claude: [] }, budget = { bytes: 0 };
   for (const [location, editor] of locations) {
     if (expired() || budget.bytes > 4 * limit) break;
     const root = join2(home, location, "extensions");
@@ -165,7 +165,7 @@ async function installedAgentExtensions(home, callerExpired = () => false) {
     return await Promise.race([inspectExtensions(home, () => expired || callerExpired()), new Promise((resolve2) => {
       timer = setTimeout(() => {
         expired = true;
-        resolve2({ codex: [], copilotChat: [] });
+        resolve2({ codex: [], copilotChat: [], claude: [] });
       }, 2e3);
     })]);
   } finally {
@@ -176,11 +176,14 @@ async function installedAgentExtensions(home, callerExpired = () => false) {
 
 // packages/agent-install/src/agent-tool-presentation.ts
 var editorNames = { vscode: "VS Code", "vscode-insiders": "VS Code Insiders", cursor: "Cursor" };
-function codexLocations(discovery) {
-  if (!discovery?.detected.includes("codex")) return "CLI or IDE extension";
-  if (!discovery.codex) return "CLI";
-  return [...discovery.codex.cli ? ["CLI"] : [], ...discovery.codex.editors.map((editor) => editorNames[editor] + " extension")].join(" + ");
+function providerLocations(agent, discovery) {
+  if (!discovery?.detected.includes(agent)) return "CLI or IDE extension";
+  const provider = discovery[agent];
+  if (!provider) return "CLI";
+  return [...provider.cli ? ["CLI"] : [], ...provider.editors.map((editor) => editorNames[editor] + " extension")].join(" + ");
 }
+var codexLocations = (discovery) => providerLocations("codex", discovery);
+var claudeLocations = (discovery) => providerLocations("claude", discovery);
 function manualEditorTools(discovery) {
   const tools = [];
   if (discovery?.detected.includes("webstorm")) tools.push({ id: "webstorm", label: "WebStorm" });
@@ -1999,8 +2002,10 @@ async function discoverAgentTools(input) {
         const extensions = await installedAgentExtensions(input.home, () => expired);
         if (expired) return { status: "unavailable", detected: [] };
         const cli = detected.includes("codex");
+        const claudeCli = detected.includes("claude");
         if (extensions.codex.length && !cli) detected.push("codex");
-        return { status: "ready", detected, ...extensions.codex.length ? { codex: { cli, editors: extensions.codex } } : {}, ...extensions.copilotChat.length ? { copilotChat: extensions.copilotChat } : {} };
+        if (extensions.claude.length && !claudeCli) detected.push("claude");
+        return { status: "ready", detected, ...extensions.codex.length ? { codex: { cli, editors: extensions.codex } } : {}, ...extensions.claude.length ? { claude: { cli: claudeCli, editors: extensions.claude } } : {}, ...extensions.copilotChat.length ? { copilotChat: extensions.copilotChat } : {} };
       })(),
       new Promise((resolve2) => {
         timer = setTimeout(() => {
@@ -2018,6 +2023,7 @@ async function discoverAgentTools(input) {
 export {
   agentConfigPath,
   agentSkillRoots,
+  claudeLocations,
   codexLocations,
   discoverAgentTools,
   inspectCodexConfig,

@@ -3,8 +3,8 @@
   "commands": [
     {
       "name": "install",
-      "usage": "install [--agent codex|claude|cursor|vscode] [--agents <subset>|all|none] [--offline] [--consent-updates]",
-      "purpose": "Install verified runtime and connect selected agents; default command. Choose a compatible subset.",
+      "usage": "install [--choose-agents | --agent codex|claude|cursor|vscode | --agents <subset>|all|none] [--offline] [--consent-updates]",
+      "purpose": "Install verified runtime and configure every detected supported agent by default; --choose-agents opens the optional interactive selector. Report protected conflicts per agent.",
       "integration": false
     },
     {

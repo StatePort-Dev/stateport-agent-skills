@@ -36,7 +36,7 @@ only synthetic data and runs without a StatePort account or installation.
 ## Install StatePort — npm
 
 The published [npm package](https://www.npmjs.com/package/stateport) installs
-the signed stable StatePort engine with skills beta.84 through installer 1.0.2:
+the signed stable StatePort engine with skills beta.84 through installer 1.0.3:
 
 ```sh
 npx stateport
@@ -49,8 +49,11 @@ platform runtime, about 7 MB with a system browser. It configures owned skills
 and MCP for the selected coding agent. Desktop is optional. Explicit pinned
 Chromium fallback is a separate download, with size and digest shown before consent.
 Setup does not start a trial or grant browser/task authority.
-Installer 1.0.2 offers Codex, Claude Code, Cursor and VS Code/Copilot as detected
-proposals. Known incompatible selections must be resolved before agent writes. Each selected connection has its own outcome. It distinguishes installer/runtime versions, explains warning severity
+Installer 1.0.3 automatically configures every detected supported Codex, Claude
+Code, Cursor and VS Code/Copilot connection. Add `--choose-agents` for the optional
+interactive picker. Official Claude Code IDE extensions are detected without a
+standalone CLI. Protected conflicts remain visible per agent while other targets
+are still attempted. It distinguishes installer/runtime versions, explains warning severity
 and offers an explicit backed-up migration for recognized old Codex setups.
 Custom or edited configuration stays protected. New installations select the
 signed stable engine independently of the npm version; existing pins and update
@@ -71,8 +74,9 @@ https://docs.stateport.dev/getting-started/install/ .
 
 ## Installer 1.0.1 audit fixes
 
-Installer 1.0.1 requires a compatible agent subset before any setup
-writes when Codex/Claude/Cursor conflict. It separates explicit metadata deadlines
+Installer 1.0.1 required a compatible agent subset before setup
+writes when Codex/Claude/Cursor conflicted. Installer 1.0.3 supersedes that selection
+policy with automatic attempts and per-agent protected outcomes. It separates explicit metadata deadlines
 from background checks, returns safe network cause/phase and explains partial
 source/browser readiness. Earlier 1.0.0 bytes retain their original behaviour. No provider/model acceptance
 is inferred from source tests. The optional Desktop path remains below.

@@ -23,11 +23,12 @@ export function installationReadiness(value) {
 }
 
 const recovery = {
+  AGENT_CHOICE_REQUIRES_TTY: ['The agent chooser needs an interactive terminal.', 'Run npx stateport without --choose-agents to configure every detected supported agent, or use --agents with an explicit list.'],
   AGENT_SELECTION_CONFLICT: ['These agents cannot be connected together.', 'Choose a compatible subset, for example npx stateport install --agents codex,cursor. No agent configuration was changed.'],
   RELEASE_TIMEOUT: ['The network request timed out.', 'Check your connection and retry npx stateport. If a verified runtime is already installed, use npx stateport install --offline.'],
   RELEASE_NETWORK: ['The network request failed.', 'Check your connection and retry npx stateport. If a verified runtime is already installed, use npx stateport install --offline.'],
   RELEASE_CANCELLED: ['The download was cancelled.', 'Run npx stateport when you want to retry.'],
-  SETUP_CANCELLED: ['Setup cancelled. No agent configuration was changed.', 'Run npx stateport when you want to choose your agents.'],
+  SETUP_CANCELLED: ['Setup cancelled. No agent configuration was changed.', 'Run npx stateport to configure detected agents, or add --choose-agents to select them.'],
   INVALID_ARGUMENTS: ['That command is not recognised.', 'Run npx stateport --help to see the available commands.'],
   PLATFORM_UNSUPPORTED: ['This platform is not supported yet.', 'Use Windows x64, macOS Apple Silicon, or Linux x64.'],
   NODE_24_LTS_CANDIDATE_REQUIRED: ['StatePort needs Node.js 24.', ['Install Node.js 24: https://nodejs.org/en/download', 'Run npx stateport again.']],
@@ -38,7 +39,7 @@ const recovery = {
   OFFLINE_CACHE_UNAVAILABLE: ['No verified offline installation was found.', 'Connect to the internet and run npx stateport once.'],
   PUBLIC_RUNTIME_RELEASE_UNPUBLISHED: ['This build has no public runtime configured.', 'Use the official npm package: npx stateport.'],
   PIN_RELEASE_REQUIRED: ['This installation is pinned to an exact version.', 'To allow changes, run npx stateport updates notify --release-pin.'],
-  UPDATE_INCOMPATIBLE: ['This update needs a reviewed setup.', 'Run npx stateport to review the new installation; restart your coding agent afterwards.'],
+  UPDATE_INCOMPATIBLE: ['This upgrade is not approved for the installed runtime. It has been kept unchanged.', ['Use the installed runtime: npx stateport install --offline.', 'Older runtimes may not support every agent. For support, report UPDATE_INCOMPATIBLE and npx stateport updates status --json through https://stateport.dev/. Repeating the same online install will not resolve this compatibility check.']],
   LAUNCHER_REPAIR_REQUIRED: ['The StatePort launcher needs repair.', 'Run npx stateport repair-launcher --confirm. Changed launcher files are backed up.'],
   RECOVERY_REQUIRED: ['An interrupted setup needs attention.', 'Keep the existing files. Review npx stateport doctor --json before trying again.'],
   INSTALL_BUSY: ['Another StatePort installation is in progress.', 'Let it finish, then run this command again.'],
@@ -112,7 +113,7 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
           for (const folder of (issue.folders ?? []).slice(0, 12)) line(`  ~/${terminalText(folder)}`);
           if ((issue.folders?.length ?? 0) > 12) line('The complete folder list is in doctor --json.');
         }
-        if (issues.some(i => i.code === 'MULTIPLE_OWNED_SKILL_ROOTS')) steps.push('To change unchanged owned connections, run npx stateport uninstall, then reinstall and choose Codex + Cursor or Claude Code + Cursor. Cards are retained.');
+        if (issues.some(i => i.code === 'MULTIPLE_OWNED_SKILL_ROOTS')) steps.push('To change unchanged owned connections, run npx stateport uninstall, then run npx stateport --choose-agents and select Codex + Cursor or Claude Code + Cursor. Cards are retained.');
         if (!issues.length && setup.configuration?.path) line(`Review: ${homePath(setup.configuration.path)}`);
         if (issues.some(i => ['DESKTOP_SKILLS_REMAIN', 'UNOWNED_OR_EDITED_SKILLS'].includes(i.code))) steps.push('Review the listed skill folders. Move only the old StatePort copies to a backup outside every agent skills folder.');
         if (!diagnostics?.migrationAvailable && !issues.some(i=>i.code==='MIGRATION_UPDATE_REQUIRED') && issues.some(i => ['MCP_ENTRY_CONFLICT', 'LEGACY_MCP_ENTRY'].includes(i.code))) steps.push(setup.agent==='codex'&&!issues.some(i=>i.code==='LEGACY_MCP_ENTRY')?'If you want to replace this custom connection, run codex mcp remove stateport. This removes only its old server entry.':'To switch, remove only the old StatePort MCP entry from the listed config; keep other servers.');
@@ -125,21 +126,23 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
         if (!steps.length) steps.push(`Inspect the exact blocker with npx stateport doctor --agent ${setup.agent ?? 'cursor'} --json.`);
         if (!diagnostics?.migrationAvailable) steps.push(`After resolving every listed blocker, run npx stateport install --agent ${setup.agent ?? 'cursor'} again.`);
       } else if (result.reason === 'RUNTIME_UPDATE_REQUIRED') {
-        notice('BLOCKING', `${agent} setup`, `The installed runtime predates automatic ${agent} setup. This agent's settings were not changed.`);
-        steps.push('Run npx stateport update, then install again. If updates are pinned, select a compatible release in your update policy first.');
+        notice('BLOCKING', `${agent} setup`, `This installed runtime cannot configure this ${agent} integration. Its settings were not changed.`);
+        steps.push('Run npx stateport install online, then start a new chat. If updates are pinned, select a compatible release in your update policy first.');
       } else if (result.reason === 'HOST_MISSING') {
         notice('BLOCKING', `${agent} setup`, `${agent} was not found. The runtime is installed, but this agent is not connected.`);
         steps.push(`Install or open ${agent} in this user account.`, `Run npx stateport install --agent ${setup.agent} again.`);
       } else if (setup.status === 'skipped') {
         notice('INFO', 'Agent setup skipped', 'Runtime is installed. You chose not to configure an agent. Existing agent connections were kept.');
-        steps.push('Run npx stateport install when you want to choose your agents.');
+        steps.push('Run npx stateport install to configure all detected agents, or add --choose-agents to select a subset.');
       } else if (setup.status === 'guided_setup_required') {
         notice('BLOCKING', 'Agent setup', 'The runtime is installed; no coding agent was configured.');
         if (setup.reason === 'COPILOT_ADAPTER_REQUIRED') line('Copilot needs its documented MCP/skills setup.');
         else if (setup.reason === 'AGENT_SELECTION_REQUIRED') line('Choose your agents. None were configured automatically.');
         else if (setup.reason === 'AGENT_DISCOVERY_UNAVAILABLE') line('Discovery could not finish. Choose the agents you have.');
         else line('No supported coding agent was detected in this user account.');
-        line('In a terminal, run npx stateport to choose. For scripts, select explicitly:');
+        line('To choose manually in a terminal:');
+        command('npx stateport --choose-agents');
+        line('To retry detection for every supported agent:');
         command('npx stateport install --agents all');
         line('Or choose one agent:');
         for (const [key, name] of Object.entries(agents)) { line(name); command(`npx stateport install --agent ${key}`); }
@@ -267,7 +270,7 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
     if (json) { emit({ name: 'stateport', commands: ['install', 'doctor', 'update', 'updates', 'browser-install', 'rollback', 'uninstall', 'repair-launcher'], options: ['--json', '--help', '--version', '--no-telemetry'] }); return; }
     begin(); heading('Get started'); line('npx stateport'); line('Install StatePort and connect your coding agent.');
     heading('Manage your installation');
-    for (const [command, description] of [['install', 'Choose a compatible set of coding agents'], ['install --agents codex,cursor', 'Explicit choice for scripts; all or none also accepted'], ['install --agent codex --migrate-codex', 'Back up and migrate a recognized StatePort Codex connection'], ['doctor', 'Check runtime and browser'], ['access', 'Open human-only Developer access and recovery'], ['open <state-card-id> [--frontend <loopback-origin>]', 'Open the current saved Card; Developer access applies'], ['doctor --agent cursor', 'Read-only setup conflict details'], ['update', 'Check for an update'], ['updates status', 'Show update policy'], ['browser-install', 'Review optional Chromium download'], ['rollback', 'Restore the retained previous runtime'], ['uninstall', 'Remove unchanged owned agent setup'], ['repair-launcher --confirm', 'Repair the launcher; keep a backup']]) line(`npx stateport ${command}  — ${description}`);
+    for (const [command, description] of [['install', 'Configure every detected supported coding agent'] , ['install --choose-agents', 'Choose agents interactively instead of automatic setup'], ['install --agents codex,cursor', 'Explicit choice for scripts; all or none also accepted'], ['install --agent codex --migrate-codex', 'Back up and migrate a recognized StatePort Codex connection'], ['doctor', 'Check runtime and browser'], ['access', 'Open human-only Developer access and recovery'], ['open <state-card-id> [--frontend <loopback-origin>]', 'Open the current saved Card; Developer access applies'], ['doctor --agent cursor', 'Read-only setup conflict details'], ['update', 'Check for an update'], ['updates status', 'Show update policy'], ['browser-install', 'Review optional Chromium download'], ['rollback', 'Restore the retained previous runtime'], ['uninstall', 'Remove unchanged owned agent setup'], ['repair-launcher --confirm', 'Repair the launcher; keep a backup']]) line(`npx stateport ${command}  — ${description}`);
     heading('Options'); line('--json     Machine-readable output for agents and scripts'); line('--offline  Use a verified installation without downloading'); line('--version  Show installer version'); line('--no-telemetry  Disable anonymous installer metrics (also DO_NOT_TRACK=1)'); line();
   } };
 }
