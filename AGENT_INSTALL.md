@@ -14,8 +14,8 @@ not a claim about the newest remote source or the version an agent has loaded.
 
 Canonical installation: [Install and connect StatePort](https://docs.stateport.dev/getting-started/install/).
 This guide is an alternative entry to that same Node setup, not a second plugin
-installation after successful setup. Installer/runtime stable 1.0.0 and skills
-beta.83 are independent; publication does not qualify every agent host.
+installation after successful setup. Installer/runtime stable 1.0.1 and skills
+beta.84 are independent; publication does not qualify every agent host.
 
 ## Node Runtime installation
 
@@ -69,12 +69,12 @@ screen. The person enters email/code/payment outside chat. Opening the screen is
 not activation. Recheck access and continue the same Card/revision/target after
 verified return. Decline/cancel preserves free work without repeated upsell.
 
-## Source follow-up 6 November — not published
+## Installer 1.0.1 audit fixes
 
 Current bootstrap source rejects incompatible explicit selections before any
 configuration writes and requires a compatible subset in the interactive chooser.
-Published 1.0.0 still proposes all detected agents and may warn about conflicts.
-New network/readiness diagnostics are source changes awaiting a separate release.
+Earlier 1.0.0 proposed all detected agents and warned about conflicts.
+Installer 1.0.1 also adds safe network and partial-readiness diagnostics.
 
 ## Exact Ubuntu Node host limits
 

@@ -1,8 +1,8 @@
 # StatePort
 
-## Source follow-up 6 November 2026
+## Installer 1.0.1 audit fixes
 
-The changes in this checkout are not a new published installer. Source now resolves
+Installer 1.0.1 resolves
 known agent-selection conflicts before any configuration writes, gives explicit
 installation metadata 30 seconds while background checks keep 5 seconds, sanitizes
 network/timeout reasons and phase, and explains source versus browser readiness.
@@ -10,7 +10,7 @@ Cold doctor reports prerequisites before engine installation. Partial readiness
 retains exit 1; JSON readiness/failure diagnostics are additive versioned objects.
 Canonical setup: https://docs.stateport.dev/getting-started/install/ .
 
-## Published 1.0.0 behaviour and retained instructions
+## Install and continue
 
 **Capture a browser reproduction once. Reopen it. Verify the fix.**
 
@@ -37,8 +37,8 @@ what was installed, what still needs attention, and the next action for your age
 
 ## How to Start
 
-1. Run the install command. Choose which agents to connect: **all detected
-   supported agents are checked by default**. Press Enter to confirm, enter
+1. Run the install command and choose which agents to connect. Detected hosts
+   are proposed; resolve any known incompatibility before confirming. Enter
    numbers to change the set, or choose `none` for runtime only.
 2. Resolve any **BLOCKING** items. Open a successfully configured agent and start
    a new chat; restart the host if it needs to reload tools.

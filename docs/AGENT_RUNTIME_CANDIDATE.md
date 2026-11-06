@@ -1,6 +1,6 @@
 # Agent Runtime and qualification
 
-[StatePort stable installer 1.0.0](https://www.npmjs.com/package/stateport).
+[StatePort stable installer 1.0.1](https://www.npmjs.com/package/stateport).
 Run `npx stateport` (PowerShell: `npx.cmd stateport`) with existing Node.js 24.x/npm.
 Desktop remains an optional visual client of the same engine, Cards, protected
 storage and signed access. Package availability does
@@ -15,20 +15,20 @@ integrity and cryptographic public-source provenance were verified independently
 ## Current publication and source boundary
 
 Canonical setup: https://docs.stateport.dev/getting-started/install/ . Installer
-and engine 1.0.0 are published independently from skills beta.83. Three-OS native
+and engine 1.0.1 are published independently from skills beta.84. Three-OS native
 machine controls are separate from real model/human acceptance; Windows chat is
 owner-reported on its contextual baseline and macOS manual/model is unverified,
 tracked and non-blocking. Retained provider receipts keep their original versions.
 
-The 6 November chooser/network/doctor changes in bootstrap are unpublished source.
-They do not change the installed 1.0.0 contract described below. No personal
+The 6 November chooser/network/doctor changes ship in installer 1.0.1.
+Earlier 1.0.0 bytes retain their original contract. No personal
 configuration or provider status is changed by documentation or static tests.
 
 ## Current task versus next session
 
-Installer 1.0.0 prints human-readable installation progress, a component checklist
+Installer 1.0.1 prints human-readable installation progress, a component checklist
 and first-task/explore/browser-case messages by default. An interactive terminal
-asks which agents to configure, defaulting to all detected supported hosts.
+asks which agents to configure and requires a compatible set before writes.
 Non-TTY/JSON requires explicit `--agents all|none|codex,cursor` or `--agent cursor`;
 no agent is selected silently. Codex, Claude Code, Cursor and VS Code/Copilot
 are separate automatic setup targets. A known old Codex installation can be
