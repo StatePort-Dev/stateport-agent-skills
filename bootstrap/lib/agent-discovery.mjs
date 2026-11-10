@@ -879,7 +879,7 @@ function parse(toml, { maxDepth = 1e3, integersAsBigInt } = {}) {
 import { isDeepStrictEqual as isDeepStrictEqual2 } from "node:util";
 
 // packages/agent-install/src/agent-install-config.ts
-import { join as join3, posix, win32 } from "node:path";
+import { posix, win32 } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 
 // node_modules/.pnpm/jsonc-parser@3.3.1/node_modules/jsonc-parser/lib/esm/impl/scanner.js
@@ -1808,7 +1808,7 @@ function agentConfigPath(home, agent, platform = process.platform, env = process
     const base = platform === "darwin" ? p.join(home, "Library/Application Support") : configured && p.isAbsolute(configured) ? configured : platform === "win32" ? p.join(home, "AppData/Roaming") : p.join(home, ".config");
     return p.join(base, "Code/User/mcp.json");
   }
-  return join3(home, configs[agent]);
+  return (platform === "win32" ? win32 : posix).join(home, configs[agent]);
 }
 function vscodeConfig(text) {
   const errors = [];
@@ -1848,6 +1848,11 @@ function validateInstalledLaunch(launch, platform) {
   const node = ["linux", "darwin", "win32"].includes(platform) && p.basename(launch.command).toLowerCase() === (platform === "win32" ? "node.exe" : "node") && launch.args.length === 2 && typeof launch.args[0] === "string" && p.isAbsolute(launch.args[0]) && !/[\0\r\n]/.test(launch.args[0]) && p.basename(launch.args[0]) === "main.cjs" && launch.args[1] === "mcp";
   if (!node && !deb && (!expected.length || !isDeepStrictEqual(launch.args, expected)))
     throw Error("CONFLICT");
+}
+function copilotConfigPath(home, platform = process.platform, env = process.env) {
+  const p = platform === "win32" ? win32 : posix;
+  const base = env.COPILOT_HOME && p.isAbsolute(env.COPILOT_HOME) ? env.COPILOT_HOME : p.join(home, ".copilot");
+  return p.join(base, "mcp-config.json");
 }
 
 // packages/agent-install/src/codex-setup.ts
@@ -2025,6 +2030,7 @@ export {
   agentSkillRoots,
   claudeLocations,
   codexLocations,
+  copilotConfigPath,
   discoverAgentTools,
   inspectCodexConfig,
   inspectVscodeConfig,

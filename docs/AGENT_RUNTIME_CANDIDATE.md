@@ -1,6 +1,6 @@
 # Agent Runtime and qualification
 
-[StatePort stable installer 1.0.3](https://www.npmjs.com/package/stateport).
+[StatePort stable installer 1.1.0](https://www.npmjs.com/package/stateport).
 Run `npx stateport` (PowerShell: `npx.cmd stateport`) with existing Node.js 24.x/npm.
 Desktop remains an optional visual client of the same engine, Cards, protected
 storage and signed access. Package availability does
@@ -15,7 +15,7 @@ integrity and cryptographic public-source provenance were verified independently
 ## Current publication and source boundary
 
 Canonical setup: https://docs.stateport.dev/getting-started/install/ . Installer
-1.0.3 and engine 1.0.2 are published independently from skills beta.84. Three-OS native
+1.1.0 and engine 1.1.0 are published independently from skills beta.84. Three-OS native
 machine controls are separate from real model/human acceptance; Windows chat is
 owner-reported on its contextual baseline and macOS manual/model is unverified,
 tracked and non-blocking. Retained provider receipts keep their original versions.
@@ -24,17 +24,45 @@ The 6 November chooser/network/doctor changes ship in installer 1.0.1.
 Earlier 1.0.0 bytes retain their original contract. No personal
 configuration or provider status is changed by documentation or static tests.
 
+## Agent setup recovery in 1.1.0
+
+Run `npx --yes stateport@latest`. Setup configures all detected supported
+agents and migrates recognizable older StatePort connections automatically.
+Missing owned files/entries can be restored; edited, disabled or foreign settings
+are preserved with an agent-specific blocker. Existing pins and update consent
+remain unchanged. Saved-data compatibility is versioned independently of engine
+releases; unknown/mixed storage changes remain blocked.
+
+| Agent | User MCP config | User skills |
+| --- | --- | --- |
+| Codex CLI / IDE | `~/.codex/config.toml` | `~/.agents/skills` |
+| Claude Code CLI / IDE | `~/.claude.json` | `~/.claude/skills` |
+| Cursor | `~/.cursor/mcp.json` | owned shared `~/.agents/skills` |
+| Copilot | `~/.copilot/mcp-config.json` | `~/.copilot/skills` |
+
+VS Code's older Local harness also receives an owned `Code/User/mcp.json`
+compatibility bridge, including existing bounded user profiles. JSONC comments
+and unrelated servers are retained. Multiple recognized provider skill folders
+are valid. Remote or linked profiles outside the current home are protected.
+
+Claude standalone setup requires no third-party marketplace. A recognized
+personal StatePort plugin can migrate with a private StatePort-only record;
+plugin cache and other plugins are preserved. Corporate restrictions on MCP or
+skills require administrator approval; the installer never changes policy.
+Local saved configuration and launch checks are separate from host discovery,
+login, model availability and completed workflows. New native archives are built
+on three OSes; functional qualification for this release is local Ubuntu only.
+
 ## Current task versus next session
 
-Installer 1.0.3 prints human-readable progress, a component checklist and
+Installer 1.1.0 prints human-readable progress, a component checklist and
 first-task/explore/browser-case messages. Default setup configures all detected
 supported agents without a selection prompt, including non-TTY/JSON use.
 `--choose-agents` enables the optional terminal picker; explicit `--agents`
 and `--agent` remain available. Codex, Claude Code, Cursor and VS Code/Copilot
 are separate targets. Registered official Claude IDE extensions are discovered
 without a standalone CLI. Protected per-agent conflicts do not suppress setup of
-the other targets. A known old Codex installation can be
-migrated explicitly with a private scoped backup; custom state stays protected. Per-agent outcomes remain separate. Automation and authorized same-chat setup use
+the other targets. A recognizable old StatePort installation migrates automatically with a private scoped record; custom state stays protected. Per-agent outcomes remain separate. Automation and authorized same-chat setup use
 `npx stateport --json`; its exact `currentTask` descriptor remains machine-readable.
 MCP/task-session stay protocol-only without a flag. An incomplete agent setup
 exits 1, including a protected conflict with an existing installation. The runtime

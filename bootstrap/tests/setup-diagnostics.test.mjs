@@ -61,3 +61,11 @@ test('Codex diagnostics parse real TOML and distinguish enabled plugin from inac
  assert(!JSON.stringify(result).includes('DO_NOT_EXPOSE'));
  assert.equal(await readFile(join(home,'.codex/config.toml'),'utf8'),text);
 }));
+test('names the exact portable Copilot and custom-profile blocker without exposing values',()=>fixture(async({home,cache})=>{
+ const {diagnoseSetupConflict}=await import('../lib/setup-diagnostics.mjs');
+ for(const [file,config]of[['.copilot/mcp-config.json',{mcpServers:{stateport:{command:'DO_NOT_EXPOSE',disabled:true}}}],['.config/Code/User/profiles/qa/mcp.json',{servers:{stateport:{command:'DO_NOT_EXPOSE'}}}]]){await mkdir(join(home,file,'..'),{recursive:true});await writeFile(join(home,file),JSON.stringify(config));}
+ const r=await diagnoseSetupConflict({home,cache,agent:'vscode',platform:'linux',env:{}});
+ assert(r.issues.some(i=>i.path==='.copilot/mcp-config.json'&&i.code==='MCP_DISABLED'));
+ assert(r.issues.some(i=>i.path==='.config/Code/User/profiles/qa/mcp.json'&&i.code==='MCP_ENTRY_CONFLICT'));
+ assert(!JSON.stringify(r).includes('DO_NOT_EXPOSE'));
+}));

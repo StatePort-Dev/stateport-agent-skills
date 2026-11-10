@@ -14,7 +14,7 @@ not a claim about the newest remote source or the version an agent has loaded.
 
 Canonical installation: [Install and connect StatePort](https://docs.stateport.dev/getting-started/install/).
 This guide is an alternative entry to that same Node setup, not a second plugin
-installation after successful setup. Installer 1.0.3, runtime 1.0.2 and skills
+installation after successful setup. Installer 1.1.0, runtime 1.1.0 and skills
 beta.84 are independent; publication does not qualify every agent host.
 
 ## Node Runtime installation
@@ -90,9 +90,38 @@ confirmed automatic canonical user MCP discovery without a project alias or Enab
 click. Run CLI setup in the same user environment as the IDE; a config written
 under another HOME is not visible to it. New candidate setup output identifies
 that exact path. Native approval policy and foreign/disabled entries remain
-protected. Recognized old Codex plugin/MCP setup has an explicit backed-up
-migration: `npx stateport install --agent codex --migrate-codex`. Modified or
+protected. Recognized old StatePort setup migrates automatically with a scoped
+private record. `--migrate-codex` remains a compatibility option. Modified or
 custom configuration is preserved with precise recovery instructions.
+
+## Agent setup recovery in 1.1.0
+
+Run `npx --yes stateport@latest`. Setup configures all detected supported
+agents and migrates recognizable older StatePort connections automatically.
+Missing owned files/entries can be restored; edited, disabled or foreign settings
+are preserved with an agent-specific blocker. Existing pins and update consent
+remain unchanged. Saved-data compatibility is versioned independently of engine
+releases; unknown/mixed storage changes remain blocked.
+
+| Agent | User MCP config | User skills |
+| --- | --- | --- |
+| Codex CLI / IDE | `~/.codex/config.toml` | `~/.agents/skills` |
+| Claude Code CLI / IDE | `~/.claude.json` | `~/.claude/skills` |
+| Cursor | `~/.cursor/mcp.json` | owned shared `~/.agents/skills` |
+| Copilot | `~/.copilot/mcp-config.json` | `~/.copilot/skills` |
+
+VS Code's older Local harness also receives an owned `Code/User/mcp.json`
+compatibility bridge, including existing bounded user profiles. JSONC comments
+and unrelated servers are retained. Multiple recognized provider skill folders
+are valid. Remote or linked profiles outside the current home are protected.
+
+Claude standalone setup requires no third-party marketplace. A recognized
+personal StatePort plugin can migrate with a private StatePort-only record;
+plugin cache and other plugins are preserved. Corporate restrictions on MCP or
+skills require administrator approval; the installer never changes policy.
+Local saved configuration and launch checks are separate from host discovery,
+login, model availability and completed workflows. New native archives are built
+on three OSes; functional qualification for this release is local Ubuntu only.
 
 ## Desktop setup button
 
@@ -356,7 +385,7 @@ an optional terminal picker. Explicit `--agents codex,cursor`, `--agents all`,
 requires a TTY and cannot be combined with an explicit list. Official Claude Code
 IDE extensions count as host presence without a standalone CLI. Each target has
 its own outcome; a protected conflict does not suppress the remaining targets.
-Existing multi-root limitations remain protected and get concrete recovery steps.
+Different recognized provider skill folders are valid; changed or unknown copies remain protected.
 Editors without an installer adapter retain their documented manual setup.
 
 How to Start offers three messages: work on the user's task with StatePort when

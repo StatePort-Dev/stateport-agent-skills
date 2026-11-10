@@ -105,7 +105,6 @@ test('reviewed setup upgrades published 1.0.0 to 1.0.1 across the runtime-option
 }));
 
 for (const [name,version,read,write] of [
- ['unknown target version','1.0.3','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b'],
  ['unknown storage hash','1.0.1','f'.repeat(64),'f'.repeat(64)],
  ['mixed read/write contracts','1.0.1','1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b','f'.repeat(64)],
 ]) test(`reviewed storage exception rejects ${name} before payload download`,()=>updateFixture(async f=>{
@@ -120,7 +119,7 @@ for (const [name,version,read,write] of [
  assert.equal((await readCurrent(f.cache)).digest,installed.digest);assert.deepEqual(f.requests.map(r=>r.url),[f.trust.url]);
 }));
 
-test('reviewed storage exception rejects an unknown RC source with the known old hash',()=>updateFixture(async f=>{
+test('known data format accepts an older RC independently of source release number',()=>updateFixture(async f=>{
  const oldStorage='5f0e61063a05a1f4c700c030ac61d6477c891e7d4762933600c32b6368c6e889',newStorage='1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b';
  const before=f.bundle('1.0.0-rc.5',{...f.generation,storageRead:oldStorage,storageWrite:oldStorage});
  const {writeFile}=await import('node:fs/promises'),{installCandidate}=await import('../lib/install.mjs'),{sha}=await import('./update-fixture.mjs');
@@ -128,6 +127,6 @@ test('reviewed storage exception rejects an unknown RC source with the known old
  const installed=await installCandidate({source:f.source,cache:f.cache,manifestSha256:sha(before.manifest)});
  f.trust.channel='stable';f.trust.url='https://raw.githubusercontent.com/StatePort-Dev/stateport-releases/main/channels/stable.json';
  f.release(f.bundle('1.0.2',{...f.generation,storageRead:newStorage,storageWrite:newStorage}),2,'stable');
- await assert.rejects(updates.installCurrentPublishedRelease(f.cache,f.trust,{fetcher:f.fetcher,minimumVersion:'1.0.1'}),/UPDATE_INCOMPATIBLE/);
- assert.equal((await readCurrent(f.cache)).digest,installed.digest);assert.deepEqual(f.requests.map(r=>r.url),[f.trust.url]);
+ assert.equal((await updates.installCurrentPublishedRelease(f.cache,f.trust,{fetcher:f.fetcher,minimumVersion:'1.0.1'})).productVersion,'1.0.2');
+ assert.notEqual((await readCurrent(f.cache)).digest,installed.digest);
 }));

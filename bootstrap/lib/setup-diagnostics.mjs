@@ -2,7 +2,7 @@ import {lstat,readdir,open} from 'node:fs/promises';
 import {join,relative,resolve,sep} from 'node:path';
 import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
-import {inspectCodexConfig,planCodexMigration,inspectVscodeConfig,agentConfigPath,agentSkillRoots} from './agent-discovery.mjs';
+import {inspectCodexConfig,planCodexMigration,inspectVscodeConfig,agentConfigPath,copilotConfigPath,agentSkillRoots} from './agent-discovery.mjs';
 
 const configs={cursor:'.cursor/mcp.json',claude:'.claude.json',codex:'.codex/config.toml',vscode:true};
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -62,13 +62,13 @@ export async function diagnoseSetupConflict({home,cache,agent,platform=process.p
   for(const root of agentSkillRoots[agent]){
     try {
       const actual=await inventory(home,root);if(!actual.folders.length)continue;
-      if(current?.schemaVersion===1&&same(actual.hashes,current.roots?.[root]?.hashes)){ownedRoots.push({root,folders:actual.folders});continue;}
+      if([1,2].includes(current?.schemaVersion)&&same(actual.hashes,current.roots?.[root]?.hashes)){ownedRoots.push({root,folders:actual.folders});continue;}
       const previous=legacy?.schemaVersion===1?legacy.roots?.[root]:undefined;
       const owned=same(actual.hashes,previous?.hashes);
       add(owned?'DESKTOP_SKILLS_REMAIN':'UNOWNED_OR_EDITED_SKILLS',root,{folders:actual.folders,files:actual.files,...(owned&&/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(previous.version??'')?{version:previous.version}:{})});
     }catch(e){add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'SETUP_DATA_UNREADABLE',root);}
   }
-  if(agent==='cursor'&&ownedRoots.length>1)add('MULTIPLE_OWNED_SKILL_ROOTS',ownedRoots[0].root,{folders:ownedRoots.flatMap(item=>item.folders)});
+  if(agent==='cursor'&&current?.schemaVersion!==2&&ownedRoots.length>1)add('MULTIPLE_OWNED_SKILL_ROOTS',ownedRoots[0].root,{folders:ownedRoots.flatMap(item=>item.folders)});
   try {
     const raw=await bytes(home,join(home,configPath));
     if(!raw)configState='absent';
@@ -108,10 +108,16 @@ export async function diagnoseSetupConflict({home,cache,agent,platform=process.p
       }
     }
   }catch(e){add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'MCP_CONFIG_UNREADABLE',configPath);}
-  for(const file of agent==='codex'&&codexPlugin!=='absent'?[]:['installed_plugins.json','config.json']) {
+  if(agent==='vscode'){
+    const inspect=async(path,owned,portable=false)=>{const rel=relative(home,path);try{const raw=await bytes(home,path);if(!raw)return;const result=inspectVscodeConfig(portable?JSON.stringify({servers:JSON.parse(raw).mcpServers??{}}):raw.toString('utf8'),owned);if(result.legacy)add('LEGACY_MCP_ENTRY',rel);if(result.disabled)add('MCP_DISABLED',rel);else if(result.present&&!result.matchesOwned)add('MCP_ENTRY_CONFLICT',rel);}catch(e){add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'MCP_CONFIG_UNREADABLE',rel);}};
+    await inspect(copilotConfigPath(home,platform,env),current?.agents?.vscode?.copilotConfig?.entry,true);
+    const base=join(appData,'Code/User/profiles');try{await safe(home,base);const profiles=await readdir(base,{withFileTypes:true});if(profiles.length>64)throw Error('SETUP_DATA_UNREADABLE');for(const p of profiles){if(!p.isDirectory()&&!p.isSymbolicLink())continue;if(!/^[a-zA-Z0-9_-]{1,64}$/.test(p.name))throw Error('UNSAFE_SETUP_PATH');await inspect(join(base,p.name,'mcp.json'),current?.agents?.vscode?.profileConfigs?.[p.name]?.entry);}}catch(e){if(e.code!=='ENOENT')add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'SETUP_DATA_UNREADABLE',relative(home,base));}
+  }
+  let claudeDisabled=false;if(agent==='claude')try{claudeDisabled=(await json(home,join(home,'.claude/settings.json')))?.enabledPlugins?.['stateport@stateport-dev']===false;}catch{}
+  for(const file of (agent==='codex'&&codexPlugin!=='absent')||claudeDisabled?[]:['installed_plugins.json','config.json']) {
     try {const value=await bytes(home,join(home,`.${agent}/plugins`,file));if(value&&/stateport|scenariodeck/i.test(value.toString('utf8')))add(agent==='codex'?'CODEX_PLUGIN_REGISTRY_UNKNOWN':'PLUGIN_INSTALL_PRESENT',`.${agent}/plugins/${file}`);}
     catch(e){add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'SETUP_DATA_UNREADABLE',`.${agent}/plugins/${file}`);}
   }
-  if(agent!=='codex')try{const path=join(home,`.${agent}/plugins/cache`);await safe(home,path);if((await readdir(path)).some(n=>/stateport|scenariodeck/i.test(n)))add('PLUGIN_INSTALL_PRESENT',`.${agent}/plugins/cache`);}catch(e){if(e.code!=='ENOENT')add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'SETUP_DATA_UNREADABLE',`.${agent}/plugins/cache`);}
+  if(agent!=='codex'&&!claudeDisabled)try{const path=join(home,`.${agent}/plugins/cache`);await safe(home,path);if((await readdir(path)).some(n=>/stateport|scenariodeck/i.test(n)))add('PLUGIN_INSTALL_PRESENT',`.${agent}/plugins/cache`);}catch(e){if(e.code!=='ENOENT')add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'SETUP_DATA_UNREADABLE',`.${agent}/plugins/cache`);}
   return {schemaVersion:'agent-setup-diagnostics/1',agent,configState,issues};
 }

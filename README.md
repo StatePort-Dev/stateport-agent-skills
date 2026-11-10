@@ -36,7 +36,7 @@ only synthetic data and runs without a StatePort account or installation.
 ## Install StatePort — npm
 
 The published [npm package](https://www.npmjs.com/package/stateport) installs
-the signed stable StatePort engine with skills beta.84 through installer 1.0.3:
+the signed stable StatePort engine with skills beta.84 through installer 1.1.0:
 
 ```sh
 npx stateport
@@ -49,12 +49,12 @@ platform runtime, about 7 MB with a system browser. It configures owned skills
 and MCP for the selected coding agent. Desktop is optional. Explicit pinned
 Chromium fallback is a separate download, with size and digest shown before consent.
 Setup does not start a trial or grant browser/task authority.
-Installer 1.0.3 automatically configures every detected supported Codex, Claude
+Installer 1.1.0 automatically configures every detected supported Codex, Claude
 Code, Cursor and VS Code/Copilot connection. Add `--choose-agents` for the optional
 interactive picker. Official Claude Code IDE extensions are detected without a
 standalone CLI. Protected conflicts remain visible per agent while other targets
 are still attempted. It distinguishes installer/runtime versions, explains warning severity
-and offers an explicit backed-up migration for recognized old Codex setups.
+and automatically migrates recognizable old StatePort connections with a scoped private record.
 Custom or edited configuration stays protected. New installations select the
 signed stable engine independently of the npm version; existing pins and update
 consent are preserved. Every installation ends with
@@ -71,6 +71,35 @@ See [stable release notes](https://github.com/StatePort-Dev/stateport-releases/r
 and the [Node contract](docs/AGENT_RUNTIME_CANDIDATE.md). Package availability does
 not promote provider statuses. Canonical setup:
 https://docs.stateport.dev/getting-started/install/ .
+
+## Agent setup recovery in 1.1.0
+
+Run `npx --yes stateport@latest`. Setup configures all detected supported
+agents and migrates recognizable older StatePort connections automatically.
+Missing owned files/entries can be restored; edited, disabled or foreign settings
+are preserved with an agent-specific blocker. Existing pins and update consent
+remain unchanged. Saved-data compatibility is versioned independently of engine
+releases; unknown/mixed storage changes remain blocked.
+
+| Agent | User MCP config | User skills |
+| --- | --- | --- |
+| Codex CLI / IDE | `~/.codex/config.toml` | `~/.agents/skills` |
+| Claude Code CLI / IDE | `~/.claude.json` | `~/.claude/skills` |
+| Cursor | `~/.cursor/mcp.json` | owned shared `~/.agents/skills` |
+| Copilot | `~/.copilot/mcp-config.json` | `~/.copilot/skills` |
+
+VS Code's older Local harness also receives an owned `Code/User/mcp.json`
+compatibility bridge, including existing bounded user profiles. JSONC comments
+and unrelated servers are retained. Multiple recognized provider skill folders
+are valid. Remote or linked profiles outside the current home are protected.
+
+Claude standalone setup requires no third-party marketplace. A recognized
+personal StatePort plugin can migrate with a private StatePort-only record;
+plugin cache and other plugins are preserved. Corporate restrictions on MCP or
+skills require administrator approval; the installer never changes policy.
+Local saved configuration and launch checks are separate from host discovery,
+login, model availability and completed workflows. New native archives are built
+on three OSes; functional qualification for this release is local Ubuntu only.
 
 ## Installer 1.0.1 audit fixes
 

@@ -1,3 +1,4 @@
+import {compatibleStorage} from './storage-contract.mjs';
 import { spawn } from 'node:child_process';
 import { withInstallTransaction, readCurrent, readInstalled, readPrevious } from './install.mjs';
 import { readJson, readUpdatePolicy, checkDue, compatibleGeneration, validGeneration, hex } from './update-policy.mjs';
@@ -23,21 +24,8 @@ function channelTrust(trust, policy) {
   if (!url) throw Error('UPDATE_CHANNEL_UNAVAILABLE');
   return { ...trust, channel: policy.channel, url };
 }
-// Published RC6 and 1.0.0 have the same signed storage identity. The reviewed
-// transition to 1.0.1/1.0.2 differs only by two trusted runtime
-// option declarations, not persisted Card/Capsule/auth/vault types or readers.
-// This exact one-way exception is for explicit setup only. Auto/session/rollback
-// compatibility remains exact; unknown hashes or release pairs still fail closed.
-function explicitStorageCompatible(current, generation, targetVersion) {
-  const before = current.generation;
-  if (!validGeneration(before)) return false;
-  if (before.storageRead === generation.storageRead && before.storageWrite === generation.storageWrite) return true;
-  return ['1.0.0-rc.6','1.0.0'].includes(current.productVersion) && ['1.0.1','1.0.2'].includes(targetVersion)
-    && before.storageRead === '5f0e61063a05a1f4c700c030ac61d6477c891e7d4762933600c32b6368c6e889'
-    && before.storageWrite === before.storageRead
-    && generation.storageRead === '1a3e8f25656dd04fed3bdc8dc8d0505dfefe2dd1fa7e8a8f134962a24342dc8b'
-    && generation.storageWrite === generation.storageRead;
-}
+// Explicit setup can reconcile integration changes, but never unknown data formats.
+function explicitStorageCompatible(current,generation){return validGeneration(current.generation)&&compatibleStorage(current.generation,generation);}
 /** An explicit stable installation selects current signed metadata, independently
  * of the npm bootstrap's baseline version. One verifier/lock/stager remains the
  * authority. Existing channel/Auto consent, pins and running tasks are retained. */
@@ -83,7 +71,7 @@ export async function installCurrentPublishedRelease(cache,trust,options={}) {
 }
 function assetFor(document, browserPreference) {
   const platform = document.assets.find(asset => asset.platform === process.platform && asset.arch === process.arch);
-  if (!platform) throw Error('UPDATE_INCOMPATIBLE');
+  if (!platform) throw Error('UPDATE_PLATFORM_UNSUPPORTED');
   return browserPreference === 'pinned' ? platform.browserFallback : platform;
 }
 function quarantined(state, digest) { return state.quarantine.includes(digest); }
@@ -91,7 +79,7 @@ function quarantine(state, digest) {
   state.quarantine = [...state.quarantine.filter(value => value !== digest), digest].slice(-32);
   state.pending = null; state.hold = 'UPDATE_QUARANTINED';
 }
-const safeReasons = new Set(['UPDATE_INCOMPATIBLE', 'UPDATE_QUARANTINED', 'UPDATE_INTEGRATION_HELD', 'UPDATE_NOT_CONFIGURED', 'UPDATE_CHANNEL_UNAVAILABLE', 'UPDATE_BROWSER_CONFIRMATION_REQUIRED']);
+const safeReasons = new Set(['UPDATE_PLATFORM_UNSUPPORTED', 'UPDATE_INCOMPATIBLE', 'UPDATE_QUARANTINED', 'UPDATE_INTEGRATION_HELD', 'UPDATE_NOT_CONFIGURED', 'UPDATE_CHANNEL_UNAVAILABLE', 'UPDATE_BROWSER_CONFIRMATION_REQUIRED']);
 const reason = error => safeReasons.has(error?.message) ? error.message : 'UPDATE_CHECK_FAILED';
 
 /** Only a verified runtime can reach this child. No shell, Cards, vault writes,

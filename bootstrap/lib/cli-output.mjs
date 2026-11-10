@@ -39,6 +39,7 @@ const recovery = {
   OFFLINE_CACHE_UNAVAILABLE: ['No verified offline installation was found.', 'Connect to the internet and run npx stateport once.'],
   PUBLIC_RUNTIME_RELEASE_UNPUBLISHED: ['This build has no public runtime configured.', 'Use the official npm package: npx stateport.'],
   PIN_RELEASE_REQUIRED: ['This installation is pinned to an exact version.', 'To allow changes, run npx stateport updates notify --release-pin.'],
+  UPDATE_PLATFORM_UNSUPPORTED: ['No runtime archive matches this Node platform and architecture.', 'On Apple Silicon, use native ARM64 Node.js 24 in this terminal and in your editor; an Intel/Rosetta Node process cannot load ARM64 native addons. Your installed runtime is preserved.'],
   UPDATE_INCOMPATIBLE: ['This upgrade is not approved for the installed runtime. It has been kept unchanged.', ['Use the installed runtime: npx stateport install --offline.', 'Older runtimes may not support every agent. For support, report UPDATE_INCOMPATIBLE and npx stateport updates status --json through https://stateport.dev/. Repeating the same online install will not resolve this compatibility check.']],
   LAUNCHER_REPAIR_REQUIRED: ['The StatePort launcher needs repair.', 'Run npx stateport repair-launcher --confirm. Changed launcher files are backed up.'],
   RECOVERY_REQUIRED: ['An interrupted setup needs attention.', 'Keep the existing files. Review npx stateport doctor --json before trying again.'],
@@ -98,7 +99,7 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
       const result = setup.result ?? {}, agent = agents[setup.agent] ?? 'Coding agent';
       const configured = setup.status === 'installed', connected = configured && result.mcp === 'ready';
       if (configured && result.migration?.status === 'applied') {
-        notice('INFO', 'Codex migrated', 'StatePort now uses this Node runtime. Only its connection settings were migrated; plugin cache and pins were kept.');
+        notice('INFO', `${agent} migrated`, 'StatePort now uses this Node runtime. Only its connection settings were migrated; plugin cache and pins were kept.');
         line('StatePort-only backup:'); command(`~/${terminalText(result.migration.backupFile)}`);
       }
       if (result.reason === 'CONFLICT') {
@@ -125,6 +126,9 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
         if (diagnostics?.migrationAvailable) { line('The installer can migrate this recognized connection and save a private StatePort-only backup.'); steps.push('Run npx stateport install --agent codex --migrate-codex to switch this connection to the Node runtime.'); }
         if (!steps.length) steps.push(`Inspect the exact blocker with npx stateport doctor --agent ${setup.agent ?? 'cursor'} --json.`);
         if (!diagnostics?.migrationAvailable) steps.push(`After resolving every listed blocker, run npx stateport install --agent ${setup.agent ?? 'cursor'} again.`);
+      } else if (result.reason==='POLICY_RESTRICTED'||result.reason==='POLICY_UNAVAILABLE'){
+        notice('BLOCKING',`${agent} policy`,result.reason==='POLICY_RESTRICTED'?'Managed policy requires an approved connection. User files and corporate policy were preserved.':'Managed policy could not be checked safely. No agent settings were changed.');
+        steps.push('Use your organization-approved StatePort MCP/skills deployment, or ask its administrator to approve this connection.');
       } else if (result.reason === 'RUNTIME_UPDATE_REQUIRED') {
         notice('BLOCKING', `${agent} setup`, `This installed runtime cannot configure this ${agent} integration. Its settings were not changed.`);
         steps.push('Run npx stateport install online, then start a new chat. If updates are pinned, select a compatible release in your update policy first.');

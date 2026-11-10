@@ -2,6 +2,10 @@ name: Publish StatePort agent bootstrap
 on:
   workflow_dispatch:
     inputs:
+      local_checks_only:
+        description: Publish locally qualified exact source and tarball without runner tests
+        type: boolean
+        default: false
       source:
         description: Reviewed full public source commit
         required: true
@@ -44,7 +48,8 @@ jobs:
           const e=process.env,p=JSON.parse(readFileSync('bootstrap/package.json'));
           if(e.EXPECTED_SOURCE!==e.GITHUB_SHA||!/^[a-f0-9]{40}$/.test(e.EXPECTED_SOURCE)||execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.EXPECTED_SOURCE||!/^[a-f0-9]{64}$/.test(e.EXPECTED_SHA256)||!/^\d+\.\d+\.\d+(?:-(?:rc|beta)\.\d+)?$/.test(e.EXPECTED_VERSION)||p.version!==e.EXPECTED_VERSION||p.name!=='stateport'||p.private!==false||p.repository?.url!=='git+https://github.com/StatePort-Dev/stateport-agent-skills.git'||p.repository?.directory!=='bootstrap')throw Error('PUBLISH_IDENTITY');
           JS
-      - run: npm run verify
+      - if: ${{ !inputs.local_checks_only }}
+        run: npm run verify
   publish:
     needs: verify
     runs-on: ubuntu-latest

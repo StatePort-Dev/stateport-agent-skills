@@ -1,15 +1,36 @@
 # StatePort
 
-Installer 1.0.3 configures every detected supported coding agent by default.
-Use `--choose-agents` to select a subset interactively. Claude Code installed
-as an official VS Code, Insiders or Cursor extension is detected independently
-of a standalone CLI. Each connection has its own result; protected conflicts do
-not stop setup of the other targets.
+Installer 1.1.0 configures every detected supported agent. Use `--choose-agents`
+for the optional picker. Runtime 1.1.0 and skills beta.84 are independently versioned.
 
-Explicit upgrades from runtime RC6 or 1.0.0 to the reviewed stable engine now
-preserve the existing data format. Unknown storage changes, pins and automatic
-updates retain their protections. Runtime 1.0.2 and skills beta.84 are versioned
-independently. [Setup guide](https://docs.stateport.dev/getting-started/install/).
+## Agent setup recovery in 1.1.0
+
+Run `npx --yes stateport@latest`. Setup configures all detected supported
+agents and migrates recognizable older StatePort connections automatically.
+Missing owned files/entries can be restored; edited, disabled or foreign settings
+are preserved with an agent-specific blocker. Existing pins and update consent
+remain unchanged. Saved-data compatibility is versioned independently of engine
+releases; unknown/mixed storage changes remain blocked.
+
+| Agent | User MCP config | User skills |
+| --- | --- | --- |
+| Codex CLI / IDE | `~/.codex/config.toml` | `~/.agents/skills` |
+| Claude Code CLI / IDE | `~/.claude.json` | `~/.claude/skills` |
+| Cursor | `~/.cursor/mcp.json` | owned shared `~/.agents/skills` |
+| Copilot | `~/.copilot/mcp-config.json` | `~/.copilot/skills` |
+
+VS Code's older Local harness also receives an owned `Code/User/mcp.json`
+compatibility bridge, including existing bounded user profiles. JSONC comments
+and unrelated servers are retained. Multiple recognized provider skill folders
+are valid. Remote or linked profiles outside the current home are protected.
+
+Claude standalone setup requires no third-party marketplace. A recognized
+personal StatePort plugin can migrate with a private StatePort-only record;
+plugin cache and other plugins are preserved. Corporate restrictions on MCP or
+skills require administrator approval; the installer never changes policy.
+Local saved configuration and launch checks are separate from host discovery,
+login, model availability and completed workflows. New native archives are built
+on three OSes; functional qualification for this release is local Ubuntu only.
 
 ## Install and continue
 

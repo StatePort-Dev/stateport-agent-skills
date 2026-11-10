@@ -14,7 +14,12 @@ continuity and future-session MCP are separate. The
 records exact Node-only results and open gates. Published Desktop instructions
 below retain their separate historical scope.
 
-Claude Code can install the shared StatePort plugin from this repository. Source
+The Node installer uses standalone user MCP and skills without a marketplace.
+If corporate policy rejects third-party marketplaces, use the canonical Node
+setup above; MCP/skills policy still requires administrator approval. Do not
+change policy or install another plugin copy after successful Node setup.
+
+For the separate legacy Desktop integration, Claude Code can install the shared StatePort plugin from this repository. Source
 installation and skill discovery have been checked on Linux; a complete
 StatePort agent workflow remains unverified.
 
@@ -23,7 +28,7 @@ The plugin contains the seven generated canonical skills and five explicit comma
 `/stateport:compare-runs`, and `/stateport:check-connection`. These commands do
 not bundle Desktop, connect MCP automatically or grant Capture permission.
 
-## Install the development source
+## Optional legacy plugin source
 
 ```sh
 claude plugin marketplace add StatePort-Dev/stateport-agent-skills
