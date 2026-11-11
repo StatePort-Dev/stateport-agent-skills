@@ -10,13 +10,11 @@ is [StatePort-Dev](https://github.com/StatePort-Dev).
 StatePort LocalRuntime owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Beta source.** The integration version is <!-- integration-version:start -->`0.1.0-beta.84`<!-- integration-version:end -->. Source
-> installation and bounded Codex CLI workflows have been checked. The npm
-> installer has its own stable release; this does not qualify every provider.
-> Integration prereleases distribute source;
-> New Bug Workflows real-host acceptance
-> remains unverified until version-bound results are recorded. Use synthetic data and review
-> the source before installing it.
+> **Stable skills.** The integration version is <!-- integration-version:start -->`1.0.0`<!-- integration-version:end -->.
+> Version 1.0.0 promotes the reviewed beta.84 instructions without changing their
+> workflows or MCP contract. Package stability does not qualify every provider;
+> host/model evidence remains version-bound. The immutable source release is
+> [`skills-v1.0.0`](https://github.com/StatePort-Dev/stateport-agent-skills/releases/tag/skills-v1.0.0).
 
 > **Founder field checks (September 2026).** The founder reports repeated
 > successful tests on Linux and macOS: install, connect a coding agent, capture
@@ -36,7 +34,7 @@ only synthetic data and runs without a StatePort account or installation.
 ## Install StatePort — npm
 
 The published [npm package](https://www.npmjs.com/package/stateport) installs
-the signed stable StatePort engine with skills beta.84 through installer 1.1.0:
+the current signed stable StatePort engine with its pinned skills snapshot:
 
 ```sh
 npx stateport

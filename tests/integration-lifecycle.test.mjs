@@ -14,7 +14,7 @@ const json = name => JSON.parse(read(name));
 test('one integration release version owns all distribution manifests and local raw-skill metadata', () => {
   const metadata = json('integration.json');
   const version = metadata.integrationVersion;
-  assert.match(version, /^0\.\d+\.\d+(?:-(?:alpha|beta)\.\d+)?$/);
+  assert.match(version, /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:alpha|beta)\.(?:0|[1-9]\d*))?$/);
   for (const name of ['package.json', 'plugins/stateport/plugin.json', 'plugins/stateport/.codex-plugin/plugin.json', 'plugins/stateport/.claude-plugin/plugin.json', 'extensions/vscode/package.json']) {
     assert.equal(json(name).version, version, name);
   }

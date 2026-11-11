@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 — 11 November 2026
+
+- Promote the seven reviewed beta.84 skills to stable 1.0.0; workflow instructions and MCP contract are unchanged.
+- Synchronize canonical metadata and provider/editor package versions from integration.json.
+- Keep historical compatibility receipts and per-provider qualification statuses unchanged.
+- Deliver the exact stable snapshot through the signed Node runtime; the transparent installer has its own version.
+
 ## 0.1.0-beta.83 / installer rc.9 / runtime rc.6
 
 - Source-only useful results without Capture or trial, attributed source choices, and one first-use introduction with persistent no-repeat progress.
@@ -49,7 +56,7 @@
 
 ## Unreleased
 
-Current integration source: <!-- integration-version:start -->`0.1.0-beta.84`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
+Current integration source: <!-- integration-version:start -->`1.0.0`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
 
 ## 0.1.0-beta.84
 

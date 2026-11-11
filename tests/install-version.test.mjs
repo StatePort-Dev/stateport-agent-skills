@@ -38,7 +38,7 @@ test('successive releases detect documentation drift, repair it, and preserve hi
   fs.appendFileSync(path.join(temp, 'CHANGELOG.md'), history);
   const outside = () => documents.map(name => fs.readFileSync(path.join(temp, name), 'utf8').replace(slot, '<VERSION>'));
   const original = outside();
-  for (const version of ['0.1.0-beta.999', '0.2.0', '0.2.1-alpha.1']) {
+  for (const version of ['0.1.0-beta.999', '0.2.0', '0.2.1-alpha.1', '1.0.0', '1.1.0-beta.1', '2.0.0']) {
     fs.writeFileSync(metadataPath, `${JSON.stringify({ ...metadata, integrationVersion: version }, null, 2)}\n`);
     const before = documents.map(name => fs.readFileSync(path.join(temp, name), 'utf8'));
     const drift = syncCodexSkill(temp, true);
@@ -95,7 +95,7 @@ test('a missing version document fails before sync changes other documents or ma
 });
 
 test('invalid canonical versions cannot be synchronized into install instructions', async t => {
-  for (const version of [null, 2, '', ['0.1.0'], '1.0.0-beta.104', '0.1.0-beta.1\n', '0.1.0-beta.x']) {
+  for (const version of [null, 2, '', ['0.1.0'], '01.0.0', '0.1.0-beta.1\n', '0.1.0-beta.x']) {
     await t.test(JSON.stringify(version), t => {
       const temp = fixture(t);
       const file = path.join(temp, 'integration.json');

@@ -7,15 +7,15 @@ environment and use its supported integration mechanism. It is separate from the
 debugging must not install a runtime or change user configuration to bypass a
 missing capability. Use this entrypoint when the user requests setup or an update.
 If StatePort is already installed, use the update procedure below instead of
-creating another copy. This checkout's integration source version is <!-- integration-version:start -->`0.1.0-beta.84`<!-- integration-version:end -->,
+creating another copy. This checkout's integration source version is <!-- integration-version:start -->`1.0.0`<!-- integration-version:end -->,
 generated from [`integration.json`](integration.json) by `npm run sync` and
 validated by `npm run check`. It is independent of the Desktop version and is
 not a claim about the newest remote source or the version an agent has loaded.
 
 Canonical installation: [Install and connect StatePort](https://docs.stateport.dev/getting-started/install/).
 This guide is an alternative entry to that same Node setup, not a second plugin
-installation after successful setup. Installer 1.1.0, runtime 1.1.0 and skills
-beta.84 are independent; publication does not qualify every agent host.
+installation after successful setup. Installer, runtime and skills are independently versioned. The signed runtime
+defines the exact delivered skills snapshot; publication does not qualify every agent host.
 
 ## Node Runtime installation
 

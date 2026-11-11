@@ -9,8 +9,8 @@ Desktop evidence below remains historical/current to its exact recorded scope.
 StatePort uses three independent version lines:
 
 - **Integration version** identifies this repository's skill, plugin manifests,
-  setup helpers and native source candidates. The current beta source version
-  is <!-- integration-version:start -->`0.1.0-beta.84`<!-- integration-version:end -->
+  setup helpers and native source candidates. The current stable integration version
+  is <!-- integration-version:start -->`1.0.0`<!-- integration-version:end -->
   in [`integration.json`](../integration.json).
 - **Desktop/runtime version** identifies the installed StatePort application and
   MCP process. It does not determine the integration version.
@@ -29,9 +29,13 @@ missing, duplicate or malformed slots; sync validates all slots before writing.
 Historical compatibility evidence and pinned refs are not rewritten. Neither command
 proves that a host loaded the package or completed a StatePort workflow.
 
-## Development source
+## Stable and development source
 
-Tagged source prereleases bind a reviewed integration version to immutable
+The stable `skills-v1.0.0` release preserves the beta.84 instruction bodies and
+MCP contract. Stable identifies the versioned instruction distribution, not a new
+provider/host support claim. The provider registry keeps its existing statuses.
+
+Tagged source releases and prereleases bind a reviewed integration version to immutable
 source. They do not by themselves establish supported-host workflow or update
 acceptance. An installation from `main` follows moving development source and
 must not be presented as an immutable release. The provider registry and

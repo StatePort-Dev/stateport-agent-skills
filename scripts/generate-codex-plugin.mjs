@@ -23,7 +23,7 @@ function versionDocumentation(root, version) {
 export function syncCodexSkill(root = repositoryRoot, check = false) {
   const metadata = JSON.parse(fs.readFileSync(path.join(root, 'integration.json'), 'utf8'));
   if (metadata.schemaVersion !== 1 || typeof metadata.integrationVersion !== 'string' ||
-      !/^0\.\d+\.\d+(?:-(?:alpha|beta)\.\d+)?$/.test(metadata.integrationVersion) ||
+      !/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:alpha|beta)\.(?:0|[1-9]\d*))?$/.test(metadata.integrationVersion) ||
       !Number.isInteger(metadata.mcpContract?.minimum) || !Number.isInteger(metadata.mcpContract?.maximum) ||
       metadata.mcpContract.minimum < 1 || metadata.mcpContract.maximum < metadata.mcpContract.minimum) {
     throw new Error('Invalid canonical integration metadata');

@@ -1,7 +1,8 @@
 # StatePort
 
-Installer 1.1.0 configures every detected supported agent. Use `--choose-agents`
-for the optional picker. Runtime 1.1.0 and skills beta.84 are independently versioned.
+The installer configures every detected supported agent. Use `--choose-agents`
+for the optional picker. Installer, runtime and skills have independent versions;
+the signed runtime defines the exact delivered skills snapshot.
 
 ## Agent setup recovery in 1.1.0
 
