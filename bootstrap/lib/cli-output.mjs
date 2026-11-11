@@ -31,15 +31,16 @@ const recovery = {
   SETUP_CANCELLED: ['Setup cancelled. No agent configuration was changed.', 'Run npx stateport to configure detected agents, or add --choose-agents to select them.'],
   INVALID_ARGUMENTS: ['That command is not recognised.', 'Run npx stateport --help to see the available commands.'],
   PLATFORM_UNSUPPORTED: ['This platform is not supported yet.', 'Use Windows x64, macOS Apple Silicon, or Linux x64.'],
-  NODE_24_LTS_CANDIDATE_REQUIRED: ['StatePort needs Node.js 24.', ['Install Node.js 24: https://nodejs.org/en/download', 'Run npx stateport again.']],
+  NODE_24_LTS_CANDIDATE_REQUIRED: ['StatePort needs Node.js 22.13+ or 24.x.', ['Install Node.js 24: https://nodejs.org/en/download', 'Run npx stateport again.']],
   RELEASE_REPLAY: ['The signed update channel is older than a version already verified here.', ['Keep the current runtime. Retry later, or run npx stateport install --offline to configure the verified cache.']],
   RELEASE_DOWNGRADE: ['This channel would downgrade the verified installed runtime.', ['Keep the current runtime. Retry later, or run npx stateport install --offline.']],
   RELEASE_VERSION_REPLACED: ['The channel changed the bytes of an existing version. Setup stopped.', ['Keep the current runtime and report this through https://stateport.dev/.']],
   RUNTIME_NOT_INSTALLED: ['StatePort is not installed yet.', 'Run npx stateport to install it.'],
+  RUNTIME_NODE_UNSUPPORTED: ['This installed runtime does not support the current Node.js version.', ['Run npx stateport@latest install to get a compatible runtime.', 'If the runtime is pinned, keep using Node 24 or explicitly release the pin first.']],
   OFFLINE_CACHE_UNAVAILABLE: ['No verified offline installation was found.', 'Connect to the internet and run npx stateport once.'],
   PUBLIC_RUNTIME_RELEASE_UNPUBLISHED: ['This build has no public runtime configured.', 'Use the official npm package: npx stateport.'],
   PIN_RELEASE_REQUIRED: ['This installation is pinned to an exact version.', 'To allow changes, run npx stateport updates notify --release-pin.'],
-  UPDATE_PLATFORM_UNSUPPORTED: ['No runtime archive matches this Node platform and architecture.', 'On Apple Silicon, use native ARM64 Node.js 24 in this terminal and in your editor; an Intel/Rosetta Node process cannot load ARM64 native addons. Your installed runtime is preserved.'],
+  UPDATE_PLATFORM_UNSUPPORTED: ['No runtime archive matches this Node platform and architecture.', 'On Apple Silicon, use native ARM64 Node.js 22.13+ or 24.x in this terminal and in your editor; an Intel/Rosetta Node process cannot load ARM64 native addons. Your installed runtime is preserved.'],
   UPDATE_INCOMPATIBLE: ['This upgrade is not approved for the installed runtime. It has been kept unchanged.', ['Use the installed runtime: npx stateport install --offline.', 'Older runtimes may not support every agent. For support, report UPDATE_INCOMPATIBLE and npx stateport updates status --json through https://stateport.dev/. Repeating the same online install will not resolve this compatibility check.']],
   LAUNCHER_REPAIR_REQUIRED: ['The StatePort launcher needs repair.', 'Run npx stateport repair-launcher --confirm. Changed launcher files are backed up.'],
   RECOVERY_REQUIRED: ['An interrupted setup needs attention.', 'Keep the existing files. Review npx stateport doctor --json before trying again.'],
@@ -203,7 +204,7 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
     if (value.code === 'RUNTIME_NOT_INSTALLED' && !value.version) {
       heading('Installation check'); check(true,'Installer',version(value.installerVersion ?? installerVersion));
       line('Runtime: not installed. No engine diagnostics are available yet.');
-      line('Prerequisites: Node.js 24 with npm; Windows x64, macOS Apple Silicon or Linux x64.');
+      line('Prerequisites: Node.js 22.13+ or 24.x with npm; Windows x64, macOS Apple Silicon or Linux x64.');
       line('Source work needs no browser. Capture and replay need Chrome/Edge or an explicitly confirmed browser download.');
       next(['Check connectivity to npm and GitHub, then run npx stateport to download and verify the runtime.']); line(); return;
     }
@@ -238,8 +239,8 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
         ? ['The runtime could not be verified.', 'Try again later using the official npx stateport command.']
         : ['StatePort could not finish this command.', 'Run npx stateport doctor --json to inspect the installation.'];
       const [title, step] = recovery[code] ?? fallback;
-      if (code === 'NODE_24_LTS_CANDIDATE_REQUIRED') {
-        notice('BLOCKING', 'Node.js version', `StatePort needs Node.js 24. Detected: ${terminalText(value.detectedNode ?? 'unknown')}.`);
+      if (['NODE_VERSION_UNSUPPORTED','NODE_24_LTS_CANDIDATE_REQUIRED'].includes(code)) {
+        notice('BLOCKING', 'Node.js version', `StatePort needs Node.js 22.13+ or 24.x. Detected: ${terminalText(value.detectedNode ?? 'unknown')}.`);
         line('No runtime or agent settings were changed.');
         next(['If you use nvm: nvm install 24', 'Activate it in this terminal: nvm use 24', 'Run npx stateport again.'], 'How to Start');
         line('Other Node installations: https://nodejs.org/en/download', '2');

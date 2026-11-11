@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+import { supportedNode, NODE_RANGE } from '../lib/node-host.mjs';
 import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { installCandidate, readCurrent, withInstallTransaction } from '../lib/install.mjs';
 import { installPublishedRelease } from '../lib/release.mjs';
-import { readUpdatePolicy, setUpdatePolicy } from '../lib/update-policy.mjs';
+import { readUpdatePolicy, setUpdatePolicy, validGeneration } from '../lib/update-policy.mjs';
 import { updateStatus, checkForUpdates, selectSessionRuntime, rollbackGeneration,installCurrentPublishedRelease } from '../lib/updates.mjs';
 import { updateControl } from '../lib/controls.mjs';
 import { ensureLauncher } from '../lib/launcher.mjs';
@@ -46,6 +47,7 @@ function cacheRoot() {
   return join(base, 'StatePort', 'agent-runtime');
 }
 async function run(runtime, args, capture = false) {
+  if (runtime.generation && !validGeneration(runtime.generation)) throw Error('RUNTIME_NODE_UNSUPPORTED');
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [runtime.entry, ...args], { stdio: capture ? ['ignore', 'pipe', 'pipe'] : 'inherit', windowsHide: true });
     let output = ''; let size = 0;
@@ -93,7 +95,7 @@ async function main() {
     if (rawArgs.includes('--json')) write({ version: metadata.version }); else process.stdout.write(metadata.version + '\n');
     return;
   }
-  if (Number(process.versions.node.split('.')[0]) !== 24) throw Error('NODE_24_LTS_CANDIDATE_REQUIRED');
+  if (!supportedNode(process.versions.node)) throw Error('NODE_VERSION_UNSUPPORTED');
   if (!((process.platform === 'linux' || process.platform === 'win32') && process.arch === 'x64') && !(process.platform === 'darwin' && process.arch === 'arm64')) throw Error('PLATFORM_UNSUPPORTED');
   const commands = new Set(cliContract.commands.map(command=>command.name));
   if (args[0] && !args[0].startsWith('--') && !commands.has(args[0])) throw Error('INVALID_ARGUMENTS');
@@ -118,7 +120,7 @@ async function main() {
         if (args.length !== 2 || args[0] !== '--agent' || !['cursor', 'codex', 'claude', 'vscode'].includes(args[1])) throw Error('INVALID_ARGUMENTS');
         selected = args[1];
       }
-      if(!runtime){write({status:'blocked',code:'RUNTIME_NOT_INSTALLED',diagnostics:{schemaVersion:'agent-install-failure/1',phase:'prerequisites',runtimeInstalled:false},installerVersion:metadata.version,prerequisites:{node:'24.x',npm:true,platform:`${process.platform}-${process.arch}`,network:['npm','GitHub'],browser:'optional_for_source'},nextAction:'npx stateport'},'doctor');process.exitCode=1;return;}
+      if(!runtime){write({status:'blocked',code:'RUNTIME_NOT_INSTALLED',diagnostics:{schemaVersion:'agent-install-failure/1',phase:'prerequisites',runtimeInstalled:false},installerVersion:metadata.version,prerequisites:{node:NODE_RANGE,npm:true,platform:`${process.platform}-${process.arch}`,network:['npm','GitHub'],browser:'optional_for_source'},nextAction:'npx stateport'},'doctor');process.exitCode=1;return;}
       const report = { ...await run(runtime, ['doctor'], true), installerVersion: metadata.version };
       if (selected) report.setupDiagnostics = await diagnoseSetupConflict({ home: homedir(), cache, agent: selected });
       write(report, 'doctor'); return;
@@ -231,7 +233,7 @@ async function main() {
 void main().catch(async error => {
   const code = error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : 'INSTALL_FAILED';
   const installed=await readCurrent(cacheRoot()).then(value=>Boolean(value)).catch(()=>null);
-  write({ status: 'blocked', code, diagnostics:{schemaVersion:'agent-install-failure/1',phase:installPhase,runtimeInstalled:installed}, ...(code.startsWith('NODE_') ? {nodePrerequisite:'https://nodejs.org/en/download', detectedNode:process.versions.node, requiredNode:'24.x'} : {}) });
+  write({ status: 'blocked', code, diagnostics:{schemaVersion:'agent-install-failure/1',phase:installPhase,runtimeInstalled:installed}, ...(code.startsWith('NODE_') ? {nodePrerequisite:'https://nodejs.org/en/download', detectedNode:process.versions.node, requiredNode:NODE_RANGE} : {}) });
   process.exitCode = code === 'SETUP_CANCELLED' ? 130 : 1;
   await installMetrics?.finish('install_failed', installFailureBucket(error));
 });

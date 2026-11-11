@@ -1,3 +1,5 @@
+import { knownGeneration } from './generation.mjs';
+import { NODE_RANGE } from './node-host.mjs';
 import { constants } from 'node:fs';
 import { lstat, mkdir, open, readdir, readlink, rename, rm, writeFile, symlink } from 'node:fs/promises';
 import { createHash, randomBytes } from 'node:crypto';
@@ -36,13 +38,14 @@ export async function bytes(path, maximumBytes) {
   } finally { await handle.close(); }
 }
 function manifest(value) {
-  if (!value || !['agent-runtime-candidate/1.0.0','agent-runtime-candidate/1.1.0','agent-runtime-candidate/1.2.0'].includes(value.schemaVersion) || value.entry !== 'main.cjs' || value.nodeCandidate !== '24.x' || typeof value.productVersion !== 'string' || value.productVersion.length > 128 || !/^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/.test(value.productVersion)) throw Error('MANIFEST_INVALID');
-  if (value.schemaVersion === 'agent-runtime-candidate/1.2.0' && value.archiveFormat !== 'ustar+pax-path/1') throw Error('MANIFEST_INVALID');
+  if (!value || !['agent-runtime-candidate/1.0.0','agent-runtime-candidate/1.1.0','agent-runtime-candidate/1.2.0','agent-runtime-candidate/1.3.0'].includes(value.schemaVersion) || value.entry !== 'main.cjs' || value.nodeCandidate !== (value.schemaVersion === 'agent-runtime-candidate/1.3.0' ? NODE_RANGE : '24.x') || typeof value.productVersion !== 'string' || value.productVersion.length > 128 || !/^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/.test(value.productVersion)) throw Error('MANIFEST_INVALID');
+  if (['agent-runtime-candidate/1.2.0','agent-runtime-candidate/1.3.0'].includes(value.schemaVersion) && value.archiveFormat !== 'ustar+pax-path/1') throw Error('MANIFEST_INVALID');
+  if (value.schemaVersion === 'agent-runtime-candidate/1.3.0' && (!knownGeneration(value.generation) || value.generation.schemaVersion !== 'agent-generation/2' || value.generation.platform !== value.platform || value.generation.arch !== value.arch)) throw Error('MANIFEST_INVALID');
   if (value.platform !== process.platform || value.arch !== process.arch) throw Error('PLATFORM_MISMATCH');
   if (!Array.isArray(value.files) || value.files.length < 1 || value.files.length > 4096) throw Error('MANIFEST_INVALID');
   const names = new Set(); let total = 0;
   for (const file of value.files) {
-    if (!validArchivePath(file.path, value.schemaVersion === 'agent-runtime-candidate/1.2.0' ? 1024 : 255) || file.path === 'candidate.json') throw Error('MANIFEST_PATH');
+    if (!validArchivePath(file.path, ['agent-runtime-candidate/1.2.0','agent-runtime-candidate/1.3.0'].includes(value.schemaVersion) ? 1024 : 255) || file.path === 'candidate.json') throw Error('MANIFEST_PATH');
     if (file.executable !== undefined && typeof file.executable !== 'boolean') throw Error('MANIFEST_INVALID');
     const lower = file.path.toLowerCase();
     if (names.has(lower)) throw Error('MANIFEST_PATH'); names.add(lower);

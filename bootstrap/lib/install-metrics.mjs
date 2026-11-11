@@ -27,7 +27,7 @@ export function installFailureBucket(error) {
   if (['RELEASE_HTTP', 'RELEASE_REDIRECTS', 'RELEASE_NETWORK', 'RELEASE_TIMEOUT', 'RELEASE_CANCELLED'].includes(code) || (error instanceof Error && ['TimeoutError', 'AbortError'].includes(error.name))) return 'network';
   if (/^(?:RELEASE_[A-Z_]+|ARCHIVE_[A-Z_]+|MANIFEST_[A-Z_]+|INVENTORY_[A-Z_]+|INSTALL_INTEGRITY)$/.test(code)) return 'verification';
   if (/^(?:DOWNLOAD_[A-Z_]+|NETWORK_[A-Z_]+)$/.test(code)) return 'network';
-  if (['PLATFORM_UNSUPPORTED', 'NODE_24_LTS_CANDIDATE_REQUIRED'].includes(code)) return 'unsupported';
+  if (['PLATFORM_UNSUPPORTED', 'NODE_24_LTS_CANDIDATE_REQUIRED', 'NODE_VERSION_UNSUPPORTED', 'RUNTIME_NODE_UNSUPPORTED'].includes(code)) return 'unsupported';
   if (['RUNTIME_FAILED', 'RUNTIME_UNAVAILABLE', 'RUNTIME_REPLY_INVALID', 'INSTALL_LOCKED', 'PIN_RELEASE_REQUIRED'].includes(code)) return 'configuration';
   return 'unknown';
 }

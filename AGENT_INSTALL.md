@@ -20,7 +20,7 @@ defines the exact delivered skills snapshot; publication does not qualify every 
 ## Node Runtime installation
 
 The [Node Runtime](docs/AGENT_RUNTIME_CANDIDATE.md) uses an existing
-Node.js 24.x/npm installation, the shared local engine and optional Desktop:
+Node.js 22.13+ or 24.x/npm installation, the shared local engine and optional Desktop:
 
 ```sh
 npx stateport

@@ -45,8 +45,8 @@ coding agent can return to the same case while changing the code.
 
 ## Install
 
-Use **Node.js 24.x**, npm, and an installed coding agent. The installer can start
-on Node 20–23 to explain the prerequisite, but the engine requires Node 24.
+Use **Node.js 22.13+ or 24.x**, npm, and an installed coding agent. The bootstrap can also start
+on Node 20–24 to explain prerequisites; the engine supports only the versions above.
 
 ```sh
 npx stateport@latest

@@ -10,13 +10,13 @@ export async function updateFixture(run) {
   const root = await mkdtemp(join(await realpath(tmpdir()), 'stateport-update-'));
   const cache = join(root, 'cache'), source = join(root, 'source'); await mkdir(source);
   const key = generateKeyPairSync('ed25519'), base = 'https://github.com/StatePort-Dev/stateport-releases/releases/download/fixture/';
-  const generation = { schemaVersion: 'agent-generation/1', launcher: 1, nodeMajor: 24, nativeABI: process.versions.modules,
+  const generation = { schemaVersion: 'agent-generation/1', launcher: 1, nodeMajor: 24, nativeABI: '137',
     platform: process.platform, arch: process.arch, task: 'agent-task/1', taskSession: 'agent-task-session/1', mcp: 'a'.repeat(64),
     skills: 'b'.repeat(64), storageRead: 'c'.repeat(64), storageWrite: 'c'.repeat(64), browser: { preference: 'system', playwright: '1.63.0', payload: null }, permissions: ['owned-runtime'] };
   function bundle(version, contract = generation) {
-    const main = Buffer.from(`process.stdout.write(JSON.stringify(process.argv[2]==='setup'?{status:'installed',agent:'codex',result:{status:'installed',version:'0.1.0-beta.82',mcp:'ready'}}:{version:${JSON.stringify(version)},status:'ready',execution:'allowed',generation:${JSON.stringify(contract)},browser:{status:'found',channel:'chrome'}})+'\\n')`);
-    const manifest = Buffer.from(JSON.stringify({ schemaVersion: 'agent-runtime-candidate/1.2.0', archiveFormat: 'ustar+pax-path/1',
-      productVersion: version, platform: process.platform, arch: process.arch, nodeCandidate: '24.x', entry: 'main.cjs', browserPreference: contract.browser.preference,
+    const main = Buffer.from(`process.stdout.write(JSON.stringify(process.argv[2]==='setup'?{status:'installed',agent:'codex',result:{status:'installed',version:'0.1.0-beta.82',mcp:'ready'}}:{version:${JSON.stringify(version)},status:'ready',execution:'allowed',integration:'unchanged',generation:${JSON.stringify(contract)},browser:{status:'found',channel:'chrome'}})+'\\n')`);
+    const manifest = Buffer.from(JSON.stringify({ schemaVersion: contract.schemaVersion === 'agent-generation/2' ? 'agent-runtime-candidate/1.3.0' : 'agent-runtime-candidate/1.2.0', archiveFormat: 'ustar+pax-path/1',
+      productVersion: version, platform: process.platform, arch: process.arch, nodeCandidate: contract.schemaVersion === 'agent-generation/2' ? contract.nodeRange : '24.x', entry: 'main.cjs', browserPreference: contract.browser.preference,
       generation: contract, files: [{ path: 'main.cjs', bytes: main.length, sha256: sha(main) }] }));
     const archive = encodeRuntimeArchive([{ path: 'main.cjs', bytes: main }, { path: 'candidate.json', bytes: manifest }]);
     return { main, manifest, archive, asset: { url: base + version + '.tar.gz', bytes: archive.length, sha256: sha(archive), manifestSha256: sha(manifest), generation: contract } };

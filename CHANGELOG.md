@@ -1,5 +1,11 @@
 # Changelog
 
+## Installer/runtime 1.2.0 — 11 November 2026
+
+- Support Node 22.13+ and Node 24.x with one verified platform runtime and Node-API 8.
+- Preserve exact automatic-update/pin/rollback checks; explicit setup can migrate the recognized Node-24 launcher with a backup.
+- Keep stable skills 1.0.0 unchanged. Local Linux checks are separate from native builds and provider/model qualification.
+
 ## 1.0.0 — 11 November 2026
 
 - Promote the seven reviewed beta.84 skills to stable 1.0.0; workflow instructions and MCP contract are unchanged.

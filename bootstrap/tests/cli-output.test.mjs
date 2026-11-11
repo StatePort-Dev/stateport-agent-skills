@@ -134,7 +134,7 @@ test('optional large browser consent stays explicit and its command survives nar
 });
 
 test('prerequisite, download, signature and lock failures offer one safe next action', () => {
-  for (const [code, expected] of [['NODE_24_LTS_CANDIDATE_REQUIRED', 'Node.js 24'], ['PLATFORM_UNSUPPORTED', 'not supported'], ['RELEASE_HTTP', 'connection'], ['RELEASE_SIGNATURE', 'could not be verified'], ['INSTALL_BUSY_OR_RECOVERY_REQUIRED', 'Keep the lock']]) {
+  for (const [code, expected] of [['NODE_24_LTS_CANDIDATE_REQUIRED', 'Node.js 22.13+ or 24.x'], ['PLATFORM_UNSUPPORTED', 'not supported'], ['RELEASE_HTTP', 'connection'], ['RELEASE_SIGNATURE', 'could not be verified'], ['INSTALL_BUSY_OR_RECOVERY_REQUIRED', 'Keep the lock']]) {
     const text = rendered({ status: 'blocked', code }); assert(text.includes(expected), code); assert.match(text, /How to Start/); assert(!text.includes('"status"'));
   }
 });
@@ -142,7 +142,7 @@ test('prerequisite, download, signature and lock failures offer one safe next ac
 test('unsupported Node explains the detected version, impact and executable upgrade steps', () => {
   const text = rendered({status:'blocked', code:'NODE_24_LTS_CANDIDATE_REQUIRED', detectedNode:'20.19.3'});
   assert.match(text, /20\.19\.3/);
-  assert.match(text, /Node\.js 24/);
+  assert.match(text, /Node\.js 22\.13\+ or 24\.x/);
   assert.match(text, /nvm install 24/);
   assert.match(text, /nvm use 24/);
   assert.match(text, /No runtime or agent settings were changed/);

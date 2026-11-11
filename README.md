@@ -40,8 +40,8 @@ the current signed stable StatePort engine with its pinned skills snapshot:
 npx stateport
 ```
 
-PowerShell: `npx.cmd stateport`. An existing Node.js 24.x/npm installation is
-required for the engine. The installer starts on Node 20–23 with upgrade steps.
+PowerShell: `npx.cmd stateport`. An existing Node.js 22.13+ or 24.x/npm installation is
+required for the engine. Earlier versions receive upgrade instructions.
 The small transparent bootstrap verifies the signed
 platform runtime, about 7 MB with a system browser. It configures owned skills
 and MCP for the selected coding agent. Desktop is optional. Explicit pinned

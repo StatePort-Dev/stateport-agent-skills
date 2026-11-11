@@ -1,3 +1,4 @@
+import { validGeneration } from './update-policy.mjs';
 import { fork } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { selectSessionRuntime, quarantineStartup } from './updates.mjs';
@@ -12,6 +13,7 @@ export async function launchSession({ cache, runtime, trust, args }) {
   }
   const newSession = ['mcp', 'task-session', 'task-start', 'open'].includes(command);
   const selected = newSession ? await selectSessionRuntime(cache, trust) : runtime;
+  if (!validGeneration(selected.generation)) throw Error('RUNTIME_NODE_UNSUPPORTED');
   const child = fork(selected.entry, args, { stdio: ['inherit', 'inherit', 'inherit', 'ipc'], windowsHide: true });
   let ready = !newSession;
   let job;

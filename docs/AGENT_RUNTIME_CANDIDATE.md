@@ -1,7 +1,7 @@
 # Agent Runtime and qualification
 
 [StatePort stable installer](https://www.npmjs.com/package/stateport).
-Run `npx stateport` (PowerShell: `npx.cmd stateport`) with existing Node.js 24.x/npm.
+Run `npx stateport` (PowerShell: `npx.cmd stateport`) with existing Node.js 22.13+ or 24.x/npm.
 Desktop remains an optional visual client of the same engine, Cards, protected
 storage and signed access. Package availability does
 not establish full native/model/trust acceptance or upgrade provider statuses.
@@ -169,5 +169,5 @@ no running session switches engine. Fresh update policy is Stable/Notify.
 Existing RC policy is preserved and can be changed explicitly with
 `npx stateport updates channel stable --confirm`. Auto still requires consent.
 The installer can explain the Node 24 prerequisite when started on Node 20–23.
-The engine itself remains Node 24.x; no private Node or Chromium is bundled by
+The engine itself remains Node 22.13+ or 24.x; no private Node or Chromium is bundled by
 default. Package releases, engine releases and skills versions are independent.

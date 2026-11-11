@@ -1,3 +1,5 @@
+import { validGeneration } from './generation.mjs';
+export { validGeneration, knownGeneration } from './generation.mjs';
 import { join } from 'node:path';
 import { bytes, withInstallTransaction } from './install.mjs';
 
@@ -46,21 +48,8 @@ function canonical(value) {
   if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])]));
   return value;
 }
-export function validGeneration(value) {
-  const keys = 'arch,browser,launcher,mcp,nativeABI,nodeMajor,permissions,platform,schemaVersion,skills,storageRead,storageWrite,task,taskSession';
-  return value && Object.keys(value).sort().join(',') === keys && value.schemaVersion === 'agent-generation/1'
-    && value.launcher === 1 && value.nodeMajor === 24 && value.nativeABI === process.versions.modules
-    && value.platform === process.platform && value.arch === process.arch
-    && value.task === 'agent-task/1' && value.taskSession === 'agent-task-session/1'
-    && ['mcp', 'skills', 'storageRead', 'storageWrite'].every(key => hex(value[key]))
-    && Array.isArray(value.permissions) && value.permissions.length > 0 && value.permissions.length <= 16
-    && value.permissions.every(item => typeof item === 'string' && /^[a-z_-]{1,64}$/.test(item))
-    && value.browser && Object.keys(value.browser).sort().join(',') === 'payload,playwright,preference'
-    && ['system', 'pinned'].includes(value.browser.preference) && typeof value.browser.playwright==='string' && /^\d{1,4}\.\d{1,4}\.\d{1,4}$/.test(value.browser.playwright)
-    && (value.browser.preference === 'system' ? value.browser.payload === null : hex(value.browser.payload));
-}
 /** Unknown contracts, different instructions or schemas require explicit setup/restart. */
-export function compatibleGeneration(running, candidate) {
-  if (!validGeneration(running) || !validGeneration(candidate)) return 'UPDATE_INCOMPATIBLE';
+export function compatibleGeneration(running, candidate, host) {
+  if (!validGeneration(running, host) || !validGeneration(candidate, host)) return 'UPDATE_INCOMPATIBLE';
   return JSON.stringify(canonical(running)) === JSON.stringify(canonical(candidate)) ? null : 'UPDATE_INCOMPATIBLE';
 }

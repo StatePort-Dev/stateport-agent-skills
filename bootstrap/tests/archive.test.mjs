@@ -100,3 +100,8 @@ test('rejects malformed, duplicate/global/unknown PAX overrides and never relaxe
   const decoded = decodeRuntimeArchive(archive(control(record('path', nativePath)), block('One', '0'), block('ordinary-file', '0')), { allowPathHeaders: true });
   assert.deepEqual(decoded.map(file => file.path), [nativePath, 'ordinary-file', 'candidate.json']);
 });
+test('new dual-Node manifests retain bounded native Mac PAX paths without admitting undeclared formats',()=>{
+ const files=[{path:nativePath,bytes:Buffer.from('synthetic Mac helper')},{path:'candidate.json',bytes:Buffer.from(JSON.stringify({...format,schemaVersion:'agent-runtime-candidate/1.3.0'}))}];
+ assert.deepEqual(decodeRuntimeArchive(encodeRuntimeArchive(files,{allowPathHeaders:true}),{allowPathHeaders:true}),files);
+ for(const schemaVersion of ['agent-runtime-candidate/1.4.0','agent-runtime-candidate/1.1.0'])assert.throws(()=>encodeRuntimeArchive([files[0],{path:'candidate.json',bytes:Buffer.from(JSON.stringify({...format,schemaVersion}))}],{allowPathHeaders:true}),/ARCHIVE_SCHEMA/);
+});

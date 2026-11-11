@@ -99,3 +99,16 @@ test('rejects source and cache symlinks/junctions before copying or switching', 
   }
   await assert.rejects(installCandidate({ source, cache, manifestSha256: digest }), /UNSAFE_PATH/);
 }));
+
+test('new dual-Node manifests require the declared range and N-API generation without changing the prior selected runtime', () => fixture(async ({ source, cache, manifest, save }) => {
+  const old=await installCandidate({source,cache,manifestSha256:await save()});
+  const {NODE_RANGE}=await import('../lib/node-host.mjs');
+  manifest.schemaVersion='agent-runtime-candidate/1.3.0';manifest.archiveFormat='ustar+pax-path/1';manifest.nodeCandidate=NODE_RANGE;
+  await assert.rejects(installCandidate({source,cache,manifestSha256:await save()}),/MANIFEST_INVALID/);
+  assert.equal((await readCurrent(cache)).digest,old.digest);
+  manifest.generation={schemaVersion:'agent-generation/2',nodeRange:NODE_RANGE,nativeAPI:8,platform:process.platform,arch:process.arch,launcher:1,task:'agent-task/1',taskSession:'agent-task-session/1',mcp:'a'.repeat(64),skills:'b'.repeat(64),storageRead:'c'.repeat(64),storageWrite:'c'.repeat(64),browser:{preference:'system',playwright:'1.63.0',payload:null},permissions:['owned_browser']};
+  const next=await installCandidate({source,cache,manifestSha256:await save()});
+  assert.equal(next.generation.nativeAPI,8);
+  manifest.nodeCandidate='>=20';
+  await assert.rejects(installCandidate({source,cache,manifestSha256:await save()}),/MANIFEST_INVALID/);
+}));

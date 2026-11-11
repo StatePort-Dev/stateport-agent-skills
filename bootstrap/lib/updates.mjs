@@ -1,7 +1,7 @@
 import {compatibleStorage} from './storage-contract.mjs';
 import { spawn } from 'node:child_process';
 import { withInstallTransaction, readCurrent, readInstalled, readPrevious } from './install.mjs';
-import { readJson, readUpdatePolicy, checkDue, compatibleGeneration, validGeneration, hex } from './update-policy.mjs';
+import { readJson, readUpdatePolicy, checkDue, compatibleGeneration, validGeneration, knownGeneration, hex } from './update-policy.mjs';
 import { download, verifyChannelEnvelope, installReleaseDocument, compareVersions } from './release.mjs';
 
 const empty = () => ({ schemaVersion: 'agent-update-state/1', checkedAt: null, water: {}, available: null, pending: null, quarantine: [], hold: null });
@@ -25,7 +25,7 @@ function channelTrust(trust, policy) {
   return { ...trust, channel: policy.channel, url };
 }
 // Explicit setup can reconcile integration changes, but never unknown data formats.
-function explicitStorageCompatible(current,generation){return validGeneration(current.generation)&&compatibleStorage(current.generation,generation);}
+function explicitStorageCompatible(current,generation){return knownGeneration(current.generation)&&compatibleStorage(current.generation,generation);}
 /** An explicit stable installation selects current signed metadata, independently
  * of the npm bootstrap's baseline version. One verifier/lock/stager remains the
  * authority. Existing channel/Auto consent, pins and running tasks are retained. */
@@ -34,6 +34,7 @@ export async function installCurrentPublishedRelease(cache,trust,options={}) {
     const policy=await readUpdatePolicy(cache),current=await transaction.current();
     if(policy.mode==='pinned'){
       if(!current||current.digest!==policy.pin.digest||current.productVersion!==policy.pin.version)throw Error('UPDATE_PIN_INVALID');
+      if(!validGeneration(current.generation))throw Error('RUNTIME_NODE_UNSUPPORTED');
       options.onResolved?.({version:current.productVersion});
       return {...current,unchanged:true};
     }

@@ -32,7 +32,7 @@ function requirePathHeaderSchema(files) {
   try {
     if (!metadata || !Buffer.isBuffer(metadata.bytes) || metadata.bytes.length > 1024 * 1024) throw Error();
     const value = JSON.parse(metadata.bytes.toString('utf8'));
-    if (value.schemaVersion !== 'agent-runtime-candidate/1.2.0' || value.archiveFormat !== 'ustar+pax-path/1') throw Error();
+    if (!['agent-runtime-candidate/1.2.0','agent-runtime-candidate/1.3.0'].includes(value.schemaVersion) || value.archiveFormat !== 'ustar+pax-path/1') throw Error();
   } catch { throw Error('ARCHIVE_SCHEMA'); }
 }
 function field(header, offset, length) { return header.subarray(offset, offset + length).toString('utf8').replace(/\0.*$/s, ''); }

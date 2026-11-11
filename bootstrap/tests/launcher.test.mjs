@@ -44,3 +44,19 @@ test('unchanged owned RC launcher adopts the same-key official stable catalog wi
  await ensureLauncher(f.cache,next);
  assert.equal((await readdir(f.cache)).filter(n=>n.startsWith('.launcher-backup-')).length,1);
 }));
+
+test('explicit setup adopts only the exact owned Node-24 loader closure and preserves a backup', () => updateFixture(async f => {
+  const {rm}=await import('node:fs/promises');
+  const trust={status:'unpublished'};
+  const path=await ensureLauncher(f.cache,trust);
+  const old=await readFile(new URL('./fixtures/launcher-node24-install.txt',import.meta.url));
+  await writeFile(join(f.cache,'launcher/lib/install.mjs'),old);
+  await writeFile(join(f.cache,'launcher/lib/archive.mjs'),await readFile(new URL('./fixtures/launcher-node24-archive.txt',import.meta.url)));
+  await rm(join(f.cache,'launcher/lib/node-host.mjs'),{force:true});
+  await rm(join(f.cache,'launcher/lib/generation.mjs'),{force:true});
+  assert.equal(await ensureLauncher(f.cache,trust),path);
+  assert.deepEqual(await readFile(join(f.cache,'launcher/lib/install.mjs')),await readFile(new URL('../lib/install.mjs',import.meta.url)));
+  assert.equal((await readdir(f.cache)).filter(n=>n.startsWith('.launcher-backup-')).length,1);
+  await ensureLauncher(f.cache,trust);
+  assert.equal((await readdir(f.cache)).filter(n=>n.startsWith('.launcher-backup-')).length,1);
+}));
