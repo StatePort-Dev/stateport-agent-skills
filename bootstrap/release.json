@@ -1,9 +1,9 @@
 {
   "schemaVersion": "agent-bootstrap-release/1.0.0",
   "status": "published",
-  "version": "1.2.0",
-  "url": "https://github.com/StatePort-Dev/stateport-releases/releases/download/v1.2.0-agent.1/release.json",
-  "manifestSha256": "28ed105a673d314d26b4925a120ba0ecd74ce97b2e875df97d810c74e688fc4f",
+  "version": "1.2.1",
+  "url": "https://github.com/StatePort-Dev/stateport-releases/releases/download/v1.2.1-agent.1/release.json",
+  "manifestSha256": "4bcad202c5b9ad89288ecd68abd635751d7badf8c0adaa435b8ca374adcf7ed2",
   "keyId": "stateport-agent-release-2026-11-03",
   "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA8uC2jzpeW53A/MGquI0i7vjAHRpk6MKslN2asEIQQjs=\n-----END PUBLIC KEY-----\n"
 }

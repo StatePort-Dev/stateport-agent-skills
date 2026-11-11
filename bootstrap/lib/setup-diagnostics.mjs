@@ -2,7 +2,7 @@ import {lstat,readdir,open} from 'node:fs/promises';
 import {join,relative,resolve,sep} from 'node:path';
 import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
-import {inspectCodexConfig,planCodexMigration,inspectVscodeConfig,agentConfigPath,copilotConfigPath,agentSkillRoots} from './agent-discovery.mjs';
+import {inspectCodexConfig,planCodexMigration,inspectVscodeConfig,inspectCopilotConfig,canAdoptStandalone,agentConfigPath,copilotConfigPath,agentSkillRoots} from './agent-discovery.mjs';
 
 const configs={cursor:'.cursor/mcp.json',claude:'.claude.json',codex:'.codex/config.toml',vscode:true};
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -54,6 +54,8 @@ function same(actual,expected) {
 export async function diagnoseSetupConflict({home,cache,agent,platform=process.platform,env=process.env}) {
   if(!configs[agent])return {schemaVersion:'agent-setup-diagnostics/1',agent,configState:'unknown',issues:[]};
   const issues=[],ownedRoots=[],configPath=agent==='vscode'?relative(home,agentConfigPath(home,agent,platform,env)):configs[agent];let configState='unknown',codexPlugin='absent';
+  const expectedLaunch={command:process.execPath,args:[join(cache,'launcher/main.cjs'),'mcp']};
+  const canAdopt=(text,portable=false)=>canAdoptStandalone(portable?'claude':'vscode',text,expectedLaunch,platform,portable);
   const add=(code,path,extra={})=>{if(issues.length<12)issues.push({code,path,severity:'blocking',scope:agent,...extra});};
   let current,legacy;
   const appData=platform==='darwin'?join(home,'Library/Application Support'):platform==='win32'?(env.APPDATA??join(home,'AppData/Roaming')):(env.XDG_CONFIG_HOME??join(home,'.config'));
@@ -95,7 +97,7 @@ export async function diagnoseSetupConflict({home,cache,agent,platform=process.p
       configState=inspected.present?'present':'absent';
       if(inspected.legacy)add('LEGACY_MCP_ENTRY',configPath);
       if(inspected.disabled)add('MCP_DISABLED',configPath);
-      else if(inspected.present&&!inspected.matchesOwned)add('MCP_ENTRY_CONFLICT',configPath);
+      else if(inspected.present&&!inspected.matchesOwned){if(!current?.agents?.vscode&&canAdopt(raw.toString('utf8')))add('PREVIOUS_MCP_CONNECTION',configPath,{severity:'info'});else add('MCP_ENTRY_CONFLICT',configPath);}
     }else{
       const config=JSON.parse(raw);if(!config||typeof config!=='object'||Array.isArray(config))throw Error('invalid');const servers=config.mcpServers??{};
       if(!servers||typeof servers!=='object'||Array.isArray(servers))throw Error('invalid');
@@ -109,7 +111,7 @@ export async function diagnoseSetupConflict({home,cache,agent,platform=process.p
     }
   }catch(e){add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'MCP_CONFIG_UNREADABLE',configPath);}
   if(agent==='vscode'){
-    const inspect=async(path,owned,portable=false)=>{const rel=relative(home,path);try{const raw=await bytes(home,path);if(!raw)return;const result=inspectVscodeConfig(portable?JSON.stringify({servers:JSON.parse(raw).mcpServers??{}}):raw.toString('utf8'),owned);if(result.legacy)add('LEGACY_MCP_ENTRY',rel);if(result.disabled)add('MCP_DISABLED',rel);else if(result.present&&!result.matchesOwned)add('MCP_ENTRY_CONFLICT',rel);}catch(e){add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'MCP_CONFIG_UNREADABLE',rel);}};
+    const inspect=async(path,owned,portable=false)=>{const rel=relative(home,path);try{const raw=await bytes(home,path);if(!raw)return;const result=(portable?inspectCopilotConfig:inspectVscodeConfig)(raw.toString('utf8'),owned);if(result.legacy)add('LEGACY_MCP_ENTRY',rel);if(result.disabled)add('MCP_DISABLED',rel);else if(result.present&&!result.matchesOwned){if(!owned&&canAdopt(raw.toString('utf8'),portable))add('PREVIOUS_MCP_CONNECTION',rel,{severity:'info'});else add('MCP_ENTRY_CONFLICT',rel);}}catch(e){add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'MCP_CONFIG_UNREADABLE',rel);}};
     await inspect(copilotConfigPath(home,platform,env),current?.agents?.vscode?.copilotConfig?.entry,true);
     const base=join(appData,'Code/User/profiles');try{await safe(home,base);const profiles=await readdir(base,{withFileTypes:true});if(profiles.length>64)throw Error('SETUP_DATA_UNREADABLE');for(const p of profiles){if(!p.isDirectory()&&!p.isSymbolicLink())continue;if(!/^[a-zA-Z0-9_-]{1,64}$/.test(p.name))throw Error('UNSAFE_SETUP_PATH');await inspect(join(base,p.name,'mcp.json'),current?.agents?.vscode?.profileConfigs?.[p.name]?.entry);}}catch(e){if(e.code!=='ENOENT')add(e.message==='UNSAFE_SETUP_PATH'?'UNSAFE_SETUP_PATH':'SETUP_DATA_UNREADABLE',relative(home,base));}
   }

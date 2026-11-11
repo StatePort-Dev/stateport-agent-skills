@@ -1,5 +1,12 @@
 # Changelog
 
+## Installer/runtime 1.2.1 — 11 November 2026
+
+- Initialize empty/comments-only VS Code MCP files and preserve a UTF-8 BOM and comments.
+- Detect supported IDE extensions registered in user profiles and safe legacy file-URI metadata, including Claude Code without a CLI.
+- Distinguish automatically adoptable StatePort connections from edited or malformed configurations. Keep unrelated settings, managed policy and file-safety limits intact.
+- Stable skills 1.0.0 and Node 22.13+/24.x support are unchanged.
+
 ## Installer/runtime 1.2.0 — 11 November 2026
 
 - Support Node 22.13+ and Node 24.x with one verified platform runtime and Node-API 8.

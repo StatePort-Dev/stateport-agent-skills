@@ -214,3 +214,8 @@ test('cold doctor explains prerequisites before engine installation without an i
  assert.deepEqual(report.prerequisites.network,['npm','GitHub']);assert.equal(report.prerequisites.browser,'optional_for_source');
  const human=await invoke(['doctor']);assert.match(human.stdout,/No engine diagnostics/);assert.match(human.stdout,/connectivity/);
 }));
+test('doctor distinguishes recognized previous connections from blocking edited configuration',()=>{
+ let out='';const output=createCliOutput({stream:{write:s=>{out+=s;}},color:false,installerVersion:'1.2.1'});
+ output.emit({version:'1.2.1',setupDiagnostics:{agent:'vscode',issues:[{code:'PREVIOUS_MCP_CONNECTION',path:'.copilot/mcp-config.json',severity:'info'}]}},'doctor');
+ assert.match(out,/INFO/);assert.doesNotMatch(out,/BLOCKING|prevent this agent|remove only/);assert.match(out,/install --agent vscode/);
+});

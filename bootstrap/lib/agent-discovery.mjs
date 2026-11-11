@@ -55,7 +55,7 @@ SOFTWARE.
 // packages/agent-install/src/agent-tool-discovery.ts
 import { access, stat, open as open2 } from "node:fs/promises";
 import { constants as constants2 } from "node:fs";
-import { posix as posix3, win32 as win323 } from "node:path";
+import { posix as posix5, win32 as win325 } from "node:path";
 
 // packages/agent-install/src/protocol.ts
 var agentSkillRoots = {
@@ -68,8 +68,8 @@ var setupTools = ["vscode", "cursor", "webstorm", "claude", "codex"];
 
 // packages/agent-install/src/agent-extension-discovery.ts
 import { constants } from "node:fs";
-import { lstat as lstat2, open } from "node:fs/promises";
-import { join as join2 } from "node:path";
+import { lstat as lstat2, open, readdir as readdir2 } from "node:fs/promises";
+import { join as join2, relative as relative2, isAbsolute, win32, posix } from "node:path";
 
 // packages/agent-install/src/agent-install-files.ts
 import { lstat, readFile, mkdir, readdir, writeFile, rename, rm } from "node:fs/promises";
@@ -103,7 +103,12 @@ async function safePath(home, file) {
 var locations = [[".vscode", "vscode"], [".vscode-insiders", "vscode-insiders"], [".cursor", "cursor"]];
 var providers = [{ id: "openai.chatgpt", publisher: "openai", name: "chatgpt", key: "codex" }, { id: "github.copilot-chat", publisher: "github", name: "copilot-chat", key: "copilotChat" }, { id: "anthropic.claude-code", publisher: "anthropic", name: "claude-code", key: "claude" }];
 var limit = 1024 * 1024;
-async function metadata(home, path, budget, expired) {
+function extensionMetadataWithinHome(home, path, platform = process.platform) {
+  const p = platform === "win32" ? win32 : posix, rel = p.relative(home, path);
+  return Boolean(rel && !p.isAbsolute(rel) && rel !== ".." && !rel.startsWith(".." + p.sep));
+}
+async function metadata(home, path, budget, expired, platform = process.platform) {
+  if (!extensionMetadataWithinHome(home, path, platform)) throw Error("UNAVAILABLE");
   if (expired()) throw Error("UNAVAILABLE");
   await safePath(home, path);
   const before = await lstat2(path);
@@ -131,38 +136,78 @@ async function metadata(home, path, budget, expired) {
     await file.close();
   }
 }
-async function inspectExtensions(home, expired) {
+var profileId = (name) => /^[a-zA-Z0-9_-]{1,64}$/.test(name) && !["__proto__", "prototype", "constructor"].includes(name);
+async function profileIndexes(home, editor, environment, expired) {
+  const { platform, env } = environment;
+  const base = platform === "darwin" ? join2(home, "Library/Application Support") : platform === "win32" ? env.APPDATA ?? join2(home, "AppData/Roaming") : env.XDG_CONFIG_HOME ?? join2(home, ".config");
+  const user = join2(base, editor === "vscode" ? "Code" : editor === "vscode-insiders" ? "Code - Insiders" : "Cursor", "User");
+  const result = [join2(user, "extensions.json")], profiles = join2(user, "profiles");
+  try {
+    if (expired() || !extensionMetadataWithinHome(home, profiles, platform)) return result;
+    await safePath(home, profiles);
+    const entries = await readdir2(profiles, { withFileTypes: true });
+    if (entries.length > 64) return result;
+    for (const e of entries) {
+      if (expired()) break;
+      if (e.isDirectory() && profileId(e.name)) result.push(join2(profiles, e.name, "extensions.json"));
+    }
+  } catch {
+  }
+  return result;
+}
+function relativeExtension(entry, root, platform) {
+  if (typeof entry.relativeLocation === "string" && entry.relativeLocation) return entry.relativeLocation;
+  if (entry.relativeLocation !== void 0 && entry.relativeLocation !== "") return;
+  const uri = entry.location;
+  if (!uri || uri.scheme !== "file" || typeof uri.path !== "string" || [uri.authority, uri.query, uri.fragment].some((v) => v !== void 0 && v !== "")) return;
+  const path = platform === "win32" ? uri.path.replace(/^\/([A-Za-z]:\/)/, "$1").replaceAll("/", "\\") : uri.path;
+  return platform === "win32" ? win32.relative(root, path) : relative2(root, path);
+}
+async function inspectExtensions(home, expired, environment) {
   const result = { codex: [], copilotChat: [], claude: [] }, budget = { bytes: 0 };
   for (const [location, editor] of locations) {
     if (expired() || budget.bytes > 4 * limit) break;
-    const root = join2(home, location, "extensions");
+    const configured = editor !== "cursor" ? environment.env.VSCODE_EXTENSIONS : void 0;
+    if (configured && !isAbsolute(configured)) continue;
+    const root = configured ?? join2(home, location, "extensions");
+    if (!extensionMetadataWithinHome(home, root, environment.platform)) continue;
     try {
-      const index = await metadata(home, join2(root, "extensions.json"), budget, expired);
-      if (!Array.isArray(index) || index.length > 4096) continue;
-      let inspected = 0;
-      for (const value of index) {
-        if (expired()) break;
-        const entry = value;
-        if (!entry || typeof entry.identifier?.id !== "string" || typeof entry.relativeLocation !== "string") continue;
-        const provider = providers.find((p) => p.id === entry.identifier.id.toString().toLowerCase());
-        if (!provider || result[provider.key].includes(editor)) continue;
-        if (++inspected > 32) break;
-        if (!new RegExp("^" + provider.id.replaceAll(".", "\\.") + "-[a-zA-Z0-9._-]{1,120}$", "i").test(entry.relativeLocation)) continue;
-        try {
-          const manifest = await metadata(home, join2(root, entry.relativeLocation, "package.json"), budget, expired);
-          if (typeof manifest?.publisher === "string" && manifest.publisher.toLowerCase() === provider.publisher && manifest.name === provider.name) result[provider.key].push(editor);
-        } catch {
-        }
-      }
+      await safePath(home, root);
     } catch {
+      continue;
+    }
+    const indexes = [join2(root, "extensions.json"), ...await profileIndexes(home, editor, environment, expired)];
+    let inspected = 0;
+    for (const path of indexes) {
+      if (expired() || budget.bytes > 4 * limit) break;
+      try {
+        const index = await metadata(home, path, budget, expired, environment.platform);
+        if (!Array.isArray(index) || index.length > 4096) continue;
+        for (const value of index) {
+          if (expired()) break;
+          const entry = value;
+          if (!entry || typeof entry.identifier?.id !== "string") continue;
+          const provider = providers.find((p) => p.id === entry.identifier.id.toString().toLowerCase());
+          if (!provider || result[provider.key].includes(editor)) continue;
+          if (++inspected > 32) break;
+          const folder = relativeExtension(entry, root, environment.platform);
+          if (!folder || !new RegExp("^" + provider.id.replaceAll(".", "\\.") + "-[a-zA-Z0-9._-]{1,120}$", "i").test(folder)) continue;
+          try {
+            const manifest = await metadata(home, join2(root, folder, "package.json"), budget, expired, environment.platform);
+            if (typeof manifest?.publisher === "string" && manifest.publisher.toLowerCase() === provider.publisher && manifest.name === provider.name) result[provider.key].push(editor);
+          } catch {
+          }
+        }
+      } catch {
+      }
     }
   }
   return result;
 }
-async function installedAgentExtensions(home, callerExpired = () => false) {
+async function installedAgentExtensions(home, callerExpired = () => false, environment = { platform: process.platform, env: process.env }) {
   let expired = false, timer;
   try {
-    return await Promise.race([inspectExtensions(home, () => expired || callerExpired()), new Promise((resolve2) => {
+    return await Promise.race([inspectExtensions(home, () => expired || callerExpired(), environment), new Promise((resolve2) => {
       timer = setTimeout(() => {
         expired = true;
         resolve2({ codex: [], copilotChat: [], claude: [] });
@@ -875,11 +920,152 @@ function parse(toml, { maxDepth = 1e3, integersAsBigInt } = {}) {
   return res;
 }
 
+// node_modules/.pnpm/smol-toml@1.7.1/node_modules/smol-toml/dist/stringify.js
+var BARE_KEY = /^[a-z0-9-_]+$/i;
+function extendedTypeOf(obj) {
+  let type = typeof obj;
+  if (type === "object") {
+    if (Array.isArray(obj))
+      return "array";
+    if (obj instanceof Date)
+      return "date";
+  }
+  return type;
+}
+function isArrayOfTables(obj) {
+  for (let i = 0; i < obj.length; i++) {
+    if (extendedTypeOf(obj[i]) !== "object")
+      return false;
+  }
+  return obj.length != 0;
+}
+function formatString(s) {
+  return JSON.stringify(s).replace(/\x7f/g, "\\u007f");
+}
+function stringifyValue(val, type, depth, numberAsFloat) {
+  if (depth === 0) {
+    throw new Error("Could not stringify the object: maximum object depth exceeded");
+  }
+  if (type === "number") {
+    if (isNaN(val))
+      return "nan";
+    if (val === Infinity)
+      return "inf";
+    if (val === -Infinity)
+      return "-inf";
+    if (Number.isInteger(val) && (numberAsFloat || !Number.isSafeInteger(val)))
+      return val.toFixed(1);
+    return val.toString();
+  }
+  if (type === "bigint" || type === "boolean") {
+    return val.toString();
+  }
+  if (type === "string") {
+    return formatString(val);
+  }
+  if (type === "date") {
+    if (isNaN(val.getTime())) {
+      throw new TypeError("cannot serialize invalid date");
+    }
+    return val.toISOString();
+  }
+  if (type === "object") {
+    return stringifyInlineTable(val, depth, numberAsFloat);
+  }
+  if (type === "array") {
+    return stringifyArray(val, depth, numberAsFloat);
+  }
+}
+function stringifyInlineTable(obj, depth, numberAsFloat) {
+  let keys = Object.keys(obj);
+  if (keys.length === 0)
+    return "{}";
+  let res = "{ ";
+  for (let i = 0; i < keys.length; i++) {
+    let k = keys[i];
+    if (i)
+      res += ", ";
+    res += BARE_KEY.test(k) ? k : formatString(k);
+    res += " = ";
+    res += stringifyValue(obj[k], extendedTypeOf(obj[k]), depth - 1, numberAsFloat);
+  }
+  return res + " }";
+}
+function stringifyArray(array, depth, numberAsFloat) {
+  if (array.length === 0)
+    return "[]";
+  let res = "[ ";
+  for (let i = 0; i < array.length; i++) {
+    if (i)
+      res += ", ";
+    if (array[i] === null || array[i] === void 0) {
+      throw new TypeError("arrays cannot contain null or undefined values");
+    }
+    res += stringifyValue(array[i], extendedTypeOf(array[i]), depth - 1, numberAsFloat);
+  }
+  return res + " ]";
+}
+function stringifyArrayTable(array, key, depth, numberAsFloat) {
+  if (depth === 0) {
+    throw new Error("Could not stringify the object: maximum object depth exceeded");
+  }
+  let res = "";
+  for (let i = 0; i < array.length; i++) {
+    res += `${res && "\n"}[[${key}]]
+`;
+    res += stringifyTable(0, array[i], key, depth, numberAsFloat);
+  }
+  return res;
+}
+function stringifyTable(tableKey, obj, prefix, depth, numberAsFloat) {
+  if (depth === 0) {
+    throw new Error("Could not stringify the object: maximum object depth exceeded");
+  }
+  let preamble = "";
+  let tables = "";
+  let keys = Object.keys(obj);
+  for (let i = 0; i < keys.length; i++) {
+    let k = keys[i];
+    if (obj[k] !== null && obj[k] !== void 0) {
+      let type = extendedTypeOf(obj[k]);
+      if (type === "symbol" || type === "function") {
+        throw new TypeError(`cannot serialize values of type '${type}'`);
+      }
+      let key = BARE_KEY.test(k) ? k : formatString(k);
+      if (type === "array" && isArrayOfTables(obj[k])) {
+        tables += (tables && "\n") + stringifyArrayTable(obj[k], prefix ? `${prefix}.${key}` : key, depth - 1, numberAsFloat);
+      } else if (type === "object") {
+        let tblKey = prefix ? `${prefix}.${key}` : key;
+        tables += (tables && "\n") + stringifyTable(tblKey, obj[k], tblKey, depth - 1, numberAsFloat);
+      } else {
+        preamble += key;
+        preamble += " = ";
+        preamble += stringifyValue(obj[k], type, depth, numberAsFloat);
+        preamble += "\n";
+      }
+    }
+  }
+  if (tableKey && (preamble || !tables))
+    preamble = preamble ? `[${tableKey}]
+${preamble}` : `[${tableKey}]`;
+  return preamble && tables ? `${preamble}
+${tables}` : preamble || tables;
+}
+function stringify(obj, { maxDepth = 1e3, numbersAsFloat = false } = {}) {
+  if (extendedTypeOf(obj) !== "object") {
+    throw new TypeError("stringify can only be called with an object");
+  }
+  let str = stringifyTable(0, obj, "", maxDepth, numbersAsFloat);
+  if (str[str.length - 1] !== "\n")
+    return str + "\n";
+  return str;
+}
+
 // packages/agent-install/src/codex-setup.ts
 import { isDeepStrictEqual as isDeepStrictEqual2 } from "node:util";
 
 // packages/agent-install/src/agent-install-config.ts
-import { posix, win32 } from "node:path";
+import { posix as posix2, win32 as win322 } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 
 // node_modules/.pnpm/jsonc-parser@3.3.1/node_modules/jsonc-parser/lib/esm/impl/scanner.js
@@ -1332,6 +1518,243 @@ var cachedBreakLinesWithSpaces = {
     })
   }
 };
+var supportedEols = ["\n", "\r", "\r\n"];
+
+// node_modules/.pnpm/jsonc-parser@3.3.1/node_modules/jsonc-parser/lib/esm/impl/format.js
+function format(documentText, range, options) {
+  let initialIndentLevel;
+  let formatText;
+  let formatTextStart;
+  let rangeStart;
+  let rangeEnd;
+  if (range) {
+    rangeStart = range.offset;
+    rangeEnd = rangeStart + range.length;
+    formatTextStart = rangeStart;
+    while (formatTextStart > 0 && !isEOL(documentText, formatTextStart - 1)) {
+      formatTextStart--;
+    }
+    let endOffset = rangeEnd;
+    while (endOffset < documentText.length && !isEOL(documentText, endOffset)) {
+      endOffset++;
+    }
+    formatText = documentText.substring(formatTextStart, endOffset);
+    initialIndentLevel = computeIndentLevel(formatText, options);
+  } else {
+    formatText = documentText;
+    initialIndentLevel = 0;
+    formatTextStart = 0;
+    rangeStart = 0;
+    rangeEnd = documentText.length;
+  }
+  const eol = getEOL(options, documentText);
+  const eolFastPathSupported = supportedEols.includes(eol);
+  let numberLineBreaks = 0;
+  let indentLevel = 0;
+  let indentValue;
+  if (options.insertSpaces) {
+    indentValue = cachedSpaces[options.tabSize || 4] ?? repeat(cachedSpaces[1], options.tabSize || 4);
+  } else {
+    indentValue = "	";
+  }
+  const indentType = indentValue === "	" ? "	" : " ";
+  let scanner = createScanner(formatText, false);
+  let hasError = false;
+  function newLinesAndIndent() {
+    if (numberLineBreaks > 1) {
+      return repeat(eol, numberLineBreaks) + repeat(indentValue, initialIndentLevel + indentLevel);
+    }
+    const amountOfSpaces = indentValue.length * (initialIndentLevel + indentLevel);
+    if (!eolFastPathSupported || amountOfSpaces > cachedBreakLinesWithSpaces[indentType][eol].length) {
+      return eol + repeat(indentValue, initialIndentLevel + indentLevel);
+    }
+    if (amountOfSpaces <= 0) {
+      return eol;
+    }
+    return cachedBreakLinesWithSpaces[indentType][eol][amountOfSpaces];
+  }
+  function scanNext() {
+    let token = scanner.scan();
+    numberLineBreaks = 0;
+    while (token === 15 || token === 14) {
+      if (token === 14 && options.keepLines) {
+        numberLineBreaks += 1;
+      } else if (token === 14) {
+        numberLineBreaks = 1;
+      }
+      token = scanner.scan();
+    }
+    hasError = token === 16 || scanner.getTokenError() !== 0;
+    return token;
+  }
+  const editOperations = [];
+  function addEdit(text, startOffset, endOffset) {
+    if (!hasError && (!range || startOffset < rangeEnd && endOffset > rangeStart) && documentText.substring(startOffset, endOffset) !== text) {
+      editOperations.push({ offset: startOffset, length: endOffset - startOffset, content: text });
+    }
+  }
+  let firstToken = scanNext();
+  if (options.keepLines && numberLineBreaks > 0) {
+    addEdit(repeat(eol, numberLineBreaks), 0, 0);
+  }
+  if (firstToken !== 17) {
+    let firstTokenStart = scanner.getTokenOffset() + formatTextStart;
+    let initialIndent = indentValue.length * initialIndentLevel < 20 && options.insertSpaces ? cachedSpaces[indentValue.length * initialIndentLevel] : repeat(indentValue, initialIndentLevel);
+    addEdit(initialIndent, formatTextStart, firstTokenStart);
+  }
+  while (firstToken !== 17) {
+    let firstTokenEnd = scanner.getTokenOffset() + scanner.getTokenLength() + formatTextStart;
+    let secondToken = scanNext();
+    let replaceContent = "";
+    let needsLineBreak = false;
+    while (numberLineBreaks === 0 && (secondToken === 12 || secondToken === 13)) {
+      let commentTokenStart = scanner.getTokenOffset() + formatTextStart;
+      addEdit(cachedSpaces[1], firstTokenEnd, commentTokenStart);
+      firstTokenEnd = scanner.getTokenOffset() + scanner.getTokenLength() + formatTextStart;
+      needsLineBreak = secondToken === 12;
+      replaceContent = needsLineBreak ? newLinesAndIndent() : "";
+      secondToken = scanNext();
+    }
+    if (secondToken === 2) {
+      if (firstToken !== 1) {
+        indentLevel--;
+      }
+      ;
+      if (options.keepLines && numberLineBreaks > 0 || !options.keepLines && firstToken !== 1) {
+        replaceContent = newLinesAndIndent();
+      } else if (options.keepLines) {
+        replaceContent = cachedSpaces[1];
+      }
+    } else if (secondToken === 4) {
+      if (firstToken !== 3) {
+        indentLevel--;
+      }
+      ;
+      if (options.keepLines && numberLineBreaks > 0 || !options.keepLines && firstToken !== 3) {
+        replaceContent = newLinesAndIndent();
+      } else if (options.keepLines) {
+        replaceContent = cachedSpaces[1];
+      }
+    } else {
+      switch (firstToken) {
+        case 3:
+        case 1:
+          indentLevel++;
+          if (options.keepLines && numberLineBreaks > 0 || !options.keepLines) {
+            replaceContent = newLinesAndIndent();
+          } else {
+            replaceContent = cachedSpaces[1];
+          }
+          break;
+        case 5:
+          if (options.keepLines && numberLineBreaks > 0 || !options.keepLines) {
+            replaceContent = newLinesAndIndent();
+          } else {
+            replaceContent = cachedSpaces[1];
+          }
+          break;
+        case 12:
+          replaceContent = newLinesAndIndent();
+          break;
+        case 13:
+          if (numberLineBreaks > 0) {
+            replaceContent = newLinesAndIndent();
+          } else if (!needsLineBreak) {
+            replaceContent = cachedSpaces[1];
+          }
+          break;
+        case 6:
+          if (options.keepLines && numberLineBreaks > 0) {
+            replaceContent = newLinesAndIndent();
+          } else if (!needsLineBreak) {
+            replaceContent = cachedSpaces[1];
+          }
+          break;
+        case 10:
+          if (options.keepLines && numberLineBreaks > 0) {
+            replaceContent = newLinesAndIndent();
+          } else if (secondToken === 6 && !needsLineBreak) {
+            replaceContent = "";
+          }
+          break;
+        case 7:
+        case 8:
+        case 9:
+        case 11:
+        case 2:
+        case 4:
+          if (options.keepLines && numberLineBreaks > 0) {
+            replaceContent = newLinesAndIndent();
+          } else {
+            if ((secondToken === 12 || secondToken === 13) && !needsLineBreak) {
+              replaceContent = cachedSpaces[1];
+            } else if (secondToken !== 5 && secondToken !== 17) {
+              hasError = true;
+            }
+          }
+          break;
+        case 16:
+          hasError = true;
+          break;
+      }
+      if (numberLineBreaks > 0 && (secondToken === 12 || secondToken === 13)) {
+        replaceContent = newLinesAndIndent();
+      }
+    }
+    if (secondToken === 17) {
+      if (options.keepLines && numberLineBreaks > 0) {
+        replaceContent = newLinesAndIndent();
+      } else {
+        replaceContent = options.insertFinalNewline ? eol : "";
+      }
+    }
+    const secondTokenStart = scanner.getTokenOffset() + formatTextStart;
+    addEdit(replaceContent, firstTokenEnd, secondTokenStart);
+    firstToken = secondToken;
+  }
+  return editOperations;
+}
+function repeat(s, count) {
+  let result = "";
+  for (let i = 0; i < count; i++) {
+    result += s;
+  }
+  return result;
+}
+function computeIndentLevel(content, options) {
+  let i = 0;
+  let nChars = 0;
+  const tabSize = options.tabSize || 4;
+  while (i < content.length) {
+    let ch = content.charAt(i);
+    if (ch === cachedSpaces[1]) {
+      nChars++;
+    } else if (ch === "	") {
+      nChars += tabSize;
+    } else {
+      break;
+    }
+    i++;
+  }
+  return Math.floor(nChars / tabSize);
+}
+function getEOL(options, text) {
+  for (let i = 0; i < text.length; i++) {
+    const ch = text.charAt(i);
+    if (ch === "\r") {
+      if (i + 1 < text.length && text.charAt(i + 1) === "\n") {
+        return "\r\n";
+      }
+      return "\r";
+    } else if (ch === "\n") {
+      return "\n";
+    }
+  }
+  return options && options.eol || "\n";
+}
+function isEOL(text, offset) {
+  return "\r\n".indexOf(text.charAt(offset)) !== -1;
+}
 
 // node_modules/.pnpm/jsonc-parser@3.3.1/node_modules/jsonc-parser/lib/esm/impl/parser.js
 var ParseOptions;
@@ -1397,6 +1820,37 @@ function parseTree(text, errors = [], options = ParseOptions.DEFAULT) {
     delete result.parent;
   }
   return result;
+}
+function findNodeAtLocation(root, path) {
+  if (!root) {
+    return void 0;
+  }
+  let node = root;
+  for (let segment of path) {
+    if (typeof segment === "string") {
+      if (node.type !== "object" || !Array.isArray(node.children)) {
+        return void 0;
+      }
+      let found = false;
+      for (const propertyNode of node.children) {
+        if (Array.isArray(propertyNode.children) && propertyNode.children[0].value === segment && propertyNode.children.length === 2) {
+          node = propertyNode.children[1];
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        return void 0;
+      }
+    } else {
+      const index = segment;
+      if (node.type !== "array" || index < 0 || !Array.isArray(node.children) || index >= node.children.length) {
+        return void 0;
+      }
+      node = node.children[index];
+    }
+  }
+  return node;
 }
 function getNodeValue(node) {
   switch (node.type) {
@@ -1746,6 +2200,150 @@ function getNodeType(value) {
   }
 }
 
+// node_modules/.pnpm/jsonc-parser@3.3.1/node_modules/jsonc-parser/lib/esm/impl/edit.js
+function setProperty(text, originalPath, value, options) {
+  const path = originalPath.slice();
+  const errors = [];
+  const root = parseTree(text, errors);
+  let parent = void 0;
+  let lastSegment = void 0;
+  while (path.length > 0) {
+    lastSegment = path.pop();
+    parent = findNodeAtLocation(root, path);
+    if (parent === void 0 && value !== void 0) {
+      if (typeof lastSegment === "string") {
+        value = { [lastSegment]: value };
+      } else {
+        value = [value];
+      }
+    } else {
+      break;
+    }
+  }
+  if (!parent) {
+    if (value === void 0) {
+      throw new Error("Can not delete in empty document");
+    }
+    return withFormatting(text, { offset: root ? root.offset : 0, length: root ? root.length : 0, content: JSON.stringify(value) }, options);
+  } else if (parent.type === "object" && typeof lastSegment === "string" && Array.isArray(parent.children)) {
+    const existing = findNodeAtLocation(parent, [lastSegment]);
+    if (existing !== void 0) {
+      if (value === void 0) {
+        if (!existing.parent) {
+          throw new Error("Malformed AST");
+        }
+        const propertyIndex = parent.children.indexOf(existing.parent);
+        let removeBegin;
+        let removeEnd = existing.parent.offset + existing.parent.length;
+        if (propertyIndex > 0) {
+          let previous = parent.children[propertyIndex - 1];
+          removeBegin = previous.offset + previous.length;
+        } else {
+          removeBegin = parent.offset + 1;
+          if (parent.children.length > 1) {
+            let next = parent.children[1];
+            removeEnd = next.offset;
+          }
+        }
+        return withFormatting(text, { offset: removeBegin, length: removeEnd - removeBegin, content: "" }, options);
+      } else {
+        return withFormatting(text, { offset: existing.offset, length: existing.length, content: JSON.stringify(value) }, options);
+      }
+    } else {
+      if (value === void 0) {
+        return [];
+      }
+      const newProperty = `${JSON.stringify(lastSegment)}: ${JSON.stringify(value)}`;
+      const index = options.getInsertionIndex ? options.getInsertionIndex(parent.children.map((p) => p.children[0].value)) : parent.children.length;
+      let edit;
+      if (index > 0) {
+        let previous = parent.children[index - 1];
+        edit = { offset: previous.offset + previous.length, length: 0, content: "," + newProperty };
+      } else if (parent.children.length === 0) {
+        edit = { offset: parent.offset + 1, length: 0, content: newProperty };
+      } else {
+        edit = { offset: parent.offset + 1, length: 0, content: newProperty + "," };
+      }
+      return withFormatting(text, edit, options);
+    }
+  } else if (parent.type === "array" && typeof lastSegment === "number" && Array.isArray(parent.children)) {
+    const insertIndex = lastSegment;
+    if (insertIndex === -1) {
+      const newProperty = `${JSON.stringify(value)}`;
+      let edit;
+      if (parent.children.length === 0) {
+        edit = { offset: parent.offset + 1, length: 0, content: newProperty };
+      } else {
+        const previous = parent.children[parent.children.length - 1];
+        edit = { offset: previous.offset + previous.length, length: 0, content: "," + newProperty };
+      }
+      return withFormatting(text, edit, options);
+    } else if (value === void 0 && parent.children.length >= 0) {
+      const removalIndex = lastSegment;
+      const toRemove = parent.children[removalIndex];
+      let edit;
+      if (parent.children.length === 1) {
+        edit = { offset: parent.offset + 1, length: parent.length - 2, content: "" };
+      } else if (parent.children.length - 1 === removalIndex) {
+        let previous = parent.children[removalIndex - 1];
+        let offset = previous.offset + previous.length;
+        let parentEndOffset = parent.offset + parent.length;
+        edit = { offset, length: parentEndOffset - 2 - offset, content: "" };
+      } else {
+        edit = { offset: toRemove.offset, length: parent.children[removalIndex + 1].offset - toRemove.offset, content: "" };
+      }
+      return withFormatting(text, edit, options);
+    } else if (value !== void 0) {
+      let edit;
+      const newProperty = `${JSON.stringify(value)}`;
+      if (!options.isArrayInsertion && parent.children.length > lastSegment) {
+        const toModify = parent.children[lastSegment];
+        edit = { offset: toModify.offset, length: toModify.length, content: newProperty };
+      } else if (parent.children.length === 0 || lastSegment === 0) {
+        edit = { offset: parent.offset + 1, length: 0, content: parent.children.length === 0 ? newProperty : newProperty + "," };
+      } else {
+        const index = lastSegment > parent.children.length ? parent.children.length : lastSegment;
+        const previous = parent.children[index - 1];
+        edit = { offset: previous.offset + previous.length, length: 0, content: "," + newProperty };
+      }
+      return withFormatting(text, edit, options);
+    } else {
+      throw new Error(`Can not ${value === void 0 ? "remove" : options.isArrayInsertion ? "insert" : "modify"} Array index ${insertIndex} as length is not sufficient`);
+    }
+  } else {
+    throw new Error(`Can not add ${typeof lastSegment !== "number" ? "index" : "property"} to parent of type ${parent.type}`);
+  }
+}
+function withFormatting(text, edit, options) {
+  if (!options.formattingOptions) {
+    return [edit];
+  }
+  let newText = applyEdit(text, edit);
+  let begin = edit.offset;
+  let end = edit.offset + edit.content.length;
+  if (edit.length === 0 || edit.content.length === 0) {
+    while (begin > 0 && !isEOL(newText, begin - 1)) {
+      begin--;
+    }
+    while (end < newText.length && !isEOL(newText, end)) {
+      end++;
+    }
+  }
+  const edits = format(newText, { offset: begin, length: end - begin }, { ...options.formattingOptions, keepLines: false });
+  for (let i = edits.length - 1; i >= 0; i--) {
+    const edit2 = edits[i];
+    newText = applyEdit(newText, edit2);
+    begin = Math.min(begin, edit2.offset);
+    end = Math.max(end, edit2.offset + edit2.length);
+    end += edit2.content.length - edit2.length;
+  }
+  const editLength = text.length - (newText.length - end) - begin;
+  return [{ offset: begin, length: editLength, content: newText.substring(begin, end) }];
+}
+function applyEdit(text, edit) {
+  return text.substring(0, edit.offset) + edit.content + text.substring(edit.offset + edit.length);
+}
+
 // node_modules/.pnpm/jsonc-parser@3.3.1/node_modules/jsonc-parser/lib/esm/main.js
 var ScanError;
 (function(ScanError2) {
@@ -1798,22 +2396,47 @@ var ParseErrorCode;
   ParseErrorCode2[ParseErrorCode2["InvalidEscapeCharacter"] = 15] = "InvalidEscapeCharacter";
   ParseErrorCode2[ParseErrorCode2["InvalidCharacter"] = 16] = "InvalidCharacter";
 })(ParseErrorCode || (ParseErrorCode = {}));
+function modify(text, path, value, options) {
+  return setProperty(text, path, value, options);
+}
+function applyEdits(text, edits) {
+  let sortedEdits = edits.slice(0).sort((a, b) => {
+    const diff = a.offset - b.offset;
+    if (diff === 0) {
+      return a.length - b.length;
+    }
+    return diff;
+  });
+  let lastModifiedOffset = text.length;
+  for (let i = sortedEdits.length - 1; i >= 0; i--) {
+    let e = sortedEdits[i];
+    if (e.offset + e.length <= lastModifiedOffset) {
+      text = applyEdit(text, e);
+    } else {
+      throw new Error("Overlapping edit");
+    }
+    lastModifiedOffset = e.offset;
+  }
+  return text;
+}
 
 // packages/agent-install/src/agent-install-config.ts
 var configs = { codex: ".codex/config.toml", claude: ".claude.json", cursor: ".cursor/mcp.json" };
 function agentConfigPath(home, agent, platform = process.platform, env = process.env) {
   if (agent === "vscode") {
-    const p = platform === "win32" ? win32 : posix;
+    const p = platform === "win32" ? win322 : posix2;
     const configured = platform === "win32" ? env.APPDATA : env.XDG_CONFIG_HOME;
     const base = platform === "darwin" ? p.join(home, "Library/Application Support") : configured && p.isAbsolute(configured) ? configured : platform === "win32" ? p.join(home, "AppData/Roaming") : p.join(home, ".config");
     return p.join(base, "Code/User/mcp.json");
   }
-  return (platform === "win32" ? win32 : posix).join(home, configs[agent]);
+  return (platform === "win32" ? win322 : posix2).join(home, configs[agent]);
 }
 function vscodeConfig(text) {
   const errors = [];
-  const tree = parseTree2(text, errors, { allowTrailingComma: true });
-  if (errors.length || tree?.type !== "object") throw Error("CONFLICT");
+  const content = text.startsWith("\uFEFF") ? text.slice(1) : text;
+  const tree = parseTree2(content, errors, { allowTrailingComma: true, allowEmptyContent: true });
+  if (errors.length || tree && tree.type !== "object") throw Error("CONFLICT");
+  if (!tree) return {};
   function check(node) {
     if (node.type === "object") {
       const keys = /* @__PURE__ */ new Set();
@@ -1828,6 +2451,14 @@ function vscodeConfig(text) {
   check(tree);
   return JSON.parse(JSON.stringify(getNodeValue2(tree)));
 }
+function editVscode(text, entry) {
+  vscodeConfig(text);
+  const bom = text.startsWith("\uFEFF") ? "\uFEFF" : "", content = bom ? text.slice(1) : text;
+  const tree = parseTree2(content, [], { allowTrailingComma: true, allowEmptyContent: true });
+  const next = !tree ? text + (text.length && !text.endsWith("\n") ? "\n" : "") + JSON.stringify({ servers: { stateport: entry } }, null, 2) + "\n" : bom + applyEdits(content, modify(content, ["servers", "stateport"], entry, {}));
+  vscodeConfig(next);
+  return next;
+}
 function inspectVscodeConfig(text, ownedEntry) {
   const config = vscodeConfig(text), servers = config.servers ?? {};
   if (!servers || typeof servers !== "object" || Array.isArray(servers)) throw Error("CONFLICT");
@@ -1840,23 +2471,87 @@ function inspectVscodeConfig(text, ownedEntry) {
   };
 }
 function validateInstalledLaunch(launch, platform) {
-  const p = platform === "win32" ? win32 : posix;
+  const p = platform === "win32" ? win322 : posix2;
   if (!p.isAbsolute(launch.command) || /[\0\r\n]/.test(launch.command) || launch.env !== void 0)
     throw Error("CONFLICT");
   const expected = platform === "win32" ? ["--no-stdio-init", "--mcp"] : platform === "darwin" ? ["--mcp"] : platform === "linux" ? ["--ozone-platform=headless", "--headless", "--disable-gpu", "--mcp"] : [];
-  const deb = platform === "linux" && posix.basename(launch.command) === "node" && posix.basename(posix.dirname(launch.command)) === "mcp-runtime" && isDeepStrictEqual(launch.args, [posix.join(posix.dirname(launch.command), "mcp-main.cjs")]);
+  const deb = platform === "linux" && posix2.basename(launch.command) === "node" && posix2.basename(posix2.dirname(launch.command)) === "mcp-runtime" && isDeepStrictEqual(launch.args, [posix2.join(posix2.dirname(launch.command), "mcp-main.cjs")]);
   const node = ["linux", "darwin", "win32"].includes(platform) && p.basename(launch.command).toLowerCase() === (platform === "win32" ? "node.exe" : "node") && launch.args.length === 2 && typeof launch.args[0] === "string" && p.isAbsolute(launch.args[0]) && !/[\0\r\n]/.test(launch.args[0]) && p.basename(launch.args[0]) === "main.cjs" && launch.args[1] === "mcp";
   if (!node && !deb && (!expected.length || !isDeepStrictEqual(launch.args, expected)))
     throw Error("CONFLICT");
 }
+function uniqueJson(text) {
+  const parsed = JSON.parse(text);
+  const tokens = text.match(/"(?:\\.|[^"\\])*"|[{}\[\]:,]|[^{}\[\]:,\s]+/g) ?? [];
+  const stack = [];
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (token === "{") stack.push(/* @__PURE__ */ new Set());
+    else if (token === "[") stack.push(null);
+    else if (token === "}" || token === "]") stack.pop();
+    else if (token.startsWith('"') && tokens[i + 1] === ":") {
+      const key = JSON.parse(token);
+      const keys = stack.at(-1);
+      if (!keys || keys.has(key)) throw Error("CONFLICT");
+      keys.add(key);
+    }
+  }
+  return parsed;
+}
+function planAgentConfig(agent, text, launch, owned, copilot = false, restoreMissing = false) {
+  try {
+    const toml = agent === "codex";
+    const config = toml ? parse(text ?? "") : agent === "vscode" ? vscodeConfig(text ?? "{}") : uniqueJson(text ?? "{}");
+    if (!config || typeof config !== "object" || Array.isArray(config))
+      throw Error();
+    const key = toml ? "mcp_servers" : agent === "vscode" ? "servers" : "mcpServers";
+    const servers = config[key] ?? {};
+    if (!servers || typeof servers !== "object" || Array.isArray(servers))
+      throw Error();
+    const s = servers;
+    if (Object.hasOwn(s, "scenariodeck"))
+      throw Error();
+    if (Object.hasOwn(s, "stateport") && (!owned || !isDeepStrictEqual(s.stateport, owned.entry)))
+      throw Error();
+    if (owned && !Object.hasOwn(s, "stateport")) {
+      if (!restoreMissing) throw Error();
+      owned = void 0;
+    }
+    const entry = toml ? { command: launch.command, args: [...launch.args] } : copilot ? { type: "local", command: launch.command, args: [...launch.args], tools: ["*"] } : { type: "stdio", command: launch.command, args: [...launch.args] };
+    if (toml) {
+      const block2 = stringify({ mcp_servers: { stateport: entry } });
+      let next = text ?? "";
+      if (owned) {
+        if (!owned.block || next.split(owned.block).length !== 2)
+          throw Error();
+        next = next.replace(owned.block, block2);
+      } else
+        next += `
+${block2}`;
+      if (!isDeepStrictEqual(parse(next).mcp_servers.stateport, entry))
+        throw Error();
+      return { text: next, ownership: { entry, block: block2 } };
+    }
+    if (agent === "vscode") return { text: Object.hasOwn(s, "stateport") && isDeepStrictEqual(s.stateport, entry) ? text : editVscode(text ?? "{}", entry), ownership: { entry } };
+    return { text: `${JSON.stringify({ ...config, [key]: { ...s, stateport: entry } }, null, 2)}
+`, ownership: { entry } };
+  } catch {
+    throw Error("CONFLICT");
+  }
+}
 function copilotConfigPath(home, platform = process.platform, env = process.env) {
-  const p = platform === "win32" ? win32 : posix;
+  const p = platform === "win32" ? win322 : posix2;
   const base = env.COPILOT_HOME && p.isAbsolute(env.COPILOT_HOME) ? env.COPILOT_HOME : p.join(home, ".copilot");
   return p.join(base, "mcp-config.json");
 }
+function inspectCopilotConfig(text, ownedEntry) {
+  const config = uniqueJson(text);
+  if (!config || typeof config !== "object" || Array.isArray(config)) throw Error("CONFLICT");
+  return inspectVscodeConfig(JSON.stringify({ servers: config.mcpServers ?? {} }), ownedEntry);
+}
 
 // packages/agent-install/src/codex-setup.ts
-import { posix as posix2, win32 as win322 } from "node:path";
+import { posix as posix3, win32 as win323 } from "node:path";
 var object = (v) => Boolean(v) && typeof v === "object" && !Array.isArray(v);
 var pluginName = "stateport@stateport-dev";
 function inspectCodexConfig(text, ownedEntry) {
@@ -1915,7 +2610,7 @@ function planCodexMigration(text, platform) {
   if (entry !== void 0) {
     if (!object(entry) || Object.keys(entry).some((k) => !["command", "args", "enabled"].includes(k)) || Object.hasOwn(entry, "enabled") && entry.enabled !== true || typeof entry.command !== "string" || !Array.isArray(entry.args) || !entry.args.every((v) => typeof v === "string")) throw Error("CONFLICT");
     validateInstalledLaunch({ command: entry.command, args: entry.args }, platform);
-    const p = platform === "win32" ? win322 : posix2, command = p.basename(entry.command).toLowerCase();
+    const p = platform === "win32" ? win323 : posix3, command = p.basename(entry.command).toLowerCase();
     if (entry.args[1] === "mcp") {
       if (typeof entry.args[0] !== "string" || !/\/StatePort\/agent-runtime\/(?:launcher|versions\/[a-f0-9]{64})\/main\.cjs$/i.test(entry.args[0].replaceAll("\\", "/"))) throw Error("CONFLICT");
     } else if (p.basename(p.dirname(entry.command)) !== "mcp-runtime" && !/^stateport(?:\.exe|(?:[-.].*)?\.appimage)?$/i.test(command)) throw Error("CONFLICT");
@@ -1926,9 +2621,44 @@ function planCodexMigration(text, platform) {
   return { text: next, ...ownership ? { ownership } : {}, backup };
 }
 
+// packages/agent-install/src/standalone-migration.ts
+import { posix as posix4, win32 as win324 } from "node:path";
+function standaloneOwnership(agent, text, launch, platform, copilot = false) {
+  if (!text) return void 0;
+  const p = platform === "win32" ? win324 : posix4;
+  const parsed = agent === "codex" ? parse(text) : agent === "vscode" ? vscodeConfig(text) : uniqueJson(text);
+  const servers = parsed[agent === "codex" ? "mcp_servers" : agent === "vscode" ? "servers" : "mcpServers"];
+  const entry = (servers && typeof servers === "object" && !Array.isArray(servers) ? servers : {}).stateport;
+  if (!entry) return void 0;
+  const expected = { command: launch.command, args: launch.args };
+  const plain = Object.keys(entry).every((k) => ["args", "command", "type", ...copilot ? ["tools", "env"] : []].includes(k)) && (!("tools" in entry) || JSON.stringify(entry.tools) === '["*"]') && (!("env" in entry) || entry.env && typeof entry.env === "object" && !Array.isArray(entry.env) && Object.keys(entry.env).length === 0);
+  if (!plain || entry.type !== void 0 && entry.type !== "stdio" && !(copilot && entry.type === "local") || typeof entry.command !== "string" || !p.isAbsolute(entry.command) || !/^node(?:\.exe)?$/i.test(p.basename(entry.command)) || !Array.isArray(entry.args) || entry.args.length !== 2 || entry.args[1] !== "mcp") return void 0;
+  const target = launch.args[0], old = entry.args[0];
+  if (typeof target !== "string" || typeof old !== "string") return void 0;
+  const cache = p.dirname(p.dirname(target));
+  const known = /\/StatePort\/agent-runtime\/(?:launcher|versions\/[a-f0-9]{64})\/main\.cjs$/i.test(old.replaceAll("\\", "/")) || old === target || p.dirname(p.dirname(old)) === p.join(cache, "versions") && /^[a-f0-9]{64}$/.test(p.basename(p.dirname(old))) && p.basename(old) === "main.cjs";
+  if (!known || !target.replaceAll("\\", "/").endsWith("/StatePort/agent-runtime/launcher/main.cjs")) return void 0;
+  if (agent === "codex") return void 0;
+  try {
+    validateInstalledLaunch({ command: entry.command, args: entry.args }, platform);
+  } catch {
+    return void 0;
+  }
+  const ownership = { entry };
+  planAgentConfig(agent, text, expected, ownership, copilot);
+  return ownership;
+}
+function canAdoptStandalone(agent, text, launch, platform, copilot = false) {
+  try {
+    return Boolean(standaloneOwnership(agent, text, launch, platform, copilot));
+  } catch {
+    return false;
+  }
+}
+
 // packages/agent-install/src/agent-tool-discovery.ts
 function toolCandidates(tool, { home, platform, env }) {
-  const p = platform === "win32" ? win323 : posix3;
+  const p = platform === "win32" ? win325 : posix5;
   const name = tool === "vscode" ? "code" : tool;
   const dirs = (env.PATH ?? "").slice(0, 32768).split(p.delimiter).filter((d) => d.length < 1024 && p.isAbsolute(d)).slice(0, 64);
   const paths = dirs.flatMap((d) => (platform === "win32" ? [`${name}.exe`, `${name}.cmd`, ...tool === "webstorm" ? ["webstorm64.exe"] : []] : [name]).map((n) => p.join(d, n)));
@@ -1970,11 +2700,11 @@ async function toolPresent(tool, environment, probe = (path) => executable(path,
     if (await probe(path)) return true;
   }
   if (tool === "vscode" && environment.platform === "darwin") {
-    for (const base of ["/Applications", posix3.join(environment.home, "Applications")]) {
+    for (const base of ["/Applications", posix5.join(environment.home, "Applications")]) {
       if (cancelled()) return false;
       let file;
       try {
-        file = await open2(posix3.join(base, "Visual Studio Code.app/Contents/Resources/app/product.json"), constants2.O_RDONLY | constants2.O_NOFOLLOW);
+        file = await open2(posix5.join(base, "Visual Studio Code.app/Contents/Resources/app/product.json"), constants2.O_RDONLY | constants2.O_NOFOLLOW);
         if (cancelled()) return false;
         const info = await file.stat();
         if (cancelled()) return false;
@@ -2004,7 +2734,7 @@ async function discoverAgentTools(input) {
           if (await toolPresent(tool, input, probe, () => expired)) detected.push(tool);
           if (expired) return { status: "unavailable", detected: [] };
         }
-        const extensions = await installedAgentExtensions(input.home, () => expired);
+        const extensions = await installedAgentExtensions(input.home, () => expired, { platform: input.platform, env: input.env });
         if (expired) return { status: "unavailable", detected: [] };
         const cli = detected.includes("codex");
         const claudeCli = detected.includes("claude");
@@ -2028,11 +2758,13 @@ async function discoverAgentTools(input) {
 export {
   agentConfigPath,
   agentSkillRoots,
+  canAdoptStandalone,
   claudeLocations,
   codexLocations,
   copilotConfigPath,
   discoverAgentTools,
   inspectCodexConfig,
+  inspectCopilotConfig,
   inspectVscodeConfig,
   manualEditorTools,
   planCodexMigration,

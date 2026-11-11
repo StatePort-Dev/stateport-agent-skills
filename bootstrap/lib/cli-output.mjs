@@ -109,7 +109,8 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
         const diagnostics = setup.diagnostics, issues = diagnostics?.issues ?? [];
         if (diagnostics?.configState === 'absent' && issues.some(i => i.code === 'DESKTOP_SKILLS_REMAIN')) line('The MCP entry is already removed; old skill files still block setup.');
         for (const issue of issues) {
-          if (issue.code === 'DESKTOP_SKILLS_REMAIN') line(`${issue.files} unchanged Desktop skill files remain (${version(issue.version)}).`);
+          if (issue.severity === 'info') line('INFO · This previous StatePort connection is recognized and can be updated automatically.');
+          else if (issue.code === 'DESKTOP_SKILLS_REMAIN') line(`${issue.files} unchanged Desktop skill files remain (${version(issue.version)}).`);
           else line(({ MULTIPLE_OWNED_SKILL_ROOTS: 'This runtime cannot combine Cursor with both Codex and Claude skill folders.', UNOWNED_OR_EDITED_SKILLS: 'Existing skill files are unowned or changed.', PREVIOUS_MCP_CONNECTION: 'The previous StatePort MCP connection still points to its old runtime.', MCP_ENTRY_CONFLICT: 'A different or edited StatePort MCP entry is still present.', MCP_DISABLED: 'StatePort was disabled in the agent settings.', LEGACY_MCP_ENTRY: 'A legacy scenariodeck MCP entry is still present.', MIGRATION_UPDATE_REQUIRED: 'This installed runtime predates automatic Codex migration. Update it before migrating.', CODEX_PLUGIN_ACTIVE: 'An enabled StatePort skills plugin belongs to the previous installation.', CODEX_PLUGIN_MANUAL: 'This StatePort plugin uses settings that cannot be migrated safely.', CODEX_PLUGIN_REGISTRY_UNKNOWN: 'A StatePort plugin registry exists without a known enabled/disabled setting.', CODEX_PLUGIN_UNKNOWN: 'The StatePort plugin configuration is custom; automatic migration is unavailable.', PLUGIN_INSTALL_PRESENT: 'A StatePort plugin installation is already present.', UNSAFE_SETUP_PATH: 'A linked or unsafe setup path cannot be used.', MCP_CONFIG_UNREADABLE: 'The MCP config cannot be read as a valid configuration.', OWNERSHIP_RECORD_UNREADABLE: 'The setup ownership record could not be read.' })[issue.code] ?? 'The setup path needs review.');
           line(`Path: ~/${terminalText(issue.path)}`);
           for (const folder of (issue.folders ?? []).slice(0, 12)) line(`  ~/${terminalText(folder)}`);
@@ -118,6 +119,7 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
         if (issues.some(i => i.code === 'MULTIPLE_OWNED_SKILL_ROOTS')) steps.push('To change unchanged owned connections, run npx stateport uninstall, then run npx stateport --choose-agents and select Codex + Cursor or Claude Code + Cursor. Cards are retained.');
         if (!issues.length && setup.configuration?.path) line(`Review: ${homePath(setup.configuration.path)}`);
         if (issues.some(i => ['DESKTOP_SKILLS_REMAIN', 'UNOWNED_OR_EDITED_SKILLS'].includes(i.code))) steps.push('Review the listed skill folders. Move only the old StatePort copies to a backup outside every agent skills folder.');
+        if(issues.some(i=>i.code==='MCP_CONFIG_UNREADABLE'))steps.push('Open the listed MCP file and correct its syntax; keep unrelated servers and settings. Empty files and comments-only VS Code files are supported.');
         if (!diagnostics?.migrationAvailable && !issues.some(i=>i.code==='MIGRATION_UPDATE_REQUIRED') && issues.some(i => ['MCP_ENTRY_CONFLICT', 'LEGACY_MCP_ENTRY'].includes(i.code))) steps.push(setup.agent==='codex'&&!issues.some(i=>i.code==='LEGACY_MCP_ENTRY')?'If you want to replace this custom connection, run codex mcp remove stateport. This removes only its old server entry.':'To switch, remove only the old StatePort MCP entry from the listed config; keep other servers.');
         if (issues.some(i => i.code === 'MCP_DISABLED')) steps.push('If you want StatePort enabled, review its disabled setting in your agent.');
         if (issues.some(i => i.code === 'PLUGIN_INSTALL_PRESENT')) steps.push('Manage the existing StatePort plugin in the agent before adding a standalone installation.');
@@ -213,12 +215,15 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
     check(value.browser?.status === 'found', 'Browser', value.browser?.status === 'found' ? `${browsers[value.browser.channel] ?? 'System browser'} · found` : 'not found');
     if (value.vault) check(['roundtrip_passed', 'available'].includes(value.vault.status), 'OS key store', terminalText(value.vault.status));
     const diagnostic = value.setupDiagnostics;
-    if (diagnostic?.issues?.length) {
+    const blockers=(diagnostic?.issues??[]).filter(i=>i.severity!=='info'),information=(diagnostic?.issues??[]).filter(i=>i.severity==='info');
+    if (blockers.length) {
       notice('BLOCKING', `${agents[diagnostic.agent] ?? 'Agent'} setup`, 'These existing paths prevent this agent from being configured.');
-      for (const issue of diagnostic.issues) { line(`${terminalText(issue.code)}: ~/${terminalText(issue.path)}`); for (const folder of (issue.folders ?? []).slice(0,12)) line(`  ~/${terminalText(folder)}`); }
-    } else if (diagnostic) notice('INFO', 'Read-only check', 'No known file conflicts were found. This does not confirm a live agent connection.');
+      for (const issue of blockers) { line(`${terminalText(issue.code)}: ~/${terminalText(issue.path)}`); for (const folder of (issue.folders ?? []).slice(0,12)) line(`  ~/${terminalText(folder)}`); }
+    }
+    if(information.length){notice('INFO','Recognized previous connection','The installer can update these StatePort settings automatically.');for(const issue of information)line(`Path: ~/${terminalText(issue.path)}`);}
+    if(diagnostic&&!blockers.length&&!information.length)notice('INFO', 'Read-only check', 'No known file conflicts were found. This does not confirm a live agent connection.');
     line(); line('For full diagnostics: npx stateport doctor --json');
-    next(['Resolve any listed blockers, then run npx stateport.', 'Open your coding agent and start a new chat once setup is configured.'], 'How to Start'); line();
+    next([information.length&&!blockers.length?`Run npx stateport install --agent ${diagnostic.agent}.`:'Resolve any listed blockers, then run npx stateport.', 'Open your coding agent and start a new chat once setup is configured.'], 'How to Start'); line();
   }
   const emit = (value, kind = value.status) => {
     if (json) { stream.write(JSON.stringify(value) + '\n'); return; }

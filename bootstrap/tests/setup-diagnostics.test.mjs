@@ -69,3 +69,9 @@ test('names the exact portable Copilot and custom-profile blocker without exposi
  assert(r.issues.some(i=>i.path==='.config/Code/User/profiles/qa/mcp.json'&&i.code==='MCP_ENTRY_CONFLICT'));
  assert(!JSON.stringify(r).includes('DO_NOT_EXPOSE'));
 }));
+test('empty Mac JSONC is not corruption and a recognized portable entry is not reported as edited',()=>fixture(async({home,cache})=>{
+ const {diagnoseSetupConflict}=await import('../lib/setup-diagnostics.mjs');const agentCache=join(home,'Library/Caches/StatePort/agent-runtime');
+ const bridge=join(home,'Library/Application Support/Code/User/mcp.json');await mkdir(join(bridge,'..'),{recursive:true});await writeFile(bridge,'\ufeff// empty VS Code MCP file\n');
+ const portable=join(home,'.copilot/mcp-config.json');await mkdir(join(portable,'..'),{recursive:true});await writeFile(portable,JSON.stringify({mcpServers:{stateport:{type:'local',command:'/usr/local/bin/node',args:[join(agentCache,'launcher/main.cjs'),'mcp'],tools:['*']},other:{env:{TOKEN:'DO_NOT_EXPOSE'}}}}));
+ const r=await diagnoseSetupConflict({home,cache:agentCache,agent:'vscode',platform:'darwin',env:{}});assert.equal(r.configState,'absent');assert(!r.issues.some(i=>i.code==='MCP_CONFIG_UNREADABLE'||i.code==='MCP_ENTRY_CONFLICT'));assert(r.issues.some(i=>i.code==='PREVIOUS_MCP_CONNECTION'&&i.severity==='info'));assert(!JSON.stringify(r).includes('DO_NOT_EXPOSE'));
+}));
