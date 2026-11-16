@@ -1,4 +1,4 @@
-import { manualEditorTools } from './agent-discovery.mjs';
+import { manualEditorTools, agentSetupProgress } from './agent-discovery.mjs';
 import { homedir } from 'node:os';
 
 const agents = { codex: 'Codex', claude: 'Claude Code', cursor: 'Cursor', vscode: 'VS Code / Copilot' };
@@ -93,7 +93,11 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
       if (batch) check(connected, agent, configured ? `skills ${version(result.version)} · ${connected ? 'MCP launch checked' : 'connection not confirmed'}` : `not configured · ${terminalText(result.reason ?? 'SETUP_UNAVAILABLE')}`);
       else {
         check(configured, 'Skills', configured ? `${version(result.version)} · ${result.unchanged ? 'up to date' : 'installed'}` : result.reason === 'CONFLICT' ? 'not updated · existing installation' : 'not configured');
-        check(connected, setup.agent ? `${agent} MCP` : 'Agent', connected ? 'configured · launch checked' : configured ? 'saved · connection not confirmed' : setup.agent ? 'not configured' : root.status === 'skipped' ? 'skipped by choice' : 'not selected');
+        check(connected, setup.agent ? `${agent} MCP` : 'Agent', connected ? 'configured · MCP launch checked' : configured ? 'saved · connection not confirmed' : setup.agent ? 'not configured' : root.status === 'skipped' ? 'skipped by choice' : 'not selected');
+      }
+      if (setup.agent) {
+        const detected = value.selection?.discovery === 'ready' ? value.selection.detected?.includes(setup.agent) : undefined;
+        for (const step of agentSetupProgress({detected,result:setup.result})) line(step);
       }
     }
     for (const setup of results) {
@@ -178,15 +182,16 @@ export function createCliOutput({ json = false, stream = process.stdout, env = p
       line('Connection guide:');
       command('https://github.com/StatePort-Dev/stateport-agent-skills/blob/main/AGENT_INSTALL.md');
     }
-    if (batch && ready.length) { heading('Ready now: ' + ready.map(item => agents[item.agent]).join(', ')); line('Launch checks passed; open the host to confirm tool discovery.'); }
+    if (batch && ready.length) { heading('Ready for agent check: ' + ready.map(item => agents[item.agent]).join(', ')); line('Launch checks passed; open the host to confirm tool discovery.'); }
     if(/^\d+\.\d+\.\d+$/.test(value.version??'')&&value.updates?.channel==='rc'){
       notice('INFO','Update channel','Your previous RC channel setting was kept. The installed stable runtime is usable.');
       steps.push('For stable updates, run npx stateport updates channel stable --confirm. Your update mode and any pin are retained.');
     }
     footer();
     if (ready.length) {
-      steps.push(ready.length === 1 ? `Open ${agents[ready[0].agent]} and start a new chat.` : 'Open any ready agent listed above and start a new chat.');
+      steps.push(ready.length === 1 ? `Open ${agents[ready[0].agent]} and start a new chat.` : 'Open any configured agent listed above and start a new chat.');
       if (ready.some(item => item.agent === 'vscode')) steps.push('VS Code: select Chat → Agent and approve StatePort if prompted. Sign in to Copilot if VS Code asks.');
+      steps.push('To confirm the connection, ask your agent to use StatePort to list your Cards. An empty list is fine.');
       steps.push('Give it your task, or try one of these messages:');
     }
     else steps.push('Once an agent is connected, open it and start a new chat.');

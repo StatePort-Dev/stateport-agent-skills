@@ -237,6 +237,15 @@ function manualEditorTools(discovery) {
 function selectionTools(discovery) {
   return [...discovery.detected];
 }
+function agentSetupProgress(input) {
+  const installed = input.result?.status === "installed";
+  const missing = input.result?.status === "failed" && input.result.reason === "HOST_MISSING";
+  return [
+    missing ? "Agent not found" : input.detected === true ? "Agent found" : input.detected === false ? "Agent not detected" : installed ? "Agent found" : "Agent detection unavailable",
+    installed ? "StatePort configured" : input.result?.status === "failed" ? "StatePort setup needs attention" : input.configurationFound ? "StatePort configuration found" : input.previouslyConfigured ? "Previously configured \xB7 check setup again" : "StatePort not configured by this setup",
+    "Connection not confirmed in your agent"
+  ];
+}
 
 // node_modules/.pnpm/smol-toml@1.7.1/node_modules/smol-toml/dist/date.js
 var DATE_TIME_RE = /^(\d{4}-\d{2}-\d{2})?[T ]?(?:(\d{2}):\d{2}(?::\d{2}(?:\.\d+)?)?)?(Z|[-+]\d{2}:\d{2})?$/i;
@@ -2657,10 +2666,38 @@ function canAdoptStandalone(agent, text, launch, platform, copilot = false) {
 }
 
 // packages/agent-install/src/agent-tool-discovery.ts
+function cliDirectories({ home, platform, env }) {
+  const p = platform === "win32" ? win325 : posix5;
+  const user = (...parts) => p.isAbsolute(home) ? [p.join(home, ...parts)] : [];
+  if (platform !== "win32") return [
+    ...user(".local", "bin"),
+    ...user("bin"),
+    ...user(".volta", "bin"),
+    ...user(".npm-global", "bin"),
+    ...user(".bun", "bin"),
+    "/usr/local/bin",
+    "/usr/bin",
+    ...platform === "darwin" ? ["/opt/homebrew/bin", "/opt/local/bin"] : []
+  ];
+  const under = (root, ...parts) => root && root.length < 1024 && p.isAbsolute(root) ? [p.join(root, ...parts)] : [];
+  return [
+    ...user(".local", "bin"),
+    ...user(".volta", "bin"),
+    ...user(".bun", "bin"),
+    ...user("scoop", "shims"),
+    ...under(env.APPDATA, "npm"),
+    ...under(env.LOCALAPPDATA, "Programs", "nodejs"),
+    ...under(env.LOCALAPPDATA, "Volta", "bin"),
+    ...under(env.LOCALAPPDATA, "pnpm"),
+    ...under(env.LOCALAPPDATA, "Microsoft", "WinGet", "Links")
+  ];
+}
 function toolCandidates(tool, { home, platform, env }) {
   const p = platform === "win32" ? win325 : posix5;
   const name = tool === "vscode" ? "code" : tool;
-  const dirs = (env.PATH ?? "").slice(0, 32768).split(p.delimiter).filter((d) => d.length < 1024 && p.isAbsolute(d)).slice(0, 64);
+  const pathValue = env.PATH ?? (platform === "win32" ? Object.entries(env).find(([key]) => key.toLowerCase() === "path")?.[1] : void 0) ?? "";
+  const dirs = pathValue.slice(0, 32768).split(p.delimiter).map((d) => platform === "win32" ? d.trim().replace(/^"(.*)"$/, "$1") : d).filter((d) => d.length < 1024 && p.isAbsolute(d)).slice(0, 64);
+  dirs.push(...cliDirectories({ home, platform, env }));
   const paths = dirs.flatMap((d) => (platform === "win32" ? [`${name}.exe`, `${name}.cmd`, ...tool === "webstorm" ? ["webstorm64.exe"] : []] : [name]).map((n) => p.join(d, n)));
   if (tool === "claude") paths.push(p.join(home, ".local", "bin", platform === "win32" ? "claude.exe" : "claude"));
   if (platform === "linux" && ["vscode", "cursor", "webstorm"].includes(tool)) paths.push(`/usr/bin/${name}`, `/snap/bin/${name}`);
@@ -2682,7 +2719,13 @@ function toolCandidates(tool, { home, platform, env }) {
       );
     }
   }
-  return [...new Set(paths)];
+  const seen = /* @__PURE__ */ new Set();
+  return paths.filter((path) => {
+    const key = platform === "win32" ? path.toLowerCase() : path;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 async function executable(path, platform) {
   try {
@@ -2757,6 +2800,7 @@ async function discoverAgentTools(input) {
 }
 export {
   agentConfigPath,
+  agentSetupProgress,
   agentSkillRoots,
   canAdoptStandalone,
   claudeLocations,

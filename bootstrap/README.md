@@ -222,3 +222,14 @@ journal retains receipt time, validated IP address when available and recognized
 installer User-Agent for 30 days. The client adds no identifier or timestamp.
 These counts describe received attempts and outcomes, not unique people or
 verified first use. See the [privacy policy](https://stateport.dev/privacy/).
+
+## Agent discovery in 1.2.2
+
+Installer/runtime 1.2.2 find standard native and user CLI installations even when
+the launch environment has an incomplete PATH, including macOS Homebrew and
+Windows npm/pnpm/WinGet/Scoop locations. Windows Path casing and quoted entries
+are supported. Discovery does not execute shell profiles or agent launchers.
+Setup reports agent presence, StatePort configuration and the unconfirmed host
+connection separately. Start a fresh chat and ask the agent to use StatePort to
+list Cards to confirm actual use; an empty list is valid. Repeat explicit setup
+to rerun discovery. Stable skills 1.0.0 and provider qualification are unchanged.

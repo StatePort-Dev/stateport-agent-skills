@@ -171,3 +171,14 @@ Existing RC policy is preserved and can be changed explicitly with
 The installer can explain the Node 24 prerequisite when started on Node 20–23.
 The engine itself remains Node 22.13+ or 24.x; no private Node or Chromium is bundled by
 default. Package releases, engine releases and skills versions are independent.
+
+## Agent discovery in 1.2.2
+
+Installer/runtime 1.2.2 find standard native and user CLI installations even when
+the launch environment has an incomplete PATH, including macOS Homebrew and
+Windows npm/pnpm/WinGet/Scoop locations. Windows Path casing and quoted entries
+are supported. Discovery does not execute shell profiles or agent launchers.
+Setup reports agent presence, StatePort configuration and the unconfirmed host
+connection separately. Start a fresh chat and ask the agent to use StatePort to
+list Cards to confirm actual use; an empty list is valid. Repeat explicit setup
+to rerun discovery. Stable skills 1.0.0 and provider qualification are unchanged.

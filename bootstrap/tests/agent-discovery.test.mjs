@@ -6,3 +6,7 @@ test('generated discovery uses only bounded executable paths without launching h
  const paths=toolCandidates('cursor',{home:'C:\\Users\\u',platform:'win32',env:{PATH:'C:\\bin;relative',LOCALAPPDATA:'C:\\Users\\u\\AppData\\Local'}});assert(paths.includes('C:\\Users\\u\\AppData\\Local\\Programs\\cursor\\Cursor.exe'));assert(!paths.some(p=>p.includes('relative')));
  assert.equal((await discoverAgentTools({home:'/synthetic/u',platform:'linux',env:{},probe:async()=>{throw Error('DO_NOT_EXPOSE')}})).status,'unavailable');
 });
+test('generated discovery recovers native user installs without PATH and respects Windows Path casing',async()=>{
+ assert((await discoverAgentTools({home:'/synthetic/u',platform:'linux',env:{},probe:async path=>path==='/synthetic/u/.local/bin/codex'})).detected.includes('codex'));
+ assert(toolCandidates('codex',{home:'C:\\Users\\u',platform:'win32',env:{Path:'"C:\\Tools"'}}).includes('C:\\Tools\\codex.exe'));
+});

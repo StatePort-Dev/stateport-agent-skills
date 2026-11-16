@@ -224,3 +224,14 @@ The local beta.36 skills can use the optional `contextBroker` descriptor in Linu
 StatePort beta.39 when advertised. It runs before the first broad source read,
 uses host-authorized local reads and falls back to focused reads. No Capture is
 needed for source context. This integration does not establish stable cost savings.
+
+## Agent discovery in 1.2.2
+
+Installer/runtime 1.2.2 find standard native and user CLI installations even when
+the launch environment has an incomplete PATH, including macOS Homebrew and
+Windows npm/pnpm/WinGet/Scoop locations. Windows Path casing and quoted entries
+are supported. Discovery does not execute shell profiles or agent launchers.
+Setup reports agent presence, StatePort configuration and the unconfirmed host
+connection separately. Start a fresh chat and ask the agent to use StatePort to
+list Cards to confirm actual use; an empty list is valid. Repeat explicit setup
+to rerun discovery. Stable skills 1.0.0 and provider qualification are unchanged.

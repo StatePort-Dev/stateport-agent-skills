@@ -33,6 +33,11 @@ async function scenario(setup, run) {
   });
 }
 const success = { status: 'installed', agent: 'cursor', result: { status: 'installed', version: '0.1.0-beta.82', mcp: 'ready', unchanged: false }, configuration: { scope: 'user', path: '/synthetic/home/.cursor/mcp.json', serverName: 'stateport' } };
+test('installation separates detection, configuration and host connection even after a passed local launch',()=>{
+ const text=rendered({status:'candidate_installed',version:'1.2.1',selection:{discovery:'ready',detected:['cursor']},doctor:{browser:{status:'found',channel:'chrome'}},setup:success});
+ for(const phrase of ['Agent found','StatePort configured','Connection not confirmed in your agent','MCP launch checked'])assert(text.includes(phrase),phrase);
+ assert.match(text,/ask.*StatePort.*list.*Cards/is);
+});
 test('manual selection flag fails clearly without a terminal before agent setup',()=>scenario(success,async({invoke,install})=>{
  const args=install.filter((_,i)=>i!==1&&i!==2);
  const reply=await invoke([...args,'--choose-agents','--json']);assert.equal(reply.code,1,reply.stdout);
@@ -171,7 +176,7 @@ test('How to Start offers ordinary work, capability discovery and a reusable bro
 test('multiple selected agents retain separate outcomes and actionable ready versus blocked guidance',()=>{
  const results=[{...success,agent:'codex'},{...success,agent:'claude',status:'failed',result:{status:'failed',reason:'CONFLICT'}}];
  const text=rendered({status:'candidate_installed',version:'1.0.0-rc.5',doctor:{browser:{status:'found',channel:'chrome'}},setup:{schemaVersion:'agent-setup-batch/1',status:'partial',results}});
- assert.match(text,/Codex.*MCP launch checked/);assert.match(text,/Claude Code.*not configured/);assert.match(text,/BLOCKING.*Claude Code/);assert.match(text,/Ready now: Codex/);assert.match(text,/How to Start/);
+ assert.match(text,/Codex.*MCP launch checked/);assert.match(text,/Claude Code.*not configured/);assert.match(text,/BLOCKING.*Claude Code/);assert.match(text,/Ready for agent check: Codex/);assert.match(text,/How to Start/);
 });
 test('recognized Codex conflict offers one migration command and explains its effect',()=>{
  const text=rendered({status:'candidate_installed',version:'1.0.0-rc.10',doctor:{browser:{status:'found',channel:'chrome'}},setup:{agent:'codex',status:'failed',result:{reason:'CONFLICT'},diagnostics:{configState:'present',migrationAvailable:true,issues:[{code:'CODEX_PLUGIN_ACTIVE',path:'.codex/config.toml'}]}}});
