@@ -15,8 +15,8 @@
     },
     {
       "name": "open",
-      "usage": "open <state-card-id> [--frontend <loopback-origin>]",
-      "purpose": "Forward to Node human Open by current Card ID, not a capsule path; Developer access applies.",
+      "usage": "open <state-card-id> [--revision <number>] [--frontend <loopback-origin>]",
+      "purpose": "Open a saved Card in the foreground; an optional revision must match and Developer access applies.",
       "integration": false
     },
     {

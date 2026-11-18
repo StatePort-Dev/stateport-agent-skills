@@ -4,6 +4,12 @@ The installer configures every detected supported agent. Use `--choose-agents`
 for the optional picker. Installer, runtime and skills have independent versions;
 the signed runtime defines the exact delivered skills snapshot.
 
+## Save and Verify in 1.2.3
+
+Save can return an Open command for the exact saved Card revision. Verify
+also supplies the local frontend used for its check. Run the returned command
+on the same machine with Developer access. This runtime delivers skills 1.0.1.
+
 ## Agent setup recovery in 1.1.0
 
 Run `npx --yes stateport@latest`. Setup configures all detected supported
