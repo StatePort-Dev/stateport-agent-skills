@@ -5,31 +5,22 @@ only when the connected runtime lists `begin_source_review` and
 `prepare_source_observations`; older runtimes retain their existing workflow.
 No Capture/run/Developer permission or discovery round is needed.
 
-Before authorized edits, begin with the original request and up to 16 selected
-existing source files, after any `begin_agent_task` initialization. The runtime
-snapshots the current files, including dirty work, in connection memory. It does
-not read Git history or invent a clean baseline. New files, ignored/unsafe files
-and unsupported platforms may be unavailable. Do not retry or broaden the file
-scope for the sake of an observation. Begin replaces the preceding source review.
+When likely material decisions justify the review, start it on up to 16 existing
+source files before editing and after any browser task initialization. Use
+the original request. The current contents, including dirty work, form the
+baseline. Follow the response's admitted relative paths. If it groups refused
+input indexes, continue with eligible files and use focused reads for the rest.
+Correct a known cause before another review. Unavailable or disabled reviews
+can be skipped.
 
-Before the first final answer, review what changed relative to the user's request.
-Supply 0–5 material choices with `choice` and concrete `consequence`, at most
-15 words each, in the conversation language. Examples of material choices are
-copy versus reset behavior, persistence/default policy or an important fallback.
-Do not list mechanical steps, rephrase the requested feature, invent motives,
-or reconstruct private reasoning. Mark `requested` and `alreadyReported`
-truthfully; these choices are omitted. Each declaration needs an exact current
-changed source block (1–12 lines), relative path and starting line in the
-selected file. Do not send credentials, arbitrary logs or unrelated source.
-No choices means call with an empty array, not manufacture advice.
-
-If the runtime returns `status: review_required`, inspect its syntax-only source
-candidates against the request. Newly introduced object copies can silently retain
-business flags even without a new explicit assignment. Decide whether preserving
-or resetting those fields is material, then call again with
-`reviewedCandidates: true` and grounded declarations or an empty array. Do not
-report the candidate itself as a finding, invent a consequence, or show the
-internal review prompt in chat. This bounded signal is not universal detection.
+Before the final answer, report material choices with a concrete consequence
+and an exact changed block from the admitted baseline. Send up to five choices
+with up to 15 words each for choice and consequence, a relative path,
+starting line, and 1–12 exact lines. Mark `requested` and `alreadyReported`
+truthfully. Examples include copy or reset behavior, persistence defaults, and
+important fallbacks. Omit the call when there are no material choices.
+An older runtime's syntax-only candidate is a prompt for the agent. Follow up
+only when it exposes a consequential choice grounded in changed lines.
 
 The runtime verifies that the exact source anchor changed since this review's
 baseline. It does NOT independently establish the interpretation, task intent,

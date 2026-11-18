@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1
+
+- Surface the concrete StatePort contribution alongside the first useful result and on later tasks.
+- Include the Open action returned by Save or Verify. Recover via the permitted MCP Capture route when the executable helper is unavailable.
+- Report material agent choices with changed-source anchors and respect the existing quiet and opt-out behavior.
+- Provider and editor source copies are synchronized. Native Marketplace distribution and editor-panel acceptance are separate.
+
 ## Installer/runtime 1.2.1 — 11 November 2026
 
 - Initialize empty/comments-only VS Code MCP files and preserve a UTF-8 BOM and comments.
@@ -69,7 +76,7 @@
 
 ## Unreleased
 
-Current integration source: <!-- integration-version:start -->`1.0.0`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
+Current integration source: <!-- integration-version:start -->`1.0.1`<!-- integration-version:end -->. Tagged source prereleases do not establish supported end-user workflows.
 
 ## 0.1.0-beta.84
 

@@ -10,7 +10,7 @@ is [StatePort-Dev](https://github.com/StatePort-Dev).
 StatePort LocalRuntime owns Cards, Capture, replay, permissions and credentials.
 This repository contains none of those data or runtime components.
 
-> **Stable skills.** The integration version is <!-- integration-version:start -->`1.0.0`<!-- integration-version:end -->.
+> **Stable skills.** The integration version is <!-- integration-version:start -->`1.0.1`<!-- integration-version:end -->.
 > Version 1.0.0 promotes the reviewed beta.84 instructions without changing their
 > workflows or MCP contract. Package stability does not qualify every provider;
 > host/model evidence remains version-bound. The immutable source release is

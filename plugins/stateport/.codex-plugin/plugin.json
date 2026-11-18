@@ -1,6 +1,6 @@
 {
   "name": "stateport",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Capture, debug, replay, experiment with and transfer StatePort State Cards.",
   "author": {
     "name": "StatePort-Dev"

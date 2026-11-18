@@ -45,7 +45,9 @@ when the user asked to reproduce that symptom. An inconclusive attempt may be
 saved if the user wants it retained, with its actual status clearly described.
 
 Return the saved Card/revision and a concise account of the state and steps
-captured, plus any gaps. For a failed attempt, use supported recovery or discard
+captured, plus any gaps. Include the returned `completion.markdown` once.
+If an older runtime omits it, request the advertised `get_completion_links`
+once for this exact Card and revision while task authority is active. For a failed attempt, use supported recovery or discard
 as appropriate and explain the actionable blocker. Continue into debugging,
 Journey or transfer only when the user's task calls for it; the corresponding
 procedures are included in this skill's references.

@@ -10,8 +10,9 @@ work the task needs:
   If the exact file/range is already known, read it directly.
 - **Live:** choose the owned browser for a needed page scenario that would otherwise
   require a standalone browser launcher. Reuse compatible page actions and checks.
-- **Capture:** follow the runtime's automatic policy for the first useful browser
-  bug reproduction; reuse a supplied Card rather than creating another.
+- **Capture and Save:** use the runtime's effective Capture permission and the
+  authorized task scope when durable state is needed. Reuse a supplied Card.
+- **Recording:** request video only when separately authorized by the user.
 
 Simple changes with no browser-state requirement keep sufficient project checks.
 A broken build or test runner alone does not justify a browser scenario. Source
@@ -22,10 +23,10 @@ For live/Capture or a legacy source helper, call `get_workflow_capability` once
 with `responseMode: "text"` or reuse its result. This returns one JSON representation
 without opening a task; if an older server rejects this option, retry once without it.
 Use `get_capture_capability` only as a fallback when the neutral tool is absent.
-When workflowPolicy is present, follow its effective Capture policy: for a
-supported browser bug and capture.automatic=true, save the first sufficient
-reproduction before edits even if setup looks quick. Reuse a suitable existing
-Card with its own run access. Simple/no-state changes skip Capture. If automatic
+When a browser bug needs a durable reproduction and capture.automatic=true,
+save the first sufficient one before edits. Reuse a suitable existing Card
+with its own run access. Project checks or live observation may already cover
+the work. If automatic
 Capture is off, do not impose it; explicit user requests still use the permitted
 Capture path. Permission or capability denial wins over preferences. If task type
 is unclear, use existing context instead of extra discovery to classify it.
@@ -48,6 +49,13 @@ Each descriptor has its own availability and access requirements:
   and suitable. Otherwise use the [MCP procedure](fix-verify.md). A suitable supplied
   Card is reused; do not recapture it. Saving alone does not establish the bug.
 
+If the executable helper reports `INSTALLED_HELPER_UNAVAILABLE` and MCP Capture
+is available, use the [MCP procedure](fix-verify.md) when the task needs a saved
+reproduction and the original request and host approvals permit it. Initialize
+the bounded task once, then Capture, Review and Save. Developer access governs
+Open and Verify separately. If the host denies Capture or the user requested
+source or live checks only, keep the independent checks and report the gap.
+
 Preserve the original task criteria, entry/mode transitions and required project
 checks. Do not replace reported navigation steps with guessed deep links; identical
 visible pages may have different application state. Verify the actual
@@ -62,6 +70,19 @@ expand only missing ranges or changed code. Do not add duplicate proof for a
 StatePort receipt or undo a working fix to reconstruct missing original evidence.
 Read `continuation` first and expand only a named missing fact. Stop when the requested
 work and required checks are complete.
+
+After Save, use its continuation action if advertised. Inspect remains free.
+Opening needs Developer access and task scope for the saved Card and target.
+A saved revision can be selected for the next task when the runtime advertises
+`expectedRevision`. Save alone leaves verification open.
+
+For a pending owned Page, resume the same session on the original connection.
+After disconnect, use the advertised exact-attempt recovery action. If it
+returns retained evidence, read the named run's criteria. Preserve `UNKNOWN`
+when evidence is unavailable. A fresh check requires authorization and the same
+Card revision. Avoid repeating an uncertain action or capturing again merely
+to replace a lost reply.
+
 
 Invoke advertised helpers through the normal host command tool with existing
 workspace authorization. Unavailable or unhelpful assistance falls back to focused

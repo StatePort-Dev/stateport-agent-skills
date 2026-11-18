@@ -151,7 +151,13 @@ case/run identities in evidence. Report meaningful outcomes, visual assessment,
 observed build scope, tests and material gaps; raw IDs need an explicit detailed
 report request. Before ending the
 task, apply [optional additional help](additional-help.md) only when its capability
-and semantic admission are satisfied; then end_agent_task.
+and semantic admission are satisfied. Retain the latest `completion.markdown`
+returned with Save or Verify for the exact Card/revision and include it once
+in the final answer. If an older runtime omits it, call the advertised
+`get_completion_links` once for the exact task Card/revision before
+`end_agent_task`. An empty block means no Open link is available. Open
+availability does not establish a verification verdict. Then call
+`end_agent_task`.
 No extra comparison/browser/receipt/test is required. Missing a required field or
 criterion? Name it and read/test only its resolution. No automatic Check Changes/
 Harden. Load details only for intermediate states, compatibility, privacy, target
