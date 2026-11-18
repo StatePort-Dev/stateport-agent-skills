@@ -15,7 +15,7 @@ integrity and cryptographic public-source provenance were verified independently
 ## Current publication and source boundary
 
 Canonical setup: https://docs.stateport.dev/getting-started/install/ . Installer, engine and skills have independent versions. The stable skills source
-is 1.0.0; each signed runtime defines its exact bundled snapshot. Three-OS native
+is 1.0.1; each signed runtime defines its exact bundled snapshot. Three-OS native
 machine controls are separate from real model/human acceptance; Windows chat is
 owner-reported on its contextual baseline and macOS manual/model is unverified,
 tracked and non-blocking. Retained provider receipts keep their original versions.
