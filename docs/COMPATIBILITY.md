@@ -1,5 +1,20 @@
 # Compatibility and evidence
 
+## Published Node setup and upgrade
+
+See [Install and connect](https://docs.stateport.dev/getting-started/install/)
+for supported Node versions and [Runtime 1.2.3](https://github.com/StatePort-Dev/stateport-releases/releases/tag/v1.2.3-agent.1)
+for the update command.
+
+In the November 18, 2026 release smoke test, a fresh public npm installation
+succeeded on Node 22.22.3. In an isolated profile, updating the runtime from
+1.2.2 to 1.2.3 via public npm installed skills 1.0.1 and preserved the saved Card
+and workflow byte-for-byte. After MCP restarted, it read the same Card. This
+verifies installation and local data continuity for the tested path, not
+provider plugin updates or installed VS Code and Cursor panel workflows.
+
+## Provider integration evidence
+
 The [Node Agent Runtime candidate](AGENT_RUNTIME_CANDIDATE.md) has independent
 CLI-first current-chat, next-session MCP, Node/browser/OS-vault and three-native-OS
 gates. Source preparation does not upgrade any provider status. The bootstrap
@@ -11,8 +26,8 @@ Its `update` object independently records `method`, documented `automatic`
 behavior and StatePort-specific `evidenceStatus`. The method taxonomy is
 `native-auto`, `native-manual`, `manual-copy`, `source-install`, or `unverified`.
 The [version/update policy](VERSIONING_AND_UPDATES.md) records each host's
-current install, update and removal path. None has a verified old-to-new
-StatePort update transition yet.
+current install, update and removal path. No provider-specific plugin or adapter
+update in this inventory has a verified old-to-new transition.
 Codex CLI, Claude Code, Copilot CLI, the VSIX in VS Code/Cursor, and the
 JetBrains ZIP source for IntelliJ IDEA/WebStorm are `unverified` after limited
 package, install, or binary checks. The remaining entries are `scaffold`.
@@ -54,8 +69,8 @@ evidence. Full A/B/C and macOS acceptance remain unverified.
 
 The [update-policy source candidate](VERSIONING_AND_UPDATES.md#node-runtime-update-policy-candidate)
 has bounded native Linux compiled-runtime/MCP A→B and same-Card cold reuse with
-synthetic signing keys. This does not establish a published update path, native
-Windows/macOS behavior or real model update acceptance. Provider automatic-update
+synthetic signing keys. That prerelease test did not cover the published npm
+update path, native Windows/macOS behavior or real model update acceptance. Provider automatic-update
 statuses remain unverified; historical evidence retains its exact versions.
 
 ## Bounded Ubuntu Node workflows — 4 November
